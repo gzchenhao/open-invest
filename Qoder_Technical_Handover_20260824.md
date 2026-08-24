@@ -500,7 +500,7 @@ Added: 11× `__init__.py`, `tests/integration/conftest.py`.
 
 ### Git Evidence
 
-- **Commit Hash**: `__P0_1_COMMIT__` (this commit; self-reference to be recorded in a follow-up evidence commit)
+- **Commit Hash**: `f449f578f6665cf7420847fadc0a9cb4599ad09a` (this commit; recorded via follow-up evidence commit)
 - **Commit Message**: `fix: align repository reality and repair test gate`
 - **Push**: `origin/master` — result recorded in follow-up evidence commit
 
