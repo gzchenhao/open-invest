@@ -58,11 +58,14 @@ def load_policies():
                     "issue_date": detailed_policy.get("issue_date", "2024-01-01"),
                     "valid_period": detailed_policy.get("valid_period", "长期有效"),
                     "source_url": detailed_policy.get("policy_document_url", "#"),
+                    "is_mock": True,  # TASK-P0-2: 演示数据显式标记
+                    "verification_status": "mock",
                     "official_contact": detailed_policy.get("contact_information", {
                         "department": "相关部门",
-                        "phone": "联系电话", 
-                        "email": "联系邮箱",
-                        "address": "联系地址"
+                        "phone": None,
+                        "email": None,
+                        "address": None,
+                        "contact_status": "unverified"
                     }),
                     "claim_status": "unclaimed",
                     "claim_token": None,
@@ -80,9 +83,12 @@ def load_policies():
         print(f"ERROR: 加载详细政策数据失败: {e}")
     
     # 如果加载失败，使用简化的测试数据
+    # TASK-P0-2: 以下为 MOCK 演示数据。原 source_url 与联系方式均为虚构，已按 DATA-INTEGRITY 规则置 null。
     return [
         {
             "id": 1,
+            "is_mock": True,
+            "verification_status": "mock",
             "title": "北京中关村人工智能产业扶持政策",
             "region": "北京中关村",
             "industry": "人工智能",
@@ -90,12 +96,13 @@ def load_policies():
             "amount": "最高500万",
             "issue_date": "2024-03-15",
             "valid_period": "2024-03-15至2026-12-31",
-            "source_url": "http://www.zjpark.gov.cn/policies/2024/ai-policy.pdf",
+            "source_url": None,  # TASK-P0-2: 原 URL 为虚构，未经官方核验不保留（DATA-INTEGRITY-002）
             "official_contact": {
                 "department": "中关村科学城管理委员会产业发展处",
-                "phone": "010-82896688",
-                "email": "policy@zjpark.gov.cn",
-                "address": "北京市海淀区中关村南大街5号"
+                "phone": None,  # TASK-P0-2: 虚构电话置 null（宁可没有，不要错误）
+                "email": None,
+                "address": None,
+                "contact_status": "unverified"
             },
             "claim_status": "unclaimed",
             "claim_token": None,
@@ -116,6 +123,8 @@ def load_policies():
         },
         {
             "id": 2,
+            "is_mock": True,
+            "verification_status": "mock",
             "title": "上海张江半导体产业扶持政策", 
             "region": "上海张江",
             "industry": "半导体",
@@ -123,12 +132,13 @@ def load_policies():
             "amount": "最高2000万",
             "issue_date": "2024-02-20",
             "valid_period": "2024-02-20至2026-12-31",
-            "source_url": "http://www.zjpark.gov.cn/policies/2024/ic-policy.pdf",
+            "source_url": None,  # TASK-P0-2: 原 URL 为虚构，未经官方核验不保留
             "official_contact": {
                 "department": "张江科学城管理委员会产业发展处",
-                "phone": "021-50801234",
-                "email": "policy@zjpark.gov.cn",
-                "address": "上海市浦东新区张江高科技园区"
+                "phone": None,  # TASK-P0-2: 虚构电话置 null
+                "email": None,
+                "address": None,
+                "contact_status": "unverified"
             },
             "claim_status": "unclaimed",
             "claim_token": None,

@@ -1,6 +1,10 @@
 """
 Mock Policy Database
 提供示例政策数据，用于演示政策清洗和结构化功能
+
+⚠️ TASK-P0-2 DATA-INTEGRITY 声明：
+本文件全部内容为 MOCK 演示数据（verification_status="mock"），禁止标记为 VERIFIED。
+其中的电话/邮箱/地址/联系人名均为虚构占位值，不代表任何真实政府机构联系方式。
 """
 
 import json

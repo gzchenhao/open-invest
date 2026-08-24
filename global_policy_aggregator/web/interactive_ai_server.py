@@ -16,10 +16,13 @@ from datetime import datetime
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-# 模拟政策数据（增强版 - 包含完整信息）
+# 演示政策数据（MOCK）：is_mock=True 显式标记；联系方式/来源均未经官方核验。
+# 依据 TASK-P0-2 DATA-INTEGRITY 规则：宁可 null，不要猜。
 policies = [
     {
         "id": 1,
+        "is_mock": True,  # TASK-P0-2: 演示数据显式标记（非真实政府政策）
+        "verification_status": "mock",
         "title": "北京中关村人工智能产业扶持政策",
         "region": "北京中关村",
         "industry": "AI",
@@ -30,9 +33,10 @@ policies = [
         "source_url": "/api/policy/1/pdf",  # 源文件下载
         "official_contact": {  # 官方联系方式（非中介）
             "department": "中关村科学城管理委员会产业发展处",
-            "phone": "010-82896688",
-            "email": "policy@zjpark.gov.cn",
-            "address": "北京市海淀区中关村南大街5号"
+            "phone": None,  # TASK-P0-2: 未经官方来源核验的电话一律置 null
+            "email": None,  # TASK-P0-2: 未经官方来源核验的邮箱一律置 null
+            "address": None,  # TASK-P0-2: 未经官方来源核验的地址一律置 null
+            "contact_status": "unverified"  # 联系方式未核验（DATA-INTEGRITY-003）
         },
         "claim_status": "unclaimed",  # 认领状态: unclaimed/claimed
         "claim_token": None,  # 认领令牌（用于政策所有者认领）
@@ -53,6 +57,8 @@ policies = [
     },
     {
         "id": 2,
+        "is_mock": True,  # TASK-P0-2: 演示数据显式标记（非真实政府政策）
+        "verification_status": "mock",
         "title": "上海张江半导体产业扶持政策",
         "region": "上海张江",
         "industry": "半导体",
@@ -63,9 +69,10 @@ policies = [
         "source_url": "/api/policy/2/pdf",
         "official_contact": {
             "department": "上海张江高科技园区管理委员会产业发展处",
-            "phone": "021-50800880",
-            "email": "policy@zhangjiang.gov.cn",
-            "address": "上海市浦东新区张江路1号"
+            "phone": None,  # TASK-P0-2: 未经官方来源核验的电话一律置 null
+            "email": None,  # TASK-P0-2: 未经官方来源核验的邮箱一律置 null
+            "address": None,  # TASK-P0-2: 未经官方来源核验的地址一律置 null
+            "contact_status": "unverified"  # 联系方式未核验（DATA-INTEGRITY-003）
         },
         "claim_status": "unclaimed",
         "claim_token": None,
@@ -86,6 +93,8 @@ policies = [
     },
     {
         "id": 3,
+        "is_mock": True,  # TASK-P0-2: 演示数据显式标记（非真实政府政策）
+        "verification_status": "mock",
         "title": "深圳高新区自动驾驶扶持政策",
         "region": "深圳高新区",
         "industry": "自动驾驶",
@@ -96,9 +105,10 @@ policies = [
         "source_url": "/api/policy/3/pdf",
         "official_contact": {
             "department": "深圳高新区管理委员会科技创新处",
-            "phone": "0755-26000888",
-            "email": "tech@szhtp.gov.cn",
-            "address": "深圳市南山区高新南七道1号"
+            "phone": None,  # TASK-P0-2: 未经官方来源核验的电话一律置 null
+            "email": None,  # TASK-P0-2: 未经官方来源核验的邮箱一律置 null
+            "address": None,  # TASK-P0-2: 未经官方来源核验的地址一律置 null
+            "contact_status": "unverified"  # 联系方式未核验（DATA-INTEGRITY-003）
         },
         "claim_status": "unclaimed",
         "claim_token": None,
@@ -119,6 +129,8 @@ policies = [
     },
     {
         "id": 4,
+        "is_mock": True,  # TASK-P0-2: 演示数据显式标记（非真实政府政策）
+        "verification_status": "mock",
         "title": "合肥高新区量子计算产业扶持政策",
         "region": "合肥高新区",
         "industry": "量子计算",
@@ -129,9 +141,10 @@ policies = [
         "source_url": "/api/policy/4/pdf",
         "official_contact": {
             "department": "合肥高新区量子计算产业发展办公室",
-            "phone": "0551-65391880",
-            "email": "quantum@hefeihtp.gov.cn",
-            "address": "合肥市高新区望江西路800号"
+            "phone": None,  # TASK-P0-2: 未经官方来源核验的电话一律置 null
+            "email": None,  # TASK-P0-2: 未经官方来源核验的邮箱一律置 null
+            "address": None,  # TASK-P0-2: 未经官方来源核验的地址一律置 null
+            "contact_status": "unverified"  # 联系方式未核验（DATA-INTEGRITY-003）
         },
         "claim_status": "unclaimed",
         "claim_token": None,
@@ -152,6 +165,8 @@ policies = [
     },
     {
         "id": 5,
+        "is_mock": True,  # TASK-P0-2: 演示数据显式标记（非真实政府政策）
+        "verification_status": "mock",
         "title": "杭州滨江区块链产业扶持政策",
         "region": "杭州滨江区",
         "industry": "区块链",
@@ -162,9 +177,10 @@ policies = [
         "source_url": "/api/policy/5/pdf",
         "official_contact": {
             "department": "杭州滨江高新区管理委员会创新发展处",
-            "phone": "0571-85178888",
-            "email": "blockchain@binjiang.gov.cn",
-            "address": "杭州市滨江区江南大道1号"
+            "phone": None,  # TASK-P0-2: 未经官方来源核验的电话一律置 null
+            "email": None,  # TASK-P0-2: 未经官方来源核验的邮箱一律置 null
+            "address": None,  # TASK-P0-2: 未经官方来源核验的地址一律置 null
+            "contact_status": "unverified"  # 联系方式未核验（DATA-INTEGRITY-003）
         },
         "claim_status": "unclaimed",
         "claim_token": None,
@@ -185,6 +201,8 @@ policies = [
     },
     {
         "id": 6,
+        "is_mock": True,  # TASK-P0-2: 演示数据显式标记（非真实政府政策）
+        "verification_status": "mock",
         "title": "成都高新区生物医药扶持政策",
         "region": "成都高新区",
         "industry": "生物科技",
@@ -195,9 +213,10 @@ policies = [
         "source_url": "/api/policy/6/pdf",
         "official_contact": {
             "department": "成都高新区生物医药产业发展推进办公室",
-            "phone": "028-85336888",
-            "email": "biotech@cdhtp.gov.cn",
-            "address": "成都市高新区天府大道南段888号"
+            "phone": None,  # TASK-P0-2: 未经官方来源核验的电话一律置 null
+            "email": None,  # TASK-P0-2: 未经官方来源核验的邮箱一律置 null
+            "address": None,  # TASK-P0-2: 未经官方来源核验的地址一律置 null
+            "contact_status": "unverified"  # 联系方式未核验（DATA-INTEGRITY-003）
         },
         "claim_status": "unclaimed",
         "claim_token": None,
@@ -218,6 +237,8 @@ policies = [
     },
     {
         "id": 7,
+        "is_mock": True,  # TASK-P0-2: 演示数据显式标记（非真实政府政策）
+        "verification_status": "mock",
         "title": "武汉东湖高端装备扶持政策",
         "region": "武汉东湖高新区",
         "industry": "高端装备",
@@ -228,9 +249,10 @@ policies = [
         "source_url": "/api/policy/7/pdf",
         "official_contact": {
             "department": "武汉东湖高新区装备制造产业推进处",
-            "phone": "027-67880888",
-            "email": "equipment@whdonghu.gov.cn",
-            "address": "武汉市东湖高新区高新大道777号"
+            "phone": None,  # TASK-P0-2: 未经官方来源核验的电话一律置 null
+            "email": None,  # TASK-P0-2: 未经官方来源核验的邮箱一律置 null
+            "address": None,  # TASK-P0-2: 未经官方来源核验的地址一律置 null
+            "contact_status": "unverified"  # 联系方式未核验（DATA-INTEGRITY-003）
         },
         "claim_status": "unclaimed",
         "claim_token": None,
@@ -251,6 +273,8 @@ policies = [
     },
     {
         "id": 8,
+        "is_mock": True,  # TASK-P0-2: 演示数据显式标记（非真实政府政策）
+        "verification_status": "mock",
         "title": "西安高新区航空航天扶持政策",
         "region": "西安高新区",
         "industry": "航空航天",
@@ -261,9 +285,10 @@ policies = [
         "source_url": "/api/policy/8/pdf",
         "official_contact": {
             "department": "西安高新区航空航天产业发展办公室",
-            "phone": "029-81108888",
-            "email": "aerospace@xaxdz.gov.cn",
-            "address": "西安市高新区锦业路1号"
+            "phone": None,  # TASK-P0-2: 未经官方来源核验的电话一律置 null
+            "email": None,  # TASK-P0-2: 未经官方来源核验的邮箱一律置 null
+            "address": None,  # TASK-P0-2: 未经官方来源核验的地址一律置 null
+            "contact_status": "unverified"  # 联系方式未核验（DATA-INTEGRITY-003）
         },
         "claim_status": "unclaimed",
         "claim_token": None,
@@ -284,6 +309,8 @@ policies = [
     },
     {
         "id": 9,
+        "is_mock": True,  # TASK-P0-2: 演示数据显式标记（非真实政府政策）
+        "verification_status": "mock",
         "title": "南京江北新区新材料扶持政策",
         "region": "南京江北新区",
         "industry": "新材料",
@@ -294,9 +321,10 @@ policies = [
         "source_url": "/api/policy/9/pdf",
         "official_contact": {
             "department": "南京江北新区新材料产业发展中心",
-            "phone": "025-58886888",
-            "email": "material@njjiangbei.gov.cn",
-            "address": "南京市江北新区浦口大道1号"
+            "phone": None,  # TASK-P0-2: 未经官方来源核验的电话一律置 null
+            "email": None,  # TASK-P0-2: 未经官方来源核验的邮箱一律置 null
+            "address": None,  # TASK-P0-2: 未经官方来源核验的地址一律置 null
+            "contact_status": "unverified"  # 联系方式未核验（DATA-INTEGRITY-003）
         },
         "claim_status": "unclaimed",
         "claim_token": None,
@@ -317,6 +345,8 @@ policies = [
     },
     {
         "id": 10,
+        "is_mock": True,  # TASK-P0-2: 演示数据显式标记（非真实政府政策）
+        "verification_status": "mock",
         "title": "天津滨海新能源扶持政策",
         "region": "天津滨海高新区",
         "industry": "新能源",
@@ -327,9 +357,10 @@ policies = [
         "source_url": "/api/policy/10/pdf",
         "official_contact": {
             "department": "天津滨海高新区新能源产业推进处",
-            "phone": "022-24888888",
-            "email": "energy@tjbhhtp.gov.cn",
-            "address": "天津市滨海新区华苑产业园区梅苑路6号"
+            "phone": None,  # TASK-P0-2: 未经官方来源核验的电话一律置 null
+            "email": None,  # TASK-P0-2: 未经官方来源核验的邮箱一律置 null
+            "address": None,  # TASK-P0-2: 未经官方来源核验的地址一律置 null
+            "contact_status": "unverified"  # 联系方式未核验（DATA-INTEGRITY-003）
         },
         "claim_status": "unclaimed",
         "claim_token": None,
@@ -350,6 +381,8 @@ policies = [
     },
     {
         "id": 11,
+        "is_mock": True,  # TASK-P0-2: 演示数据显式标记（非真实政府政策）
+        "verification_status": "mock",
         "title": "珠海横琴金融科技扶持政策",
         "region": "珠海横琴新区",
         "industry": "金融科技",
@@ -360,9 +393,10 @@ policies = [
         "source_url": "/api/policy/11/pdf",
         "official_contact": {
             "department": "珠海横琴新区金融产业发展局",
-            "phone": "0756-8841888",
-            "email": "fintech@zhuhengqin.gov.cn",
-            "address": "珠海市横琴新区环岛东路3000号"
+            "phone": None,  # TASK-P0-2: 未经官方来源核验的电话一律置 null
+            "email": None,  # TASK-P0-2: 未经官方来源核验的邮箱一律置 null
+            "address": None,  # TASK-P0-2: 未经官方来源核验的地址一律置 null
+            "contact_status": "unverified"  # 联系方式未核验（DATA-INTEGRITY-003）
         },
         "claim_status": "unclaimed",
         "claim_token": None,
@@ -383,6 +417,8 @@ policies = [
     },
     {
         "id": 12,
+        "is_mock": True,  # TASK-P0-2: 演示数据显式标记（非真实政府政策）
+        "verification_status": "mock",
         "title": "苏州工业园区纳米技术扶持政策",
         "region": "苏州工业园区",
         "industry": "纳米技术",
@@ -393,9 +429,10 @@ policies = [
         "source_url": "/api/policy/12/pdf",
         "official_contact": {
             "department": "苏州工业园区纳米技术产业发展处",
-            "phone": "0512-66888888",
-            "email": "nano@sipac.gov.cn",
-            "address": "苏州工业园区星湖街328号"
+            "phone": None,  # TASK-P0-2: 未经官方来源核验的电话一律置 null
+            "email": None,  # TASK-P0-2: 未经官方来源核验的邮箱一律置 null
+            "address": None,  # TASK-P0-2: 未经官方来源核验的地址一律置 null
+            "contact_status": "unverified"  # 联系方式未核验（DATA-INTEGRITY-003）
         },
         "claim_status": "unclaimed",
         "claim_token": None,
@@ -601,6 +638,10 @@ async def home():
         <div class="header">
             <h1>🚀 OpenInvest AI政策查询系统</h1>
             <p>智能发现 · 精准匹配 · 高效申请</p>
+            <p style="margin-top: 12px; padding: 10px 16px; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 8px; font-size: 0.9em;">
+                ⚠️ 数据声明：当前展示的政策均为 <strong>MOCK 演示数据</strong>（is_mock=true），
+                未经官方来源核验，不得作为申报、投资或决策依据。联系方式未经核验前一律留空。
+            </p>
         </div>
 
         <div class="search-section">
@@ -700,11 +741,11 @@ async def home():
             if (policy.official_contact) {
                 contactHtml = `
                     <div style="margin-top: 15px; padding: 12px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
-                        <h4 style="color: #1976d2; margin-bottom: 8px;">📞 官方联系方式</h4>
-                        <p style="margin: 5px 0; color: #555;"><strong>部门：</strong>${policy.official_contact.department}</p>
-                        <p style="margin: 5px 0; color: #555;"><strong>电话：</strong>${policy.official_contact.phone}</p>
-                        <p style="margin: 5px 0; color: #555;"><strong>邮箱：</strong>${policy.official_contact.email}</p>
-                        <p style="margin: 5px 0; color: #555;"><strong>地址：</strong>${policy.official_contact.address}</p>
+                        <h4 style="color: #1976d2; margin-bottom: 8px;">📞 官方联系方式（未核验）</h4>
+                        <p style="margin: 5px 0; color: #555;"><strong>部门：</strong>${policy.official_contact.department || '未核验'}</p>
+                        <p style="margin: 5px 0; color: #555;"><strong>电话：</strong>${policy.official_contact.phone || '未核验（待官方认领后提供）'}</p>
+                        <p style="margin: 5px 0; color: #555;"><strong>邮箱：</strong>${policy.official_contact.email || '未核验（待官方认领后提供）'}</p>
+                        <p style="margin: 5px 0; color: #555;"><strong>地址：</strong>${policy.official_contact.address || '未核验'}</p>
                     </div>
                 `;
             }
@@ -953,14 +994,15 @@ async def generate_policy_pdf(policy_id: int):
         pdf.set_font(font_name, size=14)
         pdf.cell(0, 10, "官方联系方式", ln=True)
         pdf.set_font(font_name, size=11)
-        pdf.cell(0, 7, f"  部门: {contact.get('department', '')}", ln=True)
-        pdf.cell(0, 7, f"  电话: {contact.get('phone', '')}", ln=True)
-        pdf.cell(0, 7, f"  邮箱: {contact.get('email', '')}", ln=True)
-        pdf.cell(0, 7, f"  地址: {contact.get('address', '')}", ln=True)
+        pdf.cell(0, 7, f"  部门: {contact.get('department') or '未核验'}", ln=True)
+        pdf.cell(0, 7, f"  电话: {contact.get('phone') or '未核验（待官方认领后提供）'}", ln=True)
+        pdf.cell(0, 7, f"  邮箱: {contact.get('email') or '未核验（待官方认领后提供）'}", ln=True)
+        pdf.cell(0, 7, f"  地址: {contact.get('address') or '未核验'}", ln=True)
     
     # 页脚
     pdf.ln(10)
     pdf.set_font(font_name, size=9)
+    pdf.cell(0, 7, "声明：本政策为 MOCK 演示数据（is_mock=true），未经官方来源核验，仅供参考", ln=True, align="C")
     pdf.cell(0, 7, f"本文档由OpenInvest平台自动生成 | 生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M')}", ln=True, align="C")
     pdf.cell(0, 7, "平台管理员邮箱: 30861337@qq.com", ln=True, align="C")
     

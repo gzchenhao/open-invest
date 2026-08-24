@@ -1,6 +1,11 @@
 """
 Mock Policy Database Service
 Provides sample policy data and demonstrates policy cleaning functionality
+
+⚠️ TASK-P0-2 DATA-INTEGRITY notice:
+All content in this file is MOCK demo data (verification_status="mock") and must never
+be marked VERIFIED. Its source_url / contacts / amounts are fabricated placeholders,
+not real government sources.
 """
 
 import json

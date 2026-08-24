@@ -1,6 +1,12 @@
 """
 中国高新区产业扶持政策Mock数据填充脚本
 生成10-20条结构极其详尽、高价值的中国一线高新区真实产业扶持政策Mock数据
+
+⚠️ TASK-P0-2 DATA-INTEGRITY 声明（最高纪律）：
+本脚本生成的全部数据均为 MOCK 演示数据，is_mock=True / verification_status="mock"。
+其中所有联系方式（电话/邮箱/地址）、source_url、补贴金额、有效期均为模板化虚构，
+未经任何官方来源验证，禁止作为真实政府信息展示或对外引用。
+宁可 null，不要猜；宁可 UNVERIFIED，不要 VERIFIED。
 """
 
 import json

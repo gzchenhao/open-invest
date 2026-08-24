@@ -1,5 +1,7 @@
 [
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "beijing_zhongguancun_embodied_ai_2024",
     "location": "beijing_zhongguancun",
     "country": "CN",
@@ -77,7 +79,11 @@
             "在中关村工作满3年",
             "带领团队不少于20人"
           ],
-          "target_talent_types": ["phd", "senior_title", "overseas"]
+          "target_talent_types": [
+            "phd",
+            "senior_title",
+            "overseas"
+          ]
         }
       },
       {
@@ -176,21 +182,31 @@
       "processing_time": "75个工作日",
       "contact_info": {
         "department": "中关村科学城管理委员会",
-        "phone": "010-12345678",
-        "email": "policy@zjpark.gov.cn",
-        "address": "北京市海淀区中关村南大街5号"
+        "phone": null,
+        "email": null,
+        "address": null,
+        "contact_status": "unverified",
+        "contact_note": "phone/email/address were fabricated demo values; nullified by TASK-P0-2. Null is safer than wrong contact info."
       }
     },
-    "target_industries": ["具身智能", "人工智能", "机器人", "智能交互"],
+    "target_industries": [
+      "具身智能",
+      "人工智能",
+      "机器人",
+      "智能交互"
+    ],
     "metadata": {
-      "source_url": "https://www.zjpark.gov.cn/policies/2024/embodied-ai",
+      "source_url": null,
       "crawl_timestamp": "2024-03-15T10:00:00Z",
       "confidence_score": 0.95,
       "last_updated": "2024-08-01",
-      "version": "1.0"
+      "version": "1.0",
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "shenzhen_hightech_auto_driving_2024",
     "location": "shenzhen_hightech",
     "country": "CN",
@@ -328,21 +344,31 @@
       "processing_time": "60个工作日",
       "contact_info": {
         "department": "深圳高新区管理委员会",
-        "phone": "0755-12345678",
-        "email": "policy@szpark.gov.cn",
-        "address": "深圳市南山区科技园南区"
+        "phone": null,
+        "email": null,
+        "address": null,
+        "contact_status": "unverified",
+        "contact_note": "phone/email/address were fabricated demo values; nullified by TASK-P0-2. Null is safer than wrong contact info."
       }
     },
-    "target_industries": ["自动驾驶", "智能网联汽车", "车联网", "智能交通"],
+    "target_industries": [
+      "自动驾驶",
+      "智能网联汽车",
+      "车联网",
+      "智能交通"
+    ],
     "metadata": {
-      "source_url": "https://www.szpark.gov.cn/policies/2024/auto-driving",
+      "source_url": null,
       "crawl_timestamp": "2024-02-20T09:00:00Z",
       "confidence_score": 0.92,
       "last_updated": "2024-07-15",
-      "version": "1.0"
+      "version": "1.0",
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "shanghai_zhangjiang_semiconductor_2024",
     "location": "shanghai_zhangjiang",
     "country": "CN",
@@ -479,21 +505,31 @@
       "processing_time": "90个工作日",
       "contact_info": {
         "department": "张江科学城管理委员会",
-        "phone": "021-12345678",
-        "email": "policy@zjpark.gov.cn",
-        "address": "上海市浦东新区张江高科技园区"
+        "phone": null,
+        "email": null,
+        "address": null,
+        "contact_status": "unverified",
+        "contact_note": "phone/email/address were fabricated demo values; nullified by TASK-P0-2. Null is safer than wrong contact info."
       }
     },
-    "target_industries": ["半导体", "集成电路", "芯片设计", "芯片制造"],
+    "target_industries": [
+      "半导体",
+      "集成电路",
+      "芯片设计",
+      "芯片制造"
+    ],
     "metadata": {
-      "source_url": "https://www.zjpark.gov.cn/policies/2024/semiconductor",
+      "source_url": null,
       "crawl_timestamp": "2024-01-10T08:00:00Z",
       "confidence_score": 0.95,
       "last_updated": "2024-06-30",
-      "version": "1.0"
+      "version": "1.0",
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "suzhou_industrial_park_quantum_2024",
     "location": "suzhou_industrial_park",
     "country": "CN",
@@ -632,21 +668,31 @@
       "processing_time": "75个工作日",
       "contact_info": {
         "department": "苏州工业园区管理委员会",
-        "phone": "0512-12345678",
-        "email": "policy@sipac.gov.cn",
-        "address": "苏州市工业园区苏州大道东123号"
+        "phone": null,
+        "email": null,
+        "address": null,
+        "contact_status": "unverified",
+        "contact_note": "phone/email/address were fabricated demo values; nullified by TASK-P0-2. Null is safer than wrong contact info."
       }
     },
-    "target_industries": ["量子计算", "量子通信", "量子信息", "量子科技"],
+    "target_industries": [
+      "量子计算",
+      "量子通信",
+      "量子信息",
+      "量子科技"
+    ],
     "metadata": {
-      "source_url": "https://www.sipac.gov.cn/policies/2024/quantum",
+      "source_url": null,
       "crawl_timestamp": "2024-04-01T10:00:00Z",
-      "confidence_score": 0.90,
+      "confidence_score": 0.9,
       "last_updated": "2024-07-20",
-      "version": "1.0"
+      "version": "1.0",
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "hefei_hightech_ai_2024",
     "location": "hefei_hightech",
     "country": "CN",
@@ -785,21 +831,31 @@
       "processing_time": "55个工作日",
       "contact_info": {
         "department": "合肥高新区管理委员会",
-        "phone": "0551-12345678",
-        "email": "policy@hftz.gov.cn",
-        "address": "合肥市高新区天都路123号"
+        "phone": null,
+        "email": null,
+        "address": null,
+        "contact_status": "unverified",
+        "contact_note": "phone/email/address were fabricated demo values; nullified by TASK-P0-2. Null is safer than wrong contact info."
       }
     },
-    "target_industries": ["人工智能", "机器学习", "深度学习", "自然语言处理"],
+    "target_industries": [
+      "人工智能",
+      "机器学习",
+      "深度学习",
+      "自然语言处理"
+    ],
     "metadata": {
-      "source_url": "https://www.hftz.gov.cn/policies/2024/ai",
+      "source_url": null,
       "crawl_timestamp": "2024-05-01T09:00:00Z",
       "confidence_score": 0.88,
       "last_updated": "2024-08-10",
-      "version": "1.0"
+      "version": "1.0",
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "guangzhou_tianhe_ai_2024",
     "location": "guangzhou_tianhe",
     "country": "CN",
@@ -938,21 +994,31 @@
       "processing_time": "60个工作日",
       "contact_info": {
         "department": "广州市天河区科技局",
-        "phone": "020-12345678",
-        "email": "policy@thnet.gov.cn",
-        "address": "广州市天河区天府路123号"
+        "phone": null,
+        "email": null,
+        "address": null,
+        "contact_status": "unverified",
+        "contact_note": "phone/email/address were fabricated demo values; nullified by TASK-P0-2. Null is safer than wrong contact info."
       }
     },
-    "target_industries": ["人工智能", "机器学习", "深度学习", "自然语言处理"],
+    "target_industries": [
+      "人工智能",
+      "机器学习",
+      "深度学习",
+      "自然语言处理"
+    ],
     "metadata": {
-      "source_url": "https://www.thnet.gov.cn/policies/2024/ai",
+      "source_url": null,
       "crawl_timestamp": "2024-06-01T10:00:00Z",
       "confidence_score": 0.85,
       "last_updated": "2024-08-15",
-      "version": "1.0"
+      "version": "1.0",
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "guangzhou_panyu_biotech_2024",
     "location": "guangzhou_panyu",
     "country": "CN",
@@ -1091,21 +1157,31 @@
       "processing_time": "80个工作日",
       "contact_info": {
         "department": "广州市番禺区科技局",
-        "phone": "020-12345678",
-        "email": "policy@pynet.gov.cn",
-        "address": "广州市番禺区市桥街123号"
+        "phone": null,
+        "email": null,
+        "address": null,
+        "contact_status": "unverified",
+        "contact_note": "phone/email/address were fabricated demo values; nullified by TASK-P0-2. Null is safer than wrong contact info."
       }
     },
-    "target_industries": ["生物医药", "生物科技", "基因技术", "疫苗研发"],
+    "target_industries": [
+      "生物医药",
+      "生物科技",
+      "基因技术",
+      "疫苗研发"
+    ],
     "metadata": {
-      "source_url": "https://www.pynet.gov.cn/policies/2024/biotech",
+      "source_url": null,
       "crawl_timestamp": "2024-07-01T11:00:00Z",
       "confidence_score": 0.87,
       "last_updated": "2024-08-20",
-      "version": "1.0"
+      "version": "1.0",
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "guangzhou_huadu_newenergy_2024",
     "location": "guangzhou_huadu",
     "country": "CN",
@@ -1244,21 +1320,31 @@
       "processing_time": "75个工作日",
       "contact_info": {
         "department": "广州市花都区科技局",
-        "phone": "020-12345678",
-        "email": "policy@hdnet.gov.cn",
-        "address": "广州市花都区新华街123号"
+        "phone": null,
+        "email": null,
+        "address": null,
+        "contact_status": "unverified",
+        "contact_note": "phone/email/address were fabricated demo values; nullified by TASK-P0-2. Null is safer than wrong contact info."
       }
     },
-    "target_industries": ["新能源", "太阳能", "风能", "储能"],
+    "target_industries": [
+      "新能源",
+      "太阳能",
+      "风能",
+      "储能"
+    ],
     "metadata": {
-      "source_url": "https://www.hdnet.gov.cn/policies/2024/new-energy",
+      "source_url": null,
       "crawl_timestamp": "2024-08-01T12:00:00Z",
       "confidence_score": 0.83,
       "last_updated": "2024-08-25",
-      "version": "1.0"
+      "version": "1.0",
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "guangzhou_baiyun_fintech_2024",
     "location": "guangzhou_baiyun",
     "country": "CN",
@@ -1397,18 +1483,26 @@
       "processing_time": "60个工作日",
       "contact_info": {
         "department": "广州市白云区科技局",
-        "phone": "020-12345678",
-        "email": "policy@bynet.gov.cn",
-        "address": "广州市白云区白云街123号"
+        "phone": null,
+        "email": null,
+        "address": null,
+        "contact_status": "unverified",
+        "contact_note": "phone/email/address were fabricated demo values; nullified by TASK-P0-2. Null is safer than wrong contact info."
       }
     },
-    "target_industries": ["金融科技", "区块链", "数字金融", "智能投顾"],
+    "target_industries": [
+      "金融科技",
+      "区块链",
+      "数字金融",
+      "智能投顾"
+    ],
     "metadata": {
-      "source_url": "https://www.bynet.gov.cn/policies/2024/fintech",
+      "source_url": null,
       "crawl_timestamp": "2024-09-01T13:00:00Z",
-      "confidence_score": 0.80,
+      "confidence_score": 0.8,
       "last_updated": "2024-08-30",
-      "version": "1.0"
+      "version": "1.0",
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001"
     }
   }
 ]

@@ -699,6 +699,26 @@
             "website": {
               "type": "string",
               "format": "uri"
+            },
+            "contact_source_url": {
+              "type": ["string", "null"],
+              "format": "uri",
+              "description": "TASK-P0-2: official page URL that proves the contact details above (DATA-INTEGRITY-003)"
+            },
+            "phone_source_url": {
+              "type": ["string", "null"],
+              "format": "uri",
+              "description": "TASK-P0-2: per-field provenance for phone (optional if contact_source_url covers it)"
+            },
+            "email_source_url": {
+              "type": ["string", "null"],
+              "format": "uri",
+              "description": "TASK-P0-2: per-field provenance for email (optional if contact_source_url covers it)"
+            },
+            "contact_status": {
+              "type": "string",
+              "enum": ["verified", "partially_verified", "unverified", "mock"],
+              "description": "TASK-P0-2: verification status of the contact details; default unverified when provenance is absent"
             }
           }
         },
@@ -706,6 +726,44 @@
           "type": "integer",
           "minimum": 0,
           "description": "Typical processing time in days"
+        }
+      }
+    },
+    "data_integrity": {
+      "type": "object",
+      "description": "TASK-P0-2 provenance block (DATA-INTEGRITY-001..005). All properties optional for backward compatibility with legacy records.",
+      "properties": {
+        "is_mock": {
+          "type": "boolean",
+          "default": false,
+          "description": "True only for demo/synthetic data; mock records must never be marked verified"
+        },
+        "verification_status": {
+          "type": ["string", "null"],
+          "enum": ["verified", "partially_verified", "unverified", "mock", null],
+          "description": "verified: official source confirmed; partially_verified: source exists but some fields unconfirmed; unverified: found but lacking official evidence; mock: demo only"
+        },
+        "source_title": {
+          "type": ["string", "null"],
+          "description": "Title of the original official source document"
+        },
+        "publisher": {
+          "type": ["string", "null"],
+          "description": "Publishing government body of the original document"
+        },
+        "retrieved_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Timestamp when the source was retrieved by the crawler"
+        },
+        "secondary_source_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "Third-party discovery URL; must never be treated as the official source"
+        },
+        "url_status": {
+          "type": ["string", "null"],
+          "description": "Technical reachability of source_url (e.g. reachable/unreachable); reachability does NOT imply authenticity"
         }
       }
     }

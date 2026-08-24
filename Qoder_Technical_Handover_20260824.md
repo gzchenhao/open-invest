@@ -176,6 +176,18 @@ No task is "done" because an agent says so. Every task must provide Code Evidenc
 ### INV-006 — Handover Must Reflect Reality
 The handover is not marketing. If README says A, code says B, and database says C: record the discrepancy, identify the source of truth, and recommend a resolution — never pick the "best-looking" answer.
 
+### INV-007 — Data Integrity (Policy Provenance & Anti-Hallucination)
+Added by TASK-P0-2 (2026-08-24). Highest discipline: **宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIED。宁可少一条政策，不要多一条假的政策。**
+
+- **[DATA-INTEGRITY-001] No Fabricated Government Information** — AI must never guess, complete, infer, generate, or fabricate government phones, emails, contact names, mobile numbers, subsidy amounts, validity periods, application conditions, official URLs, PDF URLs, publish/effective dates, park addresses, or “最高补贴 XX 万元” figures.
+- **[DATA-INTEGRITY-002] Every Policy Must Have Provenance** — a real policy must trace to `source_url` / `source_title` / `publisher` / `published_date` / `effective_date` / `retrieved_at`. Official sources only (government portal → department → agency → park → official platform). Third-party sites may only be recorded as `secondary_source_url`.
+- **[DATA-INTEGRITY-003] Every Contact Must Be Verifiable** — contact details must come from an official published page and carry `contact_source_url` (or per-field `phone_source_url` / `email_source_url`); otherwise `contact_status = "unverified"` and unknown fields stay `null`.
+- **[DATA-INTEGRITY-004] Unknown Information Must Remain Unknown** — unconfirmable values stay `null` (`contact_name`/`phone`/`email`/`effective_date`/`confidence`). Never invent plausible-looking placeholders.
+- **[DATA-INTEGRITY-005] Mock Data Must Never Resemble Verified Government Data Without Explicit Labeling** — mock records must carry `is_mock: true` + `verification_status: "mock"`, and must never be marked `verified` / `official` / `government_confirmed`. Fabricated `source_url` for mock data must be `null`, not invented.
+
+**Verification Status Enum**: `verified` / `partially_verified` / `unverified` / `mock`.
+**Key separation**: `url_status` (technical reachability) ≠ `source_verification_status` (authenticity). HTTP 200 never implies a source is official. Enforcement: `global_policy_aggregator/processors/provenance_validator.py`; regression tests: `tests/test_provenance.py` (TEST-PROVENANCE-001..006).
+
 ---
 
 ## 4. HISTORICAL INSTITUTIONAL MEMORY
@@ -503,6 +515,87 @@ Added: 11× `__init__.py`, `tests/integration/conftest.py`.
 - **Commit Hash**: `f449f578f6665cf7420847fadc0a9cb4599ad09a` (this commit; recorded via follow-up evidence commit)
 - **Commit Message**: `fix: align repository reality and repair test gate`
 - **Push**: `origin/master` — result recorded in follow-up evidence commit
+
+---
+
+## TASK-P0-2
+
+### Policy Provenance & Anti-Hallucination Data Governance
+
+**Task Description**: Establish the absolute data-truthfulness boundary for all policy / government / contact information: only real, verifiable, traceable information may exist as "real"; everything else must be explicitly MOCK, UNVERIFIED, or null. Govern existing data by **marking + nullifying only — never deleting**. No record was deleted in this task (INV-000).
+
+**Verified At**: 2026-08-24
+
+### Data Integrity Rules (new constitution entries)
+
+DATA-INTEGRITY-001..005 added as **INV-007** in §3 (No Fabricated Government Information / Every Policy Must Have Provenance / Every Contact Must Be Verifiable / Unknown Information Must Remain Unknown / Mock Data Must Be Explicitly Labeled). Highest discipline: 宁可 null，不要猜；宁可 UNVERIFIED，不要 VERIFIED；宁可少一条政策，不要多一条假的政策。
+
+### Policy Provenance Model
+
+Real policy requires: `source_url` (official, reachable-at-verification-time), `source_title`, `publisher`, `published_date`, `effective_date`, `retrieved_at`. Source priority: government portal → department site → agency site → official park site → official platform. Third-party discovery URLs → `secondary_source_url` only. Unknown date fields (e.g. effective date not stated in the document) must remain `null` — never inferred.
+
+Key separation: `url_status` (format/reachability) ≠ `source_verification_status` (authenticity). **HTTP 200 never proves official authorship.**
+
+### Contact Provenance Model
+
+Any contact (`name`/`department`/`phone`/`email`/`address`) must carry `contact_source_url` (or per-field `phone_source_url`/`email_source_url`), otherwise `contact_status = "unverified"` and unconfirmable fields stay `null`. Placeholder detection rejects classic fabricated patterns (`xxx-12345678`, `13800138000`). Private personal data (private mobiles, WeChat, IDs) must never be collected. **没有联系方式，比错误联系方式安全一万倍。**
+
+### Mock Data Audit (结果：只标记，不删除)
+
+| Dataset | Records | Before | After |
+|---|---|---|---|
+| `global_policy_aggregator/data/seed_data/china_policy_seed_data.json` | 12 | no mock flag; fabricated template `source_url`; AI self-scored `confidence_score` | `is_mock=true` + `verification_status="mock"`; fabricated URLs/confidence → `null` (with `*_note` explanations) |
+| `global_policy_aggregator/data/seed_data/detailed_china_tech_policies.json` | 9 | no mock flag; fabricated `source_url`; fabricated contact phones/emails/addresses | mock-flagged; `source_url` → `null`; contacts → `null` + `contact_status="unverified"` |
+| `global_policy_aggregator/web/interactive_ai_server.py` (embedded) | 12 | realistic-looking **fabricated** phones/emails/addresses presented as “官方联系方式” | mock-flagged; all contact values → `None` + `contact_status="unverified"`; UI/PDF show “未核验（待官方认领后提供）”; MOCK warning banner added |
+| `web/fixed_server.py`, `web/interactive_ai_server_new.py` (fallback data) | 2×2 | fabricated source_url + contacts | mock-flagged; fabricated URLs/contacts → `None` |
+| `scripts/populate_china_policies.py`, `policy_crawler/{mock_policy_database.py, data/mock_policy_database.py, processors/mock_policy_database.py, data/raw_policies/sample_raw_policies.py}` | generators/samples | no explicit boundary declaration | explicit DATA-INTEGRITY MOCK banners added (data itself untouched) |
+
+**Governance scripts (kept for audit trail)**: `global_policy_aggregator/scripts/apply_provenance_governance.py`, `scripts/govern_web_portal_data.py`.
+
+### Policy / Contact Audit Summary
+
+- **POLICY RECORDS AUDITED**: 33 (12 seed + 9 detailed + 12 embedded web)
+- **MOCK RECORDS**: 33 • **VERIFIED RECORDS**: 0 • **UNVERIFIED RECORDS**: 0
+- **MISSING SOURCE URL**: 33/33 — acceptable and intentional: all are mock; fabricated URLs were nullified rather than preserved.
+- **CONTACT RECORDS AUDITED**: 30+ across seed/web/crawler sample data
+- **FABRICATED CONTACT DATA FOUND**: YES — realistic-looking AI-invented numbers (e.g. `010-82896688`, `policy@zjpark.gov.cn`) and classic placeholders (`010-12345678`, `13800138000`). All served/embedded ones nullified + marked `unverified`; none deleted.
+- **FABRICATED POLICY DATA FOUND**: YES (all 33 records are AI-generated demo policies using real-region names) — now explicitly MOCK-flagged everywhere they are served or stored; never labeled verified.
+
+### Validator Changes
+
+New module `global_policy_aggregator/processors/provenance_validator.py`:
+- `VerificationStatus` / `UrlStatus` enums; `PolicyContact` / `PolicyProvenance` pydantic models (all-new fields Optional → backward compatible, TEST-PROVENANCE-006).
+- `validate_source_url()`: format + placeholder detection only (never asserts authenticity).
+- `validate_policy_record()`: enforces mock-never-verified, verified-needs-source_url, contact-needs-provenance-or-unverified, placeholder-phone rejection.
+- `audit_policy_dataset()`: TOTAL / MOCK / VERIFIED / UNVERIFIED / MISSING SOURCE URL / MISSING CONTACT PROVENANCE statistics (audit-only, never mutates).
+
+**Schema (additive-only, INV-002)**: `global_policy_aggregator/schemas/deeptech_policy_schema.json` + `policy_crawler/schemas/policy_schema.json` gained a new optional `data_integrity` block (`is_mock`, `verification_status`, `source_title`, `publisher`, `retrieved_at`, `secondary_source_url`, `contact_source_url`, `url_status`) plus `contact_source_url`/`phone_source_url`/`email_source_url`/`contact_status` on `contact_info`. **No field deleted/renamed; no `required` changed → old payloads remain valid.**
+
+**Provenance chain verified (not modified)**: crawler → `PolicyCleaner.clean_policy_text(text, source_url)` → `_build_metadata` keeps `source_url`; `policy_crawler/processors/data_structurer.py` propagates `metadata.source_url`. No provenance loss in parser/cleaner.
+
+### Test Evidence
+
+New: `tests/test_provenance.py` — **TEST-PROVENANCE-001** (mock ≠ verified), **002** (mock may lack source_url), **003** (verified requires source_url), **004** (contact provenance or explicit unverified), **005** (placeholder/invalid URL cannot be VERIFIED source; format-valid ≠ source-verified), **006** (legacy payloads still parse), plus seed-data governance regression (all seed records mock-flagged, zero governance violations, zero contacts with values lacking provenance). Test fixtures use IANA-reserved `.invalid` TLD — no real or fake government URLs invented in tests.
+
+**Full regression gate**: `python -m pytest tests/ -q` → **93 passed, 0 failed** (68 pre-existing all kept + 25 new). No test deleted/skipped/weakened.
+
+### Coverage
+
+`python -m pytest tests/ --cov=. --cov-report=term-missing -q` → **TOTAL 56%** (2875 statements). `provenance_validator.py` itself: **91%**. The percentage drop vs P0-1 (67%) is because the governance work brought previously-untracked modules (web servers, scripts, data modules) into the measured scope — both numbers are real measurements, not estimates.
+
+### Known Remaining Gaps
+
+- No record in the repository is currently VERIFIED — verification of any real policy requires an official-source evidence workflow (crawl + snapshot + human/agent confirmation), which does not exist yet.
+- `policy_ai_agent.py` demo `__main__` and `test_ai_agent.py` fixtures contain a synthetic user phone (`13800138000`) — this is user-side demo context, **not** a government contact; left untouched per rule that unverifiable data is marked, not deleted.
+- Legacy SQLite/DB stores (if populated by historical generator runs) were not re-audited field-by-field; generators now carry MOCK declarations, but already-populated DB rows would need a one-off re-mark pass if any such DB ships to production.
+- Crawler still has no live official-source verification step; until one exists, everything it produces must default to `unverified`.
+
+### Git Evidence
+
+- **Commit Hash**: `<to be back-filled by evidence commit>`
+- **Commit Message**: `feat: enforce policy provenance and anti-hallucination data governance`
+- **Push**: `origin/master` — result recorded in follow-up evidence commit
+- **Business data check**: Robotaxi / autonomous-driving / historical industry data untouched; no unauthorized deletions (git diff reviewed).
 
 ---
 

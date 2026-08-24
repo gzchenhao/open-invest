@@ -332,6 +332,49 @@
           "description": "Data quality level"
         }
       }
+    },
+    "data_integrity": {
+      "type": "object",
+      "description": "TASK-P0-2 provenance block (DATA-INTEGRITY-001..005). All properties optional for backward compatibility with legacy records.",
+      "properties": {
+        "is_mock": {
+          "type": "boolean",
+          "default": false,
+          "description": "True only for demo/synthetic data; mock records must never be marked verified"
+        },
+        "verification_status": {
+          "type": ["string", "null"],
+          "enum": ["verified", "partially_verified", "unverified", "mock", null],
+          "description": "verified: official source confirmed; partially_verified: source exists but some fields unconfirmed; unverified: lacking official evidence; mock: demo only"
+        },
+        "source_title": {
+          "type": ["string", "null"],
+          "description": "Title of the original official source document"
+        },
+        "publisher": {
+          "type": ["string", "null"],
+          "description": "Publishing government body of the original document"
+        },
+        "retrieved_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Timestamp when the source was retrieved by the crawler"
+        },
+        "secondary_source_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "Third-party discovery URL; must never be treated as the official source"
+        },
+        "contact_source_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "Official page URL proving any contact details attached to this policy"
+        },
+        "url_status": {
+          "type": ["string", "null"],
+          "description": "Technical reachability of source_url; reachability does NOT imply authenticity"
+        }
+      }
     }
   },
   "required": ["policy_id", "location", "policy_type", "title", "description"]

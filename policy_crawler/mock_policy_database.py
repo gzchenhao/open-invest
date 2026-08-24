@@ -1,6 +1,10 @@
 """
 Global Policy Intelligence Engine - Mock Policy Database
 提供示例政策数据和清洗服务，展示如何将碎片化的政策网页文字"洗"成符合OpenInvest标准的结构化情报
+
+⚠️ TASK-P0-2 DATA-INTEGRITY 声明：
+本文件全部内容为 MOCK 演示数据（verification_status="mock"），禁止标记为 VERIFIED。
+其中的 source_url、联系方式、金额、日期均为虚构占位值，不代表任何真实政府来源。
 """
 
 import json

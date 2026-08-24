@@ -1,5 +1,7 @@
 [
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "beijing_zhongguancun_ai_65785939",
     "location": "beijing_zhongguancun",
     "country": "CN",
@@ -169,9 +171,9 @@
       }
     ],
     "metadata": {
-      "source_url": "http://www.zgc.gov.cn/policy/ai_2024.html",
+      "source_url": null,
       "last_updated": "2024-01-15T10:00:00",
-      "confidence_score": 0.95,
+      "confidence_score": null,
       "data_quality": "high",
       "raw_text_length": 5000,
       "processing_timestamp": 1642248000,
@@ -181,10 +183,14 @@
         "currency": "CNY",
         "language": "zh-CN",
         "document_type": "china_policy"
-      }
+      },
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001",
+      "confidence_score_note": "self-assessed score had no evidence basis; nullified by TASK-P0-2"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "beijing_zhongguancun_quantum_1a1e6f23",
     "location": "beijing_zhongguancun",
     "country": "CN",
@@ -286,9 +292,9 @@
       }
     ],
     "metadata": {
-      "source_url": "http://www.zgc.gov.cn/policy/quantum_2024.html",
+      "source_url": null,
       "last_updated": "2024-02-01T10:00:00",
-      "confidence_score": 0.92,
+      "confidence_score": null,
       "data_quality": "high",
       "raw_text_length": 4500,
       "processing_timestamp": 1643673600,
@@ -298,10 +304,14 @@
         "currency": "CNY",
         "language": "zh-CN",
         "document_type": "china_policy"
-      }
+      },
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001",
+      "confidence_score_note": "self-assessed score had no evidence basis; nullified by TASK-P0-2"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "shanghai_zhangjiang_semiconductor_a1b57e1d",
     "location": "shanghai_zhangjiang",
     "country": "CN",
@@ -454,9 +464,9 @@
       }
     ],
     "metadata": {
-      "source_url": "http://www.zhangjiang.gov.cn/policy/semiconductor_2024.html",
+      "source_url": null,
       "last_updated": "2024-01-20T10:00:00",
-      "confidence_score": 0.93,
+      "confidence_score": null,
       "data_quality": "high",
       "raw_text_length": 4800,
       "processing_timestamp": 1642694400,
@@ -466,10 +476,14 @@
         "currency": "CNY",
         "language": "zh-CN",
         "document_type": "china_policy"
-      }
+      },
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001",
+      "confidence_score_note": "self-assessed score had no evidence basis; nullified by TASK-P0-2"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "shanghai_zhangjiang_biotech_de8cb5ab",
     "location": "shanghai_zhangjiang",
     "country": "CN",
@@ -520,9 +534,9 @@
       }
     ],
     "metadata": {
-      "source_url": "http://www.zhangjiang.gov.cn/policy/biotech_2024.html",
+      "source_url": null,
       "last_updated": "2024-02-10T10:00:00",
-      "confidence_score": 0.91,
+      "confidence_score": null,
       "data_quality": "high",
       "raw_text_length": 4200,
       "processing_timestamp": 1644489600,
@@ -532,10 +546,14 @@
         "currency": "CNY",
         "language": "zh-CN",
         "document_type": "china_policy"
-      }
+      },
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001",
+      "confidence_score_note": "self-assessed score had no evidence basis; nullified by TASK-P0-2"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "shenzhen_hitech_autonomous_d1faa734",
     "location": "shenzhen_hitech",
     "country": "CN",
@@ -636,9 +654,9 @@
       }
     ],
     "metadata": {
-      "source_url": "http://www.szpark.net/policy/autonomous_2024.html",
+      "source_url": null,
       "last_updated": "2024-01-25T10:00:00",
-      "confidence_score": 0.94,
+      "confidence_score": null,
       "data_quality": "high",
       "raw_text_length": 4600,
       "processing_timestamp": 1643164800,
@@ -648,10 +666,14 @@
         "currency": "CNY",
         "language": "zh-CN",
         "document_type": "china_policy"
-      }
+      },
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001",
+      "confidence_score_note": "self-assessed score had no evidence basis; nullified by TASK-P0-2"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "suzhou_industrial_nanotech_652558f0",
     "location": "suzhou_industrial",
     "country": "CN",
@@ -702,9 +724,9 @@
       }
     ],
     "metadata": {
-      "source_url": "http://www.sipac.gov.cn/policy/nano_2024.html",
+      "source_url": null,
       "last_updated": "2024-02-05T10:00:00",
-      "confidence_score": 0.9,
+      "confidence_score": null,
       "data_quality": "high",
       "raw_text_length": 4000,
       "processing_timestamp": 1644028800,
@@ -714,10 +736,14 @@
         "currency": "CNY",
         "language": "zh-CN",
         "document_type": "china_policy"
-      }
+      },
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001",
+      "confidence_score_note": "self-assessed score had no evidence basis; nullified by TASK-P0-2"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "hefei_hitech_quantum_info_24fa87da",
     "location": "hefei_hitech",
     "country": "CN",
@@ -768,9 +794,9 @@
       }
     ],
     "metadata": {
-      "source_url": "http://www.hfht.gov.cn/policy/quantum_info_2024.html",
+      "source_url": null,
       "last_updated": "2024-02-15T10:00:00",
-      "confidence_score": 0.91,
+      "confidence_score": null,
       "data_quality": "high",
       "raw_text_length": 4300,
       "processing_timestamp": 1644998400,
@@ -780,10 +806,14 @@
         "currency": "CNY",
         "language": "zh-CN",
         "document_type": "china_policy"
-      }
+      },
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001",
+      "confidence_score_note": "self-assessed score had no evidence basis; nullified by TASK-P0-2"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "hangzhou_hitech_digital_835f8993",
     "location": "hangzhou_hitech",
     "country": "CN",
@@ -834,9 +864,9 @@
       }
     ],
     "metadata": {
-      "source_url": "http://www.hhtz.gov.cn/policy/digital_2024.html",
+      "source_url": null,
       "last_updated": "2024-02-20T10:00:00",
-      "confidence_score": 0.89,
+      "confidence_score": null,
       "data_quality": "high",
       "raw_text_length": 4100,
       "processing_timestamp": 1645401600,
@@ -846,10 +876,14 @@
         "currency": "CNY",
         "language": "zh-CN",
         "document_type": "china_policy"
-      }
+      },
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001",
+      "confidence_score_note": "self-assessed score had no evidence basis; nullified by TASK-P0-2"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "wuhan_donghu_optoelectronics_7a781e37",
     "location": "wuhan_donghu",
     "country": "CN",
@@ -900,9 +934,9 @@
       }
     ],
     "metadata": {
-      "source_url": "http://www.wdht.gov.cn/policy/optoelectronics_2024.html",
+      "source_url": null,
       "last_updated": "2024-02-25T10:00:00",
-      "confidence_score": 0.88,
+      "confidence_score": null,
       "data_quality": "high",
       "raw_text_length": 3900,
       "processing_timestamp": 1645849600,
@@ -912,10 +946,14 @@
         "currency": "CNY",
         "language": "zh-CN",
         "document_type": "china_policy"
-      }
+      },
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001",
+      "confidence_score_note": "self-assessed score had no evidence basis; nullified by TASK-P0-2"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "xian_hitech_aerospace_bc731c52",
     "location": "xian_hitech",
     "country": "CN",
@@ -966,9 +1004,9 @@
       }
     ],
     "metadata": {
-      "source_url": "http://www.xahd.gov.cn/policy/aerospace_2024.html",
+      "source_url": null,
       "last_updated": "2024-03-01T10:00:00",
-      "confidence_score": 0.87,
+      "confidence_score": null,
       "data_quality": "high",
       "raw_text_length": 4200,
       "processing_timestamp": 1646304000,
@@ -978,10 +1016,14 @@
         "currency": "CNY",
         "language": "zh-CN",
         "document_type": "china_policy"
-      }
+      },
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001",
+      "confidence_score_note": "self-assessed score had no evidence basis; nullified by TASK-P0-2"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "chengdu_hitech_ai_f66aa3b4",
     "location": "chengdu_hitech",
     "country": "CN",
@@ -1032,9 +1074,9 @@
       }
     ],
     "metadata": {
-      "source_url": "http://www.cdht.gov.cn/policy/ai_2024.html",
+      "source_url": null,
       "last_updated": "2024-03-05T10:00:00",
-      "confidence_score": 0.86,
+      "confidence_score": null,
       "data_quality": "high",
       "raw_text_length": 4000,
       "processing_timestamp": 1646592000,
@@ -1044,10 +1086,14 @@
         "currency": "CNY",
         "language": "zh-CN",
         "document_type": "china_policy"
-      }
+      },
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001",
+      "confidence_score_note": "self-assessed score had no evidence basis; nullified by TASK-P0-2"
     }
   },
   {
+    "is_mock": true,
+    "verification_status": "mock",
     "policy_id": "guangzhou_dev_biotech_79233c2b",
     "location": "guangzhou_dev",
     "country": "CN",
@@ -1098,9 +1144,9 @@
       }
     ],
     "metadata": {
-      "source_url": "http://www.gz.gov.cn/policy/biotech_2024.html",
+      "source_url": null,
       "last_updated": "2024-03-10T10:00:00",
-      "confidence_score": 0.85,
+      "confidence_score": null,
       "data_quality": "high",
       "raw_text_length": 4100,
       "processing_timestamp": 1646880000,
@@ -1110,7 +1156,9 @@
         "currency": "CNY",
         "language": "zh-CN",
         "document_type": "china_policy"
-      }
+      },
+      "source_url_note": "original source_url was template-generated (never verified); nullified by TASK-P0-2 per DATA-INTEGRITY-001",
+      "confidence_score_note": "self-assessed score had no evidence basis; nullified by TASK-P0-2"
     }
   }
 ]
