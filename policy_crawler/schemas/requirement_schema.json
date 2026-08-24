@@ -1,0 +1,436 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Landing Requirements Schema",
+  "description": "Schema for structuring global landing requirements and compliance standards",
+  "type": "object",
+  "required": ["requirement_id", "location", "industry", "requirement_type", "mandatory"],
+  "properties": {
+    "requirement_id": {
+      "type": "string",
+      "description": "Unique identifier for the requirement",
+      "example": "shanghai-rd-staff-2024-001"
+    },
+    "location": {
+      "type": "string",
+      "description": "Geographic location of the requirement",
+      "example": "Shanghai, China"
+    },
+    "jurisdiction": {
+      "type": "string",
+      "description": "Administrative jurisdiction",
+      "example": "Shanghai Municipal Government"
+    },
+    "industry": {
+      "type": "string",
+      "enum": ["ai_ml", "robotics", "quantum_computing", "biotech", "autonomous_driving", "blockchain", "clean_tech", "semiconductor", "aerospace", "other"],
+      "description": "Target industry for the requirement"
+    },
+    "requirement_type": {
+      "type": "string",
+      "enum": ["staffing", "intellectual_property", "financial", "regulatory", "environmental", "infrastructure", "certification", "reporting"],
+      "description": "Type of requirement"
+    },
+    "name": {
+      "type": "string",
+      "description": "Official name of the requirement"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the requirement"
+    },
+    "mandatory": {
+      "type": "boolean",
+      "description": "Whether the requirement is mandatory"
+    },
+    "priority_level": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low"],
+      "description": "Priority level of the requirement"
+    },
+    "staffing_requirements": {
+      "type": "object",
+      "properties": {
+        "total_employees": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "integer"
+            },
+            "max": {
+              "type": "integer"
+            }
+          }
+        },
+        "researchers": {
+          "type": "object",
+          "properties": {
+            "min_count": {
+              "type": "integer"
+            },
+            "min_percentage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "qualification": {
+              "type": "string",
+              "enum": ["bachelor", "master", "phd", "postdoc"]
+            }
+          }
+        },
+        "management": {
+          "type": "object",
+          "properties": {
+            "min_count": {
+              "type": "integer"
+            },
+            "experience_years": {
+              "type": "integer"
+            }
+          }
+        },
+        "technical_staff": {
+          "type": "object",
+          "properties": {
+            "min_count": {
+              "type": "integer"
+            },
+            "skill_requirements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "intellectual_property_requirements": {
+      "type": "object",
+      "properties": {
+        "patents": {
+          "type": "object",
+          "properties": {
+            "min_count": {
+              "type": "integer"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["invention", "utility", "design", "trademark"]
+            },
+            "ownership": {
+              "type": "string",
+              "enum": ["company_owned", "shared", "licensable"]
+            }
+          }
+        },
+        "trademarks": {
+          "type": "object",
+          "properties": {
+            "min_count": {
+              "type": "integer"
+            },
+            "registration_jurisdiction": {
+              "type": "string"
+            }
+          }
+        },
+        "copyrights": {
+          "type": "object",
+          "properties": {
+            "min_count": {
+              "type": "integer"
+            }
+          }
+        },
+        "trade_secrets": {
+          "type": "object",
+          "properties": {
+            "protection_level": {
+              "type": "string",
+              "enum": ["basic", "enhanced", "strict"]
+            }
+          }
+        }
+      }
+    },
+    "financial_requirements": {
+      "type": "object",
+      "properties": {
+        "minimum_investment": {
+          "type": "object",
+          "properties": {
+            "amount_usd": {
+              "type": "number"
+            },
+            "currency": {
+              "type": "string",
+              "enum": ["USD", "CNY", "EUR", "GBP", "JPY", "SGD", "HKD", "KRW"]
+            }
+          }
+        },
+        "minimum_revenue": {
+          "type": "object",
+          "properties": {
+            "amount_usd": {
+              "type": "number"
+            },
+            "currency": {
+              "type": "string",
+              "enum": ["USD", "CNY", "EUR", "GBP", "JPY", "SGD", "HKD", "KRW"]
+            }
+          }
+        },
+        "r_d_spending": {
+          "type": "object",
+          "properties": {
+            "min_percentage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "amount_usd": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "regulatory_requirements": {
+      "type": "object",
+      "properties": {
+        "business_license": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "processing_time": {
+              "type": "string"
+            }
+          }
+        },
+        "industry_specific_licenses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "license_type": {
+                "type": "string"
+              },
+              "issuing_authority": {
+                "type": "string"
+              },
+              "validity_period": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "compliance_certifications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "certification_name": {
+                "type": "string"
+              },
+              "issuing_body": {
+                "type": "string"
+              },
+              "required_frequency": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "environmental_requirements": {
+      "type": "object",
+      "properties": {
+        "carbon_footprint": {
+          "type": "object",
+          "properties": {
+            "limits": {
+              "type": "string"
+            },
+            "reporting_frequency": {
+              "type": "string"
+            }
+          }
+        },
+        "waste_management": {
+          "type": "object",
+          "properties": {
+            "standards": {
+              "type": "string"
+            }
+          }
+        },
+        "energy_efficiency": {
+          "type": "object",
+          "properties": {
+            "minimum_rating": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "infrastructure_requirements": {
+      "type": "object",
+      "properties": {
+        "facility_size": {
+          "type": "object",
+          "properties": {
+            "min_sq_meters": {
+              "type": "number"
+            }
+          }
+        },
+        "utilities": {
+          "type": "object",
+          "properties": {
+            "power_requirements": {
+              "type": "string"
+            },
+            "water_requirements": {
+              "type": "string"
+            },
+            "internet_bandwidth": {
+              "type": "string"
+            }
+          }
+        },
+        "location_requirements": {
+          "type": "object",
+          "properties": {
+            "zone_type": {
+              "type": "string",
+              "enum": ["industrial", "commercial", "research", "mixed", "special_economic"]
+            },
+            "infrastructure_access": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "compliance_requirements": {
+      "type": "object",
+      "properties": {
+        "reporting_frequency": {
+          "type": "string"
+        },
+        "audit_requirements": {
+          "type": "object",
+          "properties": {
+            "frequency": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        "data_localization": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "type": "boolean"
+            },
+            "jurisdiction": {
+              "type": "string"
+            }
+          }
+        },
+        "export_controls": {
+          "type": "object",
+          "properties": {
+            "applicable": {
+              "type": "boolean"
+            },
+            "restrictions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "deadlines": {
+      "type": "object",
+      "properties": {
+        "implementation_deadline": {
+          "type": "string",
+          "format": "date"
+        },
+        "compliance_deadline": {
+          "type": "string",
+          "format": "date"
+        },
+        "reporting_deadline": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "penalties": {
+      "type": "object",
+      "properties": {
+        "non_compliance_fines": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "amount_usd": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              },
+              "violation_type": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "suspension_of_benefits": {
+          "type": "boolean"
+        },
+        "legal_action": {
+          "type": "boolean"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "confidence_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Confidence score in data accuracy"
+        },
+        "verification_status": {
+          "type": "string",
+          "enum": ["verified", "pending", "unverified"]
+        }
+      }
+    }
+  }
+}

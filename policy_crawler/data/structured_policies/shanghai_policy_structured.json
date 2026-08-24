@@ -1,0 +1,109 @@
+{
+  "policy_metadata": {
+    "policy_id": "shanghai-hi-tech-zone-2024",
+    "source_url": "https://www.shanghai.gov.cn/shanghai/node12345/20240101/u1ai12345.html",
+    "location": "Shanghai",
+    "region": "china",
+    "policy_type": "incentive",
+    "industry_focus": ["ai", "quantum_computing", "biotech"],
+    "effective_date": "2024-01-01",
+    "expiry_date": null,
+    "last_updated": "2024-01-15T10:30:00Z",
+    "raw_text": "上海市高新技术产业开发区2024年招商引资政策\n为促进人工智能、量子计算、生物医药等战略性新兴产业发展，上海市高新技术产业开发区特制定以下招商引资政策：\n\n一、税收优惠\n1. 企业所得税减免：符合条件的企业可享受15%的企业所得税优惠税率\n2. 研发费用加计扣除：研发费用可按175%加计扣除\n3. 房产税减免：新建研发用房免征房产税5年\n\n二、财政补贴\n1. 研发补贴：年度研发投入超过1000万元的企业，可获得最高500万元补贴\n2. 设备购置补贴：购置先进生产设备可获得设备购置成本30%的补贴\n3. 人才补贴：引进高层次人才可获得每人50-200万元的人才补贴\n\n三、土地优惠\n1. 土地出让金减免：高新技术企业可享受土地出让金50%减免\n2. 厂房租金优惠：租赁政府标准厂房可享受前3年免租金，后2年减半租金\n\n四、人才政策\n1. 住房补贴：高层次人才可申请最高200万元住房补贴\n2. 子女教育：高层次人才子女可优先入读优质学校\n3. 医疗保障：享受优质医疗服务\n\n五、其他要求\n1. 企业注册资本不低于1000万美元\n2. 研发人员占比不低于30%\n3. 拥有至少5项发明专利\n4. 符合国家产业政策导向"
+  },
+  "incentives": {
+    "tax_breaks": [
+      {
+        "type": "corporate_tax_reduction",
+        "rate_reduction": 15.0,
+        "duration_years": 5,
+        "max_amount_usd": 500000,
+        "eligibility_criteria": ["高新技术企业", "符合国家产业政策导向"],
+        "application_process": "向上海市高新技术产业开发区管理委员会提交申请"
+      },
+      {
+        "type": "rd_tax_credit",
+        "rate_reduction": 75.0,
+        "duration_years": 3,
+        "eligibility_criteria": ["研发费用超过1000万元", "用于人工智能、量子计算、生物医药等领域"],
+        "application_process": "向税务局提交研发费用加计扣除申请"
+      },
+      {
+        "type": "property_tax_holiday",
+        "rate_reduction": 100.0,
+        "duration_years": 5,
+        "eligibility_criteria": ["新建研发用房", "用于高新技术研发"],
+        "application_process": "向税务局提交房产税减免申请"
+      }
+    ],
+    "subsidies": [
+      {
+        "type": "rd_subsidy",
+        "amount_usd": 500000,
+        "purpose": "年度研发投入补贴",
+        "application_deadline": "2024-12-31",
+        "eligibility_criteria": ["年度研发投入超过1000万元", "用于高新技术研发"],
+        "matching_requirements": "无需匹配资金"
+      },
+      {
+        "type": "equipment_subsidy",
+        "amount_usd": 300000,
+        "purpose": "先进生产设备购置补贴",
+        "application_deadline": "2024-12-31",
+        "eligibility_criteria": ["购置先进生产设备", "用于高新技术生产"],
+        "matching_requirements": "补贴金额不超过设备购置成本的30%"
+      },
+      {
+        "type": "salary_subsidy",
+        "amount_usd": 200000,
+        "purpose": "高层次人才引进补贴",
+        "application_deadline": "2024-12-31",
+        "eligibility_criteria": ["引进高层次人才", "具有博士学位或高级职称"],
+        "matching_requirements": "每人补贴50-200万元"
+      }
+    ],
+    "land_grants": [
+      {
+        "type": "discounted_rent",
+        "area_sqm": 1000,
+        "location_description": "上海市高新技术产业开发区标准厂房",
+        "duration_years": 5,
+        "cost_savings_usd": 100000
+      }
+    ]
+  },
+  "requirements": {
+    "staffing": {
+      "min_researchers": 30,
+      "phd_percentage": 20,
+      "experience_years": 3,
+      "senior_staff_ratio": 15
+    },
+    "intellectual_property": {
+      "patent_count": 5,
+      "patent_type": ["invention"],
+      "trademarks": 0,
+      "copyrights": 0,
+      "ip_ownership": "company_owned"
+    },
+    "financial": {
+      "min_investment_usd": 10000000,
+      "revenue_threshold_usd": 5000000,
+      "profitability_requirement": "连续2年盈利"
+    }
+  },
+  "compliance": {
+    "data_localization": true,
+    "export_controls": true,
+    "security_clearance": "enhanced",
+    "environmental_standards": ["iso14001", "gb/t24001"],
+    "data_privacy": ["pipl", "unspecified"]
+  },
+  "contact_information": {
+    "department": "上海市高新技术产业开发区管理委员会",
+    "email": "contact@shanghai-hi-tech.gov.cn",
+    "phone": "+86-21-12345678",
+    "address": "上海市浦东新区张江高科技园区",
+    "website": "https://www.shanghai-hi-tech.gov.cn"
+  }
+}

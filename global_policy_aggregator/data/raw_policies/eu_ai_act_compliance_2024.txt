@@ -1,0 +1,213 @@
+EU AI Act Compliance Framework 2024
+
+**REGULATION (EU) 2024/XXX**
+**Laying down harmonised rules on artificial intelligence**
+
+**Article 1 - Subject Matter and Scope**
+
+This Regulation establishes a harmonised legal framework for the development, placing on the market and use of artificial intelligence systems (AI systems) in the Union. It aims to ensure that AI systems placed on the Union market and used are safe, respect existing Union law on fundamental rights and values, and that risks associated with AI systems are prevented or mitigated.
+
+**Article 2 - Definitions**
+
+1. 'Artificial intelligence system' (AI system) means a machine-based system that is designed to operate with varying levels of autonomy and that can, for explicit or implicit goals, generate outputs such as predictions, recommendations, or decisions that can influence physical or virtual environments.
+
+2. 'Provider' means a natural or legal person, public authority, agency or other body that develops an AI system or that has an AI system developed and places it on the market or puts it into service under its own name or trademark.
+
+3. 'Deployer' means a natural or legal person, public authority, agency or other body that uses an AI system under the provision of this Regulation.
+
+**Article 3 - Prohibited AI Practices**
+
+The following AI practices shall be prohibited:
+
+1. **Social Scoring Systems**
+   - AI systems used for the evaluation of the trustworthiness of natural persons over a period of time, leading to detrimental or unfavourable treatment of natural persons
+   - Systems that classify individuals based on their social behaviour
+   - Predictive policing systems that target individuals based on profiling
+
+2. **Real-time Remote Biometric Identification**
+   - AI systems that identify individuals in publicly accessible spaces through the processing of biometric data
+   - Except for specific law enforcement purposes with proper authorization
+   - Real-time identification in sensitive areas like schools, hospitals, and places of worship
+
+3. **Manipulative AI Systems**
+   - AI systems that exploit vulnerabilities of specific vulnerable groups
+   - Systems that use subliminal techniques beyond a person's consciousness
+   - AI that causes psychological or physical harm
+
+**Article 4 - High-Risk AI Systems**
+
+AI systems shall be considered high-risk if they are used in the following areas:
+
+1. **Critical Infrastructure**
+   - Transport systems (aircraft, railways, road traffic)
+   - Energy and water supply
+   - Financial market infrastructure
+   - Digital infrastructure
+
+2. **General Product Safety**
+   - Products covered by Union product safety legislation
+   - AI systems as safety components
+   - Machinery and equipment
+
+3. **Employment and Worker Management**
+   - Recruitment and selection procedures
+   - Performance evaluation and monitoring
+   - Decision-making affecting working conditions
+   - Access to self-employment opportunities
+
+4. **Access to Essential Services**
+   - Credit scoring and creditworthiness assessment
+   - Benefits allocation and eligibility
+   - Educational and vocational training
+   - Essential services (water, energy, transport)
+
+5. **Law Enforcement**
+   - Crime prevention and detection
+   - Prosecution of criminal offences
+   - Victims' rights
+   - Individual risk assessments
+
+6. **Migration, Asylum and Border Control Management**
+   - Border control management
+   - Investigation of asylum applications
+   - Assessing applications for residence permits
+   - Checks on third-country nationals
+
+**Article 5 - Requirements for High-Risk AI Systems**
+
+1. **Risk Management System**
+   - Comprehensive risk assessment and mitigation
+   - Continuous monitoring and updating
+   - Incident response procedures
+   - Human oversight mechanisms
+
+2. **Data Governance**
+   - Training data quality and diversity
+   - Data protection compliance (GDPR)
+   - Documentation of data processing activities
+   - Bias detection and mitigation
+
+3. **Technical Documentation**
+   - Detailed system architecture documentation
+   - Algorithmic transparency requirements
+   - Version control and change management
+   - Technical specifications and requirements
+
+4. **Record-Keeping**
+   - Log of system activities
+   - Human intervention records
+   - Incident documentation
+   - Performance monitoring data
+
+5. **Conformity Assessment**
+   - EU-type examination certificate
+   - Quality management system documentation
+   - Technical documentation submission
+   - Post-market surveillance plan
+
+**Article 6 - Transparency Requirements**
+
+1. **AI System Identification**
+   - Clear indication that content is AI-generated
+   - Disclosure of AI use in communications
+   - Metadata for AI-generated content
+
+2. **Deepfakes and Synthetic Content**
+   - Labeling of artificially generated or manipulated content
+   - Disclosure of techniques used
+   - Source attribution where possible
+
+3. **Biometric Systems**
+   - Inform users about biometric data processing
+   - Purpose limitation for biometric data
+   - Consent requirements where applicable
+
+**Article 7 - Human Oversight**
+
+1. **Design and Development**
+   - Human-in-the-loop requirements
+   - Intervention mechanisms
+   - Fallback procedures
+   - Performance monitoring
+
+2. **Operational Requirements**
+   - Continuous human supervision
+   - Emergency stop capabilities
+   - Performance monitoring
+   - Regular human review
+
+**Article 8 - Accuracy and Robustness**
+
+1. **Technical Robustness**
+   - Resilience against adversarial attacks
+   - Fail-safe mechanisms
+   - Security measures
+   - Software update capabilities
+
+2. **Accuracy**
+   - Performance validation
+   - Uncertainty quantification
+   - Performance monitoring
+   - Continuous improvement
+
+**Article 9 - Governance and Enforcement**
+
+1. **Market Surveillance Authorities**
+   - Designation of competent authorities
+   - Coordination mechanisms
+   - Information exchange
+   - Joint investigations
+
+2. **Notified Bodies**
+   - Accreditation requirements
+   - Expertise requirements
+   - Liability provisions
+   - Conflict of interest rules
+
+3. **Administrative Cooperation**
+   - Information exchange between authorities
+   - Joint investigations
+   - Mutual assistance
+   - Consistency mechanisms
+
+**Article 10 - Penalties and Enforcement**
+
+1. **Administrative Penalties**
+   - Fines up to €30,000,000 or 6% of global annual turnover
+   - Progressive penalty system
+   - Mitigation factors
+   - Appeals process
+
+2. **Market Withdrawal**
+   - Mandatory recall of non-compliant AI systems
+   - Suspension of marketing activities
+   - Product recalls
+   - Corrective actions
+
+**Article 11 - Transitional Provisions**
+
+1. **Implementation Timeline**
+   - Entry into force: 20 days after publication
+   - Application date: 24 months after entry into force
+   - Prohibition of certain practices: 36 months after entry into force
+   - Conformity assessment: 42 months after entry into force
+
+2. **Existing Systems**
+   - Grace period for existing systems
+   - Compliance roadmap requirements
+   - Documentation requirements
+   - Continuous improvement obligations
+
+**Article 12 - Final Provisions**
+
+This Regulation shall enter into force on the twentieth day following that of its publication in the Official Journal of the European Union.
+
+This Regulation is addressed to the Member States.
+
+Done at Brussels, 21 August 2024.
+
+For the European Parliament
+The President
+
+For the Council
+The President

@@ -1,0 +1,421 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Global Policy Intelligence Schema",
+  "description": "Schema for storing and parsing global government policies, incentives, compliance requirements, and landing criteria",
+  "type": "object",
+  "properties": {
+    "policy_metadata": {
+      "type": "object",
+      "properties": {
+        "policy_id": {
+          "type": "string",
+          "description": "Unique identifier for the policy"
+        },
+        "source_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Original URL of the policy document"
+        },
+        "jurisdiction": {
+          "type": "string",
+          "description": "Geopolitical jurisdiction (e.g., 'Shanghai, China', 'California, USA')"
+        },
+        "policy_type": {
+          "type": "string",
+          "enum": ["tax_incentive", "subsidy", "land_grant", "regulatory", "compliance", "incentive_package"],
+          "description": "Type of policy"
+        },
+        "effective_date": {
+          "type": "string",
+          "format": "date",
+          "description": "When the policy becomes effective"
+        },
+        "expiration_date": {
+          "type": ["string", "null"],
+          "format": "date",
+          "description": "When the policy expires (null if no expiration)"
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp"
+        },
+        "crawl_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the policy was crawled"
+        },
+        "confidence_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Confidence score in the parsed data (0-1)"
+        }
+      },
+      "required": ["policy_id", "jurisdiction", "policy_type", "effective_date", "crawl_timestamp"]
+    },
+    "incentives": {
+      "type": "object",
+      "properties": {
+        "tax_breaks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["corporate_tax_reduction", "rd_tax_credit", "property_tax_holiday", "payroll_tax_credit"]
+              },
+              "rate_reduction": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Percentage reduction (e.g., 50 for 50%)"
+              },
+              "duration_years": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20,
+                "description": "Duration in years"
+              },
+              "max_amount_usd": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Maximum amount in USD"
+              },
+              "eligibility_criteria": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of eligibility criteria"
+              },
+              "application_deadline": {
+                "type": ["string", "null"],
+                "format": "date",
+                "description": "Application deadline"
+              }
+            },
+            "required": ["type", "rate_reduction", "duration_years"]
+          }
+        },
+        "subsidies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["rd_subsidy", "equipment_subsidy", "salary_subsidy", "training_subsidy", "infrastructure_subsidy"]
+              },
+              "amount_usd": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Amount in USD"
+              },
+              "currency": {
+                "type": "string",
+                "default": "USD",
+                "description": "Currency code"
+              },
+              "purpose": {
+                "type": "string",
+                "description": "Purpose of the subsidy"
+              },
+              "duration_months": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 60,
+                "description": "Duration in months"
+              },
+              "eligibility_criteria": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of eligibility criteria"
+              },
+              "application_deadline": {
+                "type": ["string", "null"],
+                "format": "date",
+                "description": "Application deadline"
+              }
+            },
+            "required": ["type", "amount_usd", "purpose"]
+          }
+        },
+        "land_grants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["land_lease", "land_purchase", "land_grant", "building_concession"]
+              },
+              "area_sqm": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Area in square meters"
+              },
+              "rental_rate_per_sqm": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Rental rate per square meter per year"
+              },
+              "duration_years": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 30,
+                "description": "Duration in years"
+              },
+              "location": {
+                "type": "string",
+                "description": "Specific location within jurisdiction"
+              },
+              "infrastructure_included": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Infrastructure included (e.g., 'lab_equipment', 'internet_connectivity')"
+              }
+            },
+            "required": ["type", "area_sqm", "duration_years"]
+          }
+        }
+      }
+    },
+    "requirements": {
+      "type": "object",
+      "properties": {
+        "staffing": {
+          "type": "object",
+          "properties": {
+            "min_employees": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Minimum number of employees"
+            },
+            "min_researchers": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Minimum number of research staff"
+            },
+            "phd_percentage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Minimum percentage of PhD holders"
+            },
+            "experience_years": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Minimum years of experience required"
+            },
+            "salary_threshold_usd": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Minimum salary threshold"
+            }
+          }
+        },
+        "intellectual_property": {
+          "type": "object",
+          "properties": {
+            "min_patents": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Minimum number of patents"
+            },
+            "patent_types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Required types of patents"
+            },
+            "min_trademarks": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Minimum number of trademarks"
+            },
+            "copyrights_required": {
+              "type": "boolean",
+              "description": "Whether copyrights are required"
+            }
+          }
+        },
+        "financial": {
+          "type": "object",
+          "properties": {
+            "min_investment_usd": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Minimum investment required"
+            },
+            "min_revenue_usd": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Minimum annual revenue"
+            },
+            "credit_rating": {
+              "type": "string",
+              "description": "Required credit rating"
+            },
+            "net_worth_threshold": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Minimum net worth"
+            }
+          }
+        },
+        "technical": {
+          "type": "object",
+          "properties": {
+            "tech_stack_requirements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Required technology stack"
+            },
+            "certifications_required": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Required certifications"
+            },
+            "security_clearance": {
+              "type": ["string", "null"],
+              "description": "Required security clearance level"
+            }
+          }
+        }
+      }
+    },
+    "compliance": {
+      "type": "object",
+      "properties": {
+        "data_localization": {
+          "type": "boolean",
+          "description": "Whether data must be stored locally"
+        },
+        "export_controls": {
+          "type": "boolean",
+          "description": "Whether export controls apply"
+        },
+        "security_clearance": {
+          "type": ["string", "null"],
+          "description": "Required security clearance level"
+        },
+        "environmental_standards": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Required environmental standards"
+        },
+        "reporting_requirements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "frequency": {
+                "type": "string",
+                "enum": ["monthly", "quarterly", "annually", "continuous"]
+              },
+              "report_type": {
+                "type": "string"
+              },
+              "deadline": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          }
+        },
+        "audit_requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Required audit types"
+        }
+      }
+    },
+    "application_process": {
+      "type": "object",
+      "properties": {
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "step_number": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "description": {
+                "type": "string"
+              },
+              "required_documents": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "duration_days": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "contact_info": {
+          "type": "object",
+          "properties": {
+            "department": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "phone": {
+              "type": "string"
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "target_industries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "industry": {
+            "type": "string",
+            "enum": ["ai_ml", "robotics", "quantum_computing", "biotech", "fintech", "cleantech", "aerospace", "semiconductor", "blockchain", "vr_ar"]
+          },
+          "priority_level": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          },
+          "specific_focus": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Specific focus areas within the industry"
+          }
+        }
+      }
+    }
+  },
+  "required": ["policy_metadata", "incentives", "requirements", "compliance"]
+}

@@ -1,0 +1,338 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Global Policy Intelligence Schema",
+  "description": "Schema for storing and parsing global government policies, incentives, and compliance requirements",
+  "type": "object",
+  "properties": {
+    "policy_id": {
+      "type": "string",
+      "description": "Unique identifier for the policy"
+    },
+    "location": {
+      "type": "object",
+      "properties": {
+        "country": {
+          "type": "string",
+          "description": "Country name"
+        },
+        "region": {
+          "type": "string",
+          "description": "Region/State"
+        },
+        "city": {
+          "type": "string",
+          "description": "City"
+        },
+        "tech_hub": {
+          "type": "string",
+          "description": "Specific tech hub or special economic zone"
+        },
+        "coordinates": {
+          "type": "object",
+          "properties": {
+            "latitude": {
+              "type": "number"
+            },
+            "longitude": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "required": ["country", "region", "city"]
+    },
+    "policy_type": {
+      "type": "string",
+      "enum": ["tax_incentive", "subsidy", "land_grant", "rdd_support", "compliance", "immigration", "infrastructure"],
+      "description": "Type of policy"
+    },
+    "industry_focus": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["ai_ml", "robotics", "quantum_computing", "biotech", "fintech", "cleantech", "autonomous_driving", "embodied_ai", "blockchain", "ar_vr", "nanotech", "space_tech"]
+      },
+      "description": "Target industries for this policy"
+    },
+    "title": {
+      "type": "string",
+      "description": "Official title of the policy"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the policy"
+    },
+    "eligibility_criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "criteria_type": {
+            "type": "string",
+            "enum": ["company_size", "revenue", "employee_count", "investment_amount", "technology_type", "ip_portfolio", "experience_years", "nationality", "location_requirements"]
+          },
+          "condition": {
+            "type": "string",
+            "description": "Specific condition description"
+          },
+          "threshold": {
+            "type": ["string", "number"],
+            "description": "Minimum/maximum threshold"
+          }
+        }
+      }
+    },
+    "incentives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "incentive_type": {
+            "type": "string",
+            "enum": ["tax_break", "rdd_tax_credit", "subsidy", "grant", "land_grant", "infrastructure_support", "training_grant", "export_support", "ip_protection", "immigration_benefits"]
+          },
+          "financial_details": {
+            "type": "object",
+            "properties": {
+              "amount_usd": {
+                "type": "number",
+                "description": "Amount in USD"
+              },
+              "percentage": {
+                "type": "number",
+                "description": "Percentage-based incentive"
+              },
+              "currency": {
+                "type": "string",
+                "default": "USD"
+              },
+              "duration_years": {
+                "type": "integer",
+                "description": "Duration of incentive in years"
+              },
+              "cap_amount": {
+                "type": "number",
+                "description": "Maximum cap amount"
+              }
+            }
+          },
+          "non_financial_benefits": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["fast_track_approval", "regulatory_exemption", "market_access", "talent_acquisition", "supply_chain_integration", "branding_benefits", "network_access"]
+            }
+          }
+        }
+      }
+    },
+    "requirements": {
+      "type": "object",
+      "properties": {
+        "staffing": {
+          "type": "object",
+          "properties": {
+            "min_employees": {
+              "type": "integer",
+              "description": "Minimum number of employees"
+            },
+            "min_researchers": {
+              "type": "integer",
+              "description": "Minimum number of research staff"
+            },
+            "phd_percentage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Percentage of PhD holders"
+            },
+            "experience_years": {
+              "type": "integer",
+              "description": "Minimum years of experience required"
+            }
+          }
+        },
+        "intellectual_property": {
+          "type": "object",
+          "properties": {
+            "patent_count": {
+              "type": "integer",
+              "description": "Minimum number of patents"
+            },
+            "trademarks": {
+              "type": "integer",
+              "description": "Minimum number of trademarks"
+            },
+            "copyrights": {
+              "type": "integer",
+              "description": "Minimum number of copyrights"
+            },
+            "ip_type": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["invention", "utility", "design", "trademark", "copyright", "trade_secret"]
+              }
+            }
+          }
+        },
+        "investment": {
+          "type": "object",
+          "properties": {
+            "min_investment_usd": {
+              "type": "number",
+              "description": "Minimum investment amount in USD"
+            },
+            "rdd_percentage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Minimum R&D investment percentage"
+            }
+          }
+        },
+        "location_requirements": {
+          "type": "object",
+          "properties": {
+            "min_area_sqm": {
+              "type": "integer",
+              "description": "Minimum required area in square meters"
+            },
+            "facility_type": {
+              "type": "string",
+              "enum": ["rdd_center", "manufacturing", "office", "mixed_use", "lab", "testing_facility"]
+            },
+            "zone_requirements": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["free_trade_zone", "special_economic_zone", "tech_park", "university_park", "industrial_park"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "compliance": {
+      "type": "object",
+      "properties": {
+        "data_localization": {
+          "type": "boolean",
+          "description": "Requires data to be stored locally"
+        },
+        "export_controls": {
+          "type": "boolean",
+          "description": "Has export control restrictions"
+        },
+        "security_clearance": {
+          "type": "string",
+          "enum": ["none", "standard", "enhanced", "top_secret"],
+          "description": "Required security clearance level"
+        },
+        "certifications": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["iso_9001", "iso_14001", "iso_27001", "soc_2", "hipaa", "gdpr_compliant", "高新技术企业", "专精特新"]
+          }
+        },
+        "reporting_requirements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "frequency": {
+                "type": "string",
+                "enum": ["monthly", "quarterly", "annually", "continuous"]
+              },
+              "content_type": {
+                "type": "string",
+                "description": "Type of reporting required"
+              }
+            }
+          }
+        }
+      }
+    },
+    "application_process": {
+      "type": "object",
+      "properties": {
+        "application_deadline": {
+          "type": "string",
+          "format": "date",
+          "description": "Application deadline date"
+        },
+        "processing_time_days": {
+          "type": "integer",
+          "description": "Processing time in days"
+        },
+        "required_documents": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["business_plan", "financial_statements", "ip_portfolio", "team_cv", "market_analysis", "compliance_report", "environmental_impact", "social_impact"]
+          }
+        },
+        "contact_information": {
+          "type": "object",
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "phone": {
+              "type": "string"
+            },
+            "website": {
+              "type": "string",
+              "format": "uri"
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the original policy document"
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp"
+        },
+        "validity_period": {
+          "type": "object",
+          "properties": {
+            "start_date": {
+              "type": "string",
+              "format": "date"
+            },
+            "end_date": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        },
+        "confidence_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Confidence score in data accuracy"
+        },
+        "data_quality": {
+          "type": "string",
+          "enum": ["raw", "cleaned", "validated", "verified"],
+          "description": "Data quality level"
+        }
+      }
+    }
+  },
+  "required": ["policy_id", "location", "policy_type", "title", "description"]
+}

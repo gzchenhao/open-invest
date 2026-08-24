@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenInvest 中国政策展示系统</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        .header h1 {
+            color: #667eea;
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .header p {
+            color: #666;
+            font-size: 1.2em;
+            margin: 10px 0 0 0;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 40px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-width: 150px;
+        }
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 0;
+        }
+        .stat-label {
+            font-size: 1.1em;
+            color: #666;
+            margin: 5px 0 0 0;
+        }
+        .policies {
+            margin-top: 30px;
+        }
+        .policies h2 {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .policy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+        }
+        .policy-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .policy-card:hover {
+            transform: translateY(-5px);
+        }
+        .policy-title {
+            color: #667eea;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+        }
+        .policy-region {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .policy-industry {
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .policy-type {
+            background: #17a2b8;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+        }
+        .policy-description {
+            color: #666;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+        .policy-amount {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #28a745;
+            margin: 10px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #667eea;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 OpenInvest 中国政策展示系统</h1>
+            <p>智能发现 · 精准匹配 · 高效申请</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">12</div>
+                <div class="stat-label">中国政策</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">10</div>
+                <div class="stat-label">覆盖地区</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">8</div>
+                <div class="stat-label">热门行业</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">结构化数据</div>
+            </div>
+        </div>
+
+        <div class="policies">
+            <h2>📋 中国高新区产业扶持政策</h2>
+            <div class="policy-grid">
+                <!-- 政策卡片将通过JavaScript动态加载 -->
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 OpenInvest Protocol | 全球政策聚合器</p>
+            <p>让AI为您找到最适合的政策</p>
+        </div>
+    </div>
+
+    <script>
+        // 模拟政策数据
+        const policies = [
+            {
+                title: "北京中关村人工智能产业扶持政策",
+                region: "北京中关村",
+                industry: "AI",
+                type: "专项补贴",
+                description: "针对人工智能企业的专项扶持政策，包括研发补贴、场地优惠、人才奖励等多重支持。",
+                amount: "最高500万",
+                details: [
+                    "研发投入补贴：最高300万",
+                    "办公场地租金减免：前3年免租金",
+                    "高端人才奖励：每人每年20万",
+                    "设备购置补贴：最高200万",
+                    "专利申请资助：每项专利5万"
+                ]
+            },
+            {
+                title: "上海张江半导体产业扶持政策",
+                region: "上海张江",
+                industry: "半导体",
+                type: "产业基金",
+                description: "聚焦半导体产业链上下游企业，提供全方位的产业基金支持和服务。",
+                amount: "最高1000万",
+                details: [
+                    "产业基金投资：最高500万",
+                    "设备购置补贴：最高300万",
+                    "研发投入补贴：最高200万",
+                    "人才公寓支持：核心员工免费住宿",
+                    "税收优惠：前3年企业所得税全免"
+                ]
+            },
+            {
+                title: "深圳高新区自动驾驶扶持政策",
+                region: "深圳高新区",
+                industry: "自动驾驶",
+                type: "技术奖励",
+                description: "鼓励自动驾驶技术研发和产业化，提供从研发到市场推广的全链条支持。",
+                amount: "最高800万",
+                details: [
+                    "技术研发补贴：最高400万",
+                    "道路测试支持：免费测试场地",
+                    "示范应用奖励：最高200万",
+                    "产业化支持：最高200万",
+                    "人才引进补贴：每人每年30万"
+                ]
+            },
+            {
+                title: "合肥高新区量子计算产业扶持政策",
+                region: "合肥高新区",
+                industry: "量子计算",
+                type: "专项基金",
+                description: "重点支持量子计算技术研发和产业化，打造量子计算产业高地。",
+                amount: "最高1200万",
+                details: [
+                    "研发投入补贴：最高600万",
+                    "设备购置支持：最高400万",
+                    "产业化基金：最高200万",
+                    "人才团队建设：最高100万",
+                    "应用场景开发：最高100万"
+                ]
+            },
+            {
+                title: "杭州滨江区块链产业扶持政策",
+                region: "杭州滨江区",
+                industry: "区块链",
+                type: "创新奖励",
+                description: "支持区块链技术创新和应用落地，培育区块链产业集群。",
+                amount: "最高600万",
+                details: [
+                    "技术创新奖励：最高300万",
+                    "应用场景补贴：最高200万",
+                    "标准制定奖励：最高50万",
+                    "人才引进补贴：最高50万",
+                    "市场推广支持：最高50万"
+                ]
+            },
+            {
+                title: "成都高新区生物医药扶持政策",
+                region: "成都高新区",
+                industry: "生物科技",
+                type: "研发补贴",
+                description: "重点支持生物医药研发和产业化，打造西部生物医药创新高地。",
+                amount: "最高900万",
+                details: [
+                    "研发投入补贴：最高400万",
+                    "临床试验补贴：最高300万",
+                    "产业化支持：最高200万",
+                    "人才引进补贴：最高50万",
+                    "市场准入支持：最高50万"
+                ]
+            },
+            {
+                title: "武汉东湖高端装备扶持政策",
+                region: "武汉东湖高新区",
+                industry: "高端装备",
+                type: "设备补贴",
+                description: "支持高端装备制造技术研发和产业化，推动制造业转型升级。",
+                amount: "最高700万",
+                details: [
+                    "设备购置补贴：最高350万",
+                    "技术研发补贴：最高200万",
+                    "产业化支持：最高150万",
+                    "人才团队建设：最高50万",
+                    "市场推广支持：最高50万"
+                ]
+            },
+            {
+                title: "西安高新区航空航天扶持政策",
+                region: "西安高新区",
+                industry: "航空航天",
+                type: "专项基金",
+                description: "支持航空航天技术研发和产业化，打造航空航天产业基地。",
+                amount: "最高1000万",
+                details: [
+                    "研发投入补贴：最高500万",
+                    "设备购置补贴：最高300万",
+                    "产业化支持：最高200万",
+                    "人才引进补贴：最高50万",
+                    "市场开拓支持：最高50万"
+                ]
+            },
+            {
+                title: "南京江北新区新材料扶持政策",
+                region: "南京江北新区",
+                industry: "新材料",
+                type: "研发奖励",
+                description: "支持新材料技术研发和产业化，推动新材料产业创新发展。",
+                amount: "最高800万",
+                details: [
+                    "研发投入补贴：最高400万",
+                    "中试基地支持：最高200万",
+                    "产业化支持：最高200万",
+                    "人才引进补贴：最高50万",
+                    "标准制定奖励：最高50万"
+                ]
+            },
+            {
+                title: "天津滨海新能源扶持政策",
+                region: "天津滨海高新区",
+                industry: "新能源",
+                type: "产业基金",
+                description: "重点支持新能源技术研发和产业化，打造新能源产业集群。",
+                amount: "最高1100万",
+                details: [
+                    "技术研发补贴：最高500万",
+                    "产业化支持：最高400万",
+                    "设备购置补贴：最高200万",
+                    "人才引进补贴：最高50万",
+                    "市场推广支持：最高50万"
+                ]
+            },
+            {
+                title: "珠海横琴金融科技扶持政策",
+                region: "珠海横琴新区",
+                industry: "金融科技",
+                type: "创新奖励",
+                description: "支持金融科技创新和发展，打造金融科技产业高地。",
+                amount: "最高650万",
+                details: [
+                    "技术创新奖励：最高300万",
+                    "应用场景补贴：最高200万",
+                    "人才引进补贴：最高50万",
+                    "标准制定奖励：最高50万",
+                    "市场开拓支持：最高50万"
+                ]
+            },
+            {
+                title: "苏州工业园区纳米技术扶持政策",
+                region: "苏州工业园区",
+                industry: "纳米技术",
+                type: "专项基金",
+                description: "支持纳米技术研发和产业化，打造纳米技术创新高地。",
+                amount: "最高850万",
+                details: [
+                    "研发投入补贴：最高400万",
+                    "设备购置补贴：最高250万",
+                    "产业化支持：最高200万",
+                    "人才引进补贴：最高50万",
+                    "国际合作支持：最高50万"
+                ]
+            }
+        ];
+
+        // 渲染政策卡片
+        function renderPolicies() {
+            const policyGrid = document.querySelector('.policy-grid');
+            
+            policies.forEach(policy => {
+                const policyCard = document.createElement('div');
+                policyCard.className = 'policy-card';
+                
+                policyCard.innerHTML = `
+                    <div class="policy-title">${policy.title}</div>
+                    <div class="policy-region">${policy.region}</div>
+                    <div>
+                        <span class="policy-industry">${policy.industry}</span>
+                        <span class="policy-type">${policy.type}</span>
+                    </div>
+                    <div class="policy-description">${policy.description}</div>
+                    <div class="policy-amount">💰 ${policy.amount}</div>
+                    <div class="policy-details">
+                        <h4>📋 政策详情</h4>
+                        <ul>
+                            ${policy.details.map(detail => `<li>${detail}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                
+                policyGrid.appendChild(policyCard);
+            });
+        }
+
+        // 页面加载时渲染政策
+        document.addEventListener('DOMContentLoaded', renderPolicies);
+    </script>
+</body>
+</html>

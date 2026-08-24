@@ -1,0 +1,262 @@
+{
+  "policy_metadata": {
+    "policy_id": "silicon-valley-ai-innovation-fund-2024",
+    "policy_name": "Silicon Valley AI Innovation Fund",
+    "policy_type": "incentive_package",
+    "jurisdiction": {
+      "country": "United States",
+      "region": "California",
+      "city": "San Francisco",
+      "economic_zone": "Silicon Valley",
+      "admin_level": "state"
+    },
+    "effective_date": "2024-01-01",
+    "expiry_date": "2025-12-31",
+    "last_updated": "2024-08-21T00:00:00Z",
+    "source_url": "https://biz.sf.gov/innovation/ai-innovation-fund",
+    "language": "en",
+    "confidence_score": 0.98
+  },
+  "incentives": {
+    "tax_incentives": [
+      {
+        "type": "rd_tax_credit",
+        "description": "Research and Development Tax Credit",
+        "benefit_amount": {
+          "type": "percentage",
+          "value": 24.5,
+          "currency": "USD"
+        },
+        "duration": {
+          "years": 5
+        },
+        "eligibility_criteria": [
+          {
+            "criteria_type": "industry",
+            "condition": "AI/ML focused companies",
+            "value": "ai"
+          },
+          {
+            "criteria_type": "investment_amount",
+            "condition": "Annual R&D expenditure",
+            "value": 1000000
+          }
+        ]
+      },
+      {
+        "type": "corporate_tax_reduction",
+        "description": "Corporate Tax Reduction for AI Companies",
+        "benefit_amount": {
+          "type": "percentage",
+          "value": 15,
+          "currency": "USD",
+          "cap": 5000000
+        },
+        "duration": {
+          "years": 3
+        },
+        "eligibility_criteria": [
+          {
+            "criteria_type": "technology_type",
+            "condition": "Advanced AI technology",
+            "value": "advanced_ai"
+          }
+        ]
+      }
+    ],
+    "financial_subsidies": [
+      {
+        "type": "startup_grant",
+        "description": "AI Startup Grant Program",
+        "amount": {
+          "type": "fixed_amount",
+          "value": 500000,
+          "currency": "USD"
+        },
+        "application_deadline": "2024-12-31",
+        "payment_terms": {
+          "installments": true,
+          "milestones": [
+            {
+              "milestone": "Company Formation",
+              "percentage": 50
+            },
+            {
+              "milestone": "First Product Launch",
+              "percentage": 50
+            }
+          ]
+        }
+      },
+      {
+        "type": "rd_funding",
+        "description": "AI Research and Development Grant",
+        "amount": {
+          "type": "percentage_of_investment",
+          "value": 35,
+          "currency": "USD",
+          "cap": 2000000
+        },
+        "application_deadline": "2024-12-31",
+        "payment_terms": {
+          "installments": true,
+          "milestones": [
+            {
+              "milestone": "Project Approval",
+              "percentage": 25
+            },
+            {
+              "milestone": "Mid-term Review",
+              "percentage": 50
+            },
+            {
+              "milestone": "Final Review",
+              "percentage": 25
+            }
+          ]
+        }
+      }
+    ],
+    "land_and_infrastructure": [
+      {
+        "type": "office_space",
+        "description": "Co-working Space Subsidy",
+        "terms": {
+          "duration": {
+            "years": 2
+          },
+          "cost_savings": 60,
+          "area": 5000
+        }
+      },
+      {
+        "type": "infrastructure_access",
+        "description": "Cloud Computing Credits",
+        "terms": {
+          "duration": {
+            "years": 1
+          },
+          "cost_savings": 80,
+          "value": 100000
+        }
+      }
+    ]
+  },
+  "requirements": {
+    "staffing_requirements": {
+      "total_employees": {
+        "minimum": 10
+      },
+      "research_staff": {
+        "minimum_count": 5,
+        "percentage": 50,
+        "qualification_requirements": [
+          {
+            "level": "master",
+            "percentage": 40
+          },
+          {
+            "level": "phd",
+            "percentage": 10
+          }
+        ]
+      },
+      "experience_requirements": {
+        "management_experience": 3,
+        "industry_experience": 2
+      }
+    },
+    "financial_requirements": {
+      "minimum_investment": {
+        "amount": 500000,
+        "currency": "USD",
+        "investment_type": "total_investment"
+      },
+      "capital_requirements": {
+        "authorized_capital": 100000,
+        "paid_up_capital": 50000
+      }
+    },
+    "technology_requirements": {
+      "technology_level": "cutting_edge",
+      "trl_requirements": {
+        "minimum_trl": "poc",
+        "target_trl": "prototype"
+      },
+      "patent_requirements": {
+        "minimum_patents": 2,
+        "patent_types": ["invention", "utility_model"]
+      }
+    },
+    "compliance_requirements": {
+      "environmental_compliance": [
+        {
+          "standard": "ISO 14001",
+          "certification_required": false
+        }
+      ],
+      "data_compliance": {
+        "data_localization": false,
+        "data_protection": "standard"
+      },
+      "security_compliance": [
+        {
+          "clearance_level": "basic",
+          "background_checks": false
+        }
+      ]
+    }
+  },
+  "application_process": {
+    "steps": [
+      {
+        "step_number": 1,
+        "step_name": "Online Application",
+        "required_documents": ["Business Plan", "Team Resume", "Technology Description"],
+        "duration": "30 days",
+        "fees": {
+          "amount": 100,
+          "currency": "USD"
+        }
+      },
+      {
+        "step_number": 2,
+        "step_name": "Technical Review",
+        "required_documents": ["Technical Documentation", "IP Portfolio"],
+        "duration": "45 days",
+        "fees": {
+          "amount": 200,
+          "currency": "USD"
+        }
+      },
+      {
+        "step_number": 3,
+        "step_name": "Due Diligence",
+        "required_documents": ["Financial Statements", "Background Checks"],
+        "duration": "30 days",
+        "fees": {
+          "amount": 0,
+          "currency": "USD"
+        }
+      },
+      {
+        "step_number": 4,
+        "step_name": "Final Approval",
+        "required_documents": ["Final Application Package"],
+        "duration": "15 days",
+        "fees": {
+          "amount": 0,
+          "currency": "USD"
+        }
+      }
+    ],
+    "contact_information": {
+      "department": "San Francisco Office of Economic and Workforce Development",
+      "contact_person": "Sarah Johnson",
+      "email": "ai-innovation@sf.gov",
+      "phone": "+1-415-555-0123",
+      "address": "1 South Van Ness Avenue, San Francisco, CA 94103"
+    }
+  },
+  "tags": ["ai", "startup", "rd", "subsidy", "tax", "innovation", "silicon_valley", "fintech", "cleantech"]
+}

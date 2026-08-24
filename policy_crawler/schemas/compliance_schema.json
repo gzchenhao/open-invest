@@ -1,0 +1,461 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Compliance Standards Schema",
+  "description": "Schema for structuring global compliance standards and regulatory requirements",
+  "type": "object",
+  "required": ["compliance_id", "location", "industry", "compliance_type", "jurisdiction"],
+  "properties": {
+    "compliance_id": {
+      "type": "string",
+      "description": "Unique identifier for the compliance requirement",
+      "example": "shanghai-data-localization-2024-001"
+    },
+    "location": {
+      "type": "string",
+      "description": "Geographic location of the compliance requirement",
+      "example": "Shanghai, China"
+    },
+    "jurisdiction": {
+      "type": "string",
+      "description": "Administrative jurisdiction",
+      "example": "Shanghai Municipal Government"
+    },
+    "industry": {
+      "type": "string",
+      "enum": ["ai_ml", "robotics", "quantum_computing", "biotech", "autonomous_driving", "blockchain", "clean_tech", "semiconductor", "aerospace", "other"],
+      "description": "Target industry for the compliance requirement"
+    },
+    "compliance_type": {
+      "type": "string",
+      "enum": ["data_protection", "privacy", "security", "export_control", "intellectual_property", "financial_regulation", "environmental", "labor", "tax", "customs", "industry_specific"],
+      "description": "Type of compliance requirement"
+    },
+    "name": {
+      "type": "string",
+      "description": "Official name of the compliance standard"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the compliance requirement"
+    },
+    "legal_basis": {
+      "type": "object",
+      "properties": {
+        "law_name": {
+          "type": "string"
+        },
+        "article_number": {
+          "type": "string"
+        },
+        "regulation_number": {
+          "type": "string"
+        },
+        "effective_date": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "compliance_level": {
+      "type": "string",
+      "enum": ["basic", "standard", "enhanced", "strict"],
+      "description": "Required level of compliance"
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "applies_to": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["employees", "customers", "suppliers", "data", "systems", "facilities", "products", "services"]
+          }
+        },
+        "geographic_scope": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "temporal_scope": {
+          "type": "object",
+          "properties": {
+            "start_date": {
+              "type": "string",
+              "format": "date"
+            },
+            "end_date": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        }
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "requirement_id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "mandatory": {
+            "type": "boolean"
+          },
+          "verification_method": {
+            "type": "string",
+            "enum": ["audit", "certification", "self_assessment", "third_party_verification", "continuous_monitoring"]
+          },
+          "evidence_required": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "data_protection": {
+      "type": "object",
+      "properties": {
+        "data_classification": {
+          "type": "object",
+          "properties": {
+            "public": {
+              "type": "object",
+              "properties": {
+                "allowed_processing": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "internal": {
+              "type": "object",
+              "properties": {
+                "access_controls": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "confidential": {
+              "type": "object",
+              "properties": {
+                "encryption_required": {
+                  "type": "boolean"
+                },
+                "access_restrictions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "data_retention": {
+          "type": "object",
+          "properties": {
+            "retention_periods": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "deletion_requirements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "data_breach_notification": {
+          "type": "object",
+          "properties": {
+            "notification_timeframe": {
+              "type": "string"
+            },
+            "notification_authorities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "notification_content": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "security_requirements": {
+      "type": "object",
+      "properties": {
+        "access_control": {
+          "type": "object",
+          "properties": {
+            "authentication_methods": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["password", "multi_factor", "biometric", "certificate", "token"]
+              }
+            },
+            "authorization_levels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "network_security": {
+          "type": "object",
+          "properties": {
+            "firewall_requirements": {
+              "type": "string"
+            },
+            "intrusion_detection": {
+              "type": "boolean"
+            },
+            "encryption_protocols": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "physical_security": {
+          "type": "object",
+          "properties": {
+            "facility_access": {
+              "type": "string"
+            },
+            "surveillance": {
+              "type": "boolean"
+            },
+            "security_personnel": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "export_control": {
+      "type": "object",
+      "properties": {
+        "controlled_technologies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "export_licensing": {
+          "type": "object",
+          "properties": {
+            "required": {
+              "type": "boolean"
+            },
+            "processing_time": {
+              "type": "string"
+            }
+          }
+        },
+        "end_user_restrictions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "intellectual_property": {
+      "type": "object",
+      "properties": {
+        "patent_protection": {
+          "type": "object",
+          "properties": {
+            "filing_requirements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "maintenance_fees": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "trademark_protection": {
+          "type": "object",
+          "properties": {
+            "registration_process": {
+              "type": "string"
+            },
+            "renewal_requirements": {
+              "type": "string"
+            }
+          }
+        },
+        "copyright_protection": {
+          "type": "object",
+          "properties": {
+            "automatic_protection": {
+              "type": "boolean"
+            },
+            "registration_options": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "monitoring_and_enforcement": {
+      "type": "object",
+      "properties": {
+        "inspection_frequency": {
+          "type": "string"
+        },
+        "penalties": {
+          "type": "object",
+          "properties": {
+            "financial_penalties": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "amount_usd": {
+                    "type": "number"
+                  },
+                  "violation_type": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "criminal_liability": {
+              "type": "boolean"
+            },
+            "license_revocation": {
+              "type": "boolean"
+            }
+          }
+        },
+        "compliance_reporting": {
+          "type": "object",
+          "properties": {
+            "reporting_frequency": {
+              "type": "string"
+            },
+            "reporting_format": {
+              "type": "string"
+            },
+            "submission_method": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "compliance_tools": {
+      "type": "object",
+      "properties": {
+        "assessment_tools": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tool_name": {
+                "type": "string"
+              },
+              "purpose": {
+                "type": "string"
+              },
+              "cost_usd": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "consulting_services": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "service_provider": {
+                "type": "string"
+              },
+              "services_offered": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "training_programs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "program_name": {
+                "type": "string"
+              },
+              "duration": {
+                "type": "string"
+              },
+              "cost_usd": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "confidence_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Confidence score in data accuracy"
+        },
+        "verification_status": {
+          "type": "string",
+          "enum": ["verified", "pending", "unverified"]
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

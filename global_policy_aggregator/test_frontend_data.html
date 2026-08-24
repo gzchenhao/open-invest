@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Data Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .policy-card { border: 1px solid #ccc; margin: 10px; padding: 15px; border-radius: 8px; }
+        .debug-info { background: #f0f0f0; padding: 10px; margin: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Frontend Data Test</h1>
+    
+    <div class="debug-info">
+        <h3>Debug Information:</h3>
+        <p>Total policies: <span id="total-count">0</span></p>
+        <p>First policy title: <span id="first-title">No policies</span></p>
+        <p>First policy region: <span id="first-region">No policies</span></p>
+    </div>
+    
+    <div id="policies-container"></div>
+    
+    <script>
+        // 模拟政策数据（与服务器相同的数据）
+        const policies = [
+            {
+                "id": 1,
+                "title": "北京中关村人工智能产业扶持政策",
+                "region": "北京中关村",
+                "industry": "人工智能",
+                "type": "专项补贴",
+                "amount": "最高500万",
+                "issue_date": "2024-03-15",
+                "valid_period": "2024-03-15至2026-12-31",
+                "source_url": "http://www.zjpark.gov.cn/policies/2024/ai-policy.pdf",
+                "official_contact": {
+                    "department": "中关村科学城管理委员会产业发展处",
+                    "phone": "010-82896688",
+                    "email": "policy@zjpark.gov.cn",
+                    "address": "北京市海淀区中关村南大街5号"
+                },
+                "claim_status": "unclaimed",
+                "claim_token": null,
+                "description": "为促进人工智能产业发展，打造全球人工智能创新高地...",
+                "details": [
+                    "研发投入补贴：最高300万",
+                    "设备购置补贴：最高100万",
+                    "人才引进补贴：最高50万",
+                    "市场推广支持：最高50万"
+                ],
+                "requirements": {
+                    "研发人员比例": "不低于40%",
+                    "专利数量": "至少5项发明专利",
+                    "注册资本": "不低于2000万",
+                    "技术成熟度": "技术必须达到产业化阶段"
+                }
+            }
+        ];
+        
+        // 页面加载完成后显示数据
+        document.addEventListener('DOMContentLoaded', function() {
+            const totalCount = document.getElementById('total-count');
+            const firstTitle = document.getElementById('first-title');
+            const firstRegion = document.getElementById('first-region');
+            const container = document.getElementById('policies-container');
+            
+            // 显示统计信息
+            totalCount.textContent = policies.length;
+            if (policies.length > 0) {
+                firstTitle.textContent = policies[0].title;
+                firstRegion.textContent = policies[0].region;
+                
+                // 显示所有政策
+                policies.forEach(policy => {
+                    const policyCard = document.createElement('div');
+                    policyCard.className = 'policy-card';
+                    policyCard.innerHTML = `
+                        <h3>${policy.title}</h3>
+                        <p><strong>地区：</strong>${policy.region}</p>
+                        <p><strong>行业：</strong>${policy.industry}</p>
+                        <p><strong>金额：</strong>${policy.amount}</p>
+                    `;
+                    container.appendChild(policyCard);
+                });
+            } else {
+                firstTitle.textContent = 'No policies';
+                firstRegion.textContent = 'No policies';
+            }
+        });
+        
+        // 测试搜索功能
+        function testSearch() {
+            const keyword = "北京";
+            const results = policies.filter(policy => 
+                policy.title.toLowerCase().includes(keyword.toLowerCase()) ||
+                policy.region.toLowerCase().includes(keyword.toLowerCase())
+            );
+            
+            alert(`搜索 "${keyword}" 找到 ${results.length} 条结果`);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+SHANGHAI QUANTUM TECHNOLOGY HUB INCENTIVE POLICY 2024
+Publication Date: January 15, 2024
+Authority: Shanghai Municipal Government
+Last Updated: June 20, 2024
+
+PRIORITY: HIGH TARGET INDUSTRIES: Quantum Computing, AI/ML, Semiconductor
+
+1. TAX INCENTIVES
+   - Corporate tax reduction of 30% for 5 years
+   - R&D tax credit of 40% for qualified quantum computing projects
+   - Property tax holiday for first 3 years
+
+2. FINANCIAL SUBSIDIES
+   - Startup grant of $2,000,000 for quantum computing companies
+   - R&D funding up to $5,000,000 for breakthrough technologies
+   - Equipment subsidy of 50% for quantum computing hardware
+   - Talent recruitment grant of $500,000 per PhD scientist
+
+3. LAND FACILITIES
+   - Land grant up to 10,000 sqm in Zhangjiang Hi-Tech Park
+   - Factory rent discount of 50% for 10 years
+   - Office space subsidy in Pudong New Area
+
+4. TALENT INCENTIVES
+   - Visa assistance for international quantum scientists
+   - Housing allowance of $3,000 per month
+   - Special tax breaks for technical experts
+   - Education subsidies for children of expatriates
+
+5. REQUIREMENTS
+   - Minimum 50 research staff members
+   - At least 30% PhD holders in technical positions
+   - Minimum 10 patents filed in quantum computing
+   - Minimum investment of $10,000,000
+   - TRL level of at least prototype
+   - ISO 9001 certification required
+
+6. COMPLIANCE
+   - Data localization required for quantum data
+   - Export controls on quantum technologies
+   - Environmental compliance: ISO 14001
+   - Labor laws compliance with Shanghai regulations
+
+7. APPLICATION PROCESS
+   Step 1: Submit preliminary application by July 31, 2024
+   Step 2: Technical evaluation within 30 days
+   Step 3: Final approval within 60 days
+   Step 4: Contract signing and incentive allocation
+
+8. CONTACT INFORMATION
+   Department: Shanghai Quantum Technology Development Office
+   Email: quantum@shanghai.gov.cn
+   Phone: +86-21-1234-5678
+   Website: www.shanghai-quantum.gov.cn
+
+9. COMPETITIVE ADVANTAGES
+   - Access to Shanghai's quantum computing infrastructure
+   - Collaboration opportunities with Fudan University
+   - Networking with global quantum research community
+   - Priority access to government procurement programs
+
+10. VALIDITY
+    This policy is valid until December 31, 2025
+    Extension possible based on policy performance evaluation

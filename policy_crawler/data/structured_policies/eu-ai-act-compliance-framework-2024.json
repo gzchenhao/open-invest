@@ -1,0 +1,200 @@
+{
+  "policy_metadata": {
+    "policy_id": "eu-ai-act-compliance-framework-2024",
+    "policy_name": "EU AI Act Compliance Framework",
+    "policy_type": "regulatory",
+    "jurisdiction": {
+      "country": "European Union",
+      "region": "EU",
+      "city": "Brussels",
+      "economic_zone": "EU Single Market",
+      "admin_level": "union"
+    },
+    "effective_date": "2024-08-01",
+    "expiry_date": "2027-12-31",
+    "last_updated": "2024-08-21T00:00:00Z",
+    "source_url": "https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence",
+    "language": "en",
+    "confidence_score": 0.99
+  },
+  "incentives": {
+    "tax_incentives": [
+      {
+        "type": "rd_tax_credit",
+        "description": "AI Research and Development Super Deduction",
+        "benefit_amount": {
+          "type": "percentage",
+          "value": 200,
+          "currency": "EUR"
+        },
+        "duration": {
+          "years": 5
+        },
+        "eligibility_criteria": [
+          {
+            "criteria_type": "industry",
+            "condition": "AI/ML focused companies",
+            "value": "ai"
+          },
+          {
+            "criteria_type": "technology_type",
+            "condition": "Compliant with EU AI Act",
+            "value": "compliant_ai"
+          }
+        ]
+      }
+    ],
+    "financial_subsidies": [
+      {
+        "type": "rd_funding",
+        "description": "AI Research and Development Grant",
+        "amount": {
+          "type": "percentage_of_investment",
+          "value": 60,
+          "currency": "EUR",
+          "cap": 5000000
+        },
+        "application_deadline": "2024-12-31",
+        "payment_terms": {
+          "installments": true,
+          "milestones": [
+            {
+              "milestone": "Project Approval",
+              "percentage": 25
+            },
+            {
+              "milestone": "Mid-term Review",
+              "percentage": 50
+            },
+            {
+              "milestone": "Final Review",
+              "percentage": 25
+            }
+          ]
+        }
+      }
+    ],
+    "land_and_infrastructure": [
+      {
+        "type": "infrastructure_access",
+        "description": "EU Digital Infrastructure Access",
+        "terms": {
+          "duration": {
+            "years": 5
+          },
+          "cost_savings": 40,
+          "value": 1000000
+        }
+      }
+    ]
+  },
+  "requirements": {
+    "staffing_requirements": {
+      "total_employees": {
+        "minimum": 15
+      },
+      "research_staff": {
+        "minimum_count": 8,
+        "percentage": 53,
+        "qualification_requirements": [
+          {
+            "level": "master",
+            "percentage": 33
+          },
+          {
+            "level": "phd",
+            "percentage": 20
+          }
+        ]
+      }
+    },
+    "financial_requirements": {
+      "minimum_investment": {
+        "amount": 1000000,
+        "currency": "EUR",
+        "investment_type": "total_investment"
+      }
+    },
+    "technology_requirements": {
+      "technology_level": "advanced",
+      "trl_requirements": {
+        "minimum_trl": "prototype",
+        "target_trl": "pilot"
+      },
+      "patent_requirements": {
+        "minimum_patents": 5,
+        "patent_types": ["invention", "utility_model"]
+      }
+    },
+    "compliance_requirements": {
+      "environmental_compliance": [
+        {
+          "standard": "ISO 14001",
+          "certification_required": true
+        }
+      ],
+      "data_compliance": {
+        "data_localization": false,
+        "data_protection": "enhanced"
+      },
+      "security_compliance": [
+        {
+          "clearance_level": "secret",
+          "background_checks": true
+        }
+      ]
+    }
+  },
+  "application_process": {
+    "steps": [
+      {
+        "step_number": 1,
+        "step_name": "Online Application",
+        "required_documents": ["Business Plan", "Team Resume", "Technology Description"],
+        "duration": "45 days",
+        "fees": {
+          "amount": 300,
+          "currency": "EUR"
+        }
+      },
+      {
+        "step_number": 2,
+        "step_name": "Technical Review",
+        "required_documents": ["Technical Documentation", "IP Portfolio"],
+        "duration": "60 days",
+        "fees": {
+          "amount": 500,
+          "currency": "EUR"
+        }
+      },
+      {
+        "step_number": 3,
+        "step_name": "Compliance Review",
+        "required_documents": ["Compliance Documentation", "Security Plan"],
+        "duration": "45 days",
+        "fees": {
+          "amount": 0,
+          "currency": "EUR"
+        }
+      },
+      {
+        "step_number": 4,
+        "step_name": "Final Approval",
+        "required_documents": ["Final Application Package"],
+        "duration": "30 days",
+        "fees": {
+          "amount": 0,
+          "currency": "EUR"
+        }
+      }
+    ],
+    "contact_information": {
+      "department": "European Commission - Digital Strategy",
+      "contact_person": "Dr. Maria Rodriguez",
+      "email": "ai-act@ec.europa.eu",
+      "phone": "+32-2-299-0000",
+      "address": "B-1049 Brussels, Belgium"
+    }
+  },
+  "tags": ["ai", "regulatory", "compliance", "eu", "data_protection", "security", "rd", "tax", "innovation"]
+}

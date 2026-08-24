@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Policy Compliance Schema",
+  "description": "Schema for validating policy compliance data",
+  "type": "object",
+  "properties": {
+    "compliance_id": {
+      "type": "string",
+      "description": "Unique identifier for the compliance requirement"
+    },
+    "compliance_type": {
+      "type": "string",
+      "enum": ["data_localization", "export_control", "security_clearance", "environmental", "reporting"],
+      "description": "Type of compliance requirement"
+    },
+    "title": {
+      "type": "string",
+      "description": "Title of the compliance requirement"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the compliance requirement"
+    },
+    "mandatory": {
+      "type": "boolean",
+      "description": "Whether the compliance is mandatory"
+    },
+    "specific_requirements": {
+      "type": "object",
+      "properties": {
+        "data_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Types of data affected"
+        },
+        "storage_location": {
+          "type": "string",
+          "enum": ["domestic", "local", "specific_region"],
+          "description": "Required storage location"
+        },
+        "controlled_technologies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Technologies under control"
+        },
+        "export_licensing": {
+          "type": "boolean",
+          "description": "Whether export licensing is required"
+        },
+        "environmental_standards": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Required environmental standards"
+        },
+        "reporting_frequency": {
+          "type": "string",
+          "enum": ["monthly", "quarterly", "annually", "continuous"],
+          "description": "Reporting frequency"
+        }
+      }
+    }
+  },
+  "required": ["compliance_id", "compliance_type", "title", "description", "mandatory"]
+}

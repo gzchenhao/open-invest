@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Policy Requirement Schema",
+  "description": "Schema for validating policy requirement data",
+  "type": "object",
+  "properties": {
+    "requirement_id": {
+      "type": "string",
+      "description": "Unique identifier for the requirement"
+    },
+    "requirement_type": {
+      "type": "string",
+      "enum": ["staffing", "intellectual_property", "financial", "technical", "location"],
+      "description": "Type of requirement"
+    },
+    "title": {
+      "type": "string",
+      "description": "Title of the requirement"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the requirement"
+    },
+    "mandatory": {
+      "type": "boolean",
+      "description": "Whether the requirement is mandatory"
+    },
+    "specific_requirements": {
+      "type": "object",
+      "properties": {
+        "min_employees": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Minimum number of employees"
+        },
+        "min_researchers": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Minimum number of research staff"
+        },
+        "phd_percentage": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Minimum percentage of PhD holders"
+        },
+        "min_patents": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Minimum number of patents"
+        },
+        "min_trademarks": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "description": "Minimum number of trademarks"
+        },
+        "min_investment_usd": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Minimum investment in USD"
+        },
+        "tech_stack_requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Required technology stack"
+        }
+      }
+    }
+  },
+  "required": ["requirement_id", "requirement_type", "title", "description", "mandatory"]
+}

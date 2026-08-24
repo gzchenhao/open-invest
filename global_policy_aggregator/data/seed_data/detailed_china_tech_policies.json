@@ -1,0 +1,1414 @@
+[
+  {
+    "policy_id": "beijing_zhongguancun_embodied_ai_2024",
+    "location": "beijing_zhongguancun",
+    "country": "CN",
+    "region": "北京中关村",
+    "city": "北京市",
+    "industry": "embodied_ai",
+    "policy_type": "comprehensive_incentive",
+    "title": "中关村科学城具身智能产业专项扶持政策（2024年）",
+    "description": "为促进具身智能产业发展，打造全球具身智能创新高地，特制定本专项扶持政策。重点支持人形机器人、智能交互终端等具身智能技术研发和产业化。",
+    "issuing_authority": "北京市海淀区人民政府",
+    "issue_date": "2024-03-15",
+    "valid_period": "2024-03-15至2026-12-31",
+    "incentives": [
+      {
+        "incentive_id": "embodied_ai_rd_grant",
+        "incentive_type": "专项补贴",
+        "title": "具身智能研发资助",
+        "description": "对具身智能核心技术研发项目给予最高3000万元资助",
+        "amount_details": {
+          "max_amount_cny": 30000000,
+          "currency": "CNY",
+          "conditions": [
+            "核心技术自主可控",
+            "具有明确产业化路径",
+            "研发团队不少于30人，博士占比不低于40%"
+          ],
+          "support_duration": "3年",
+          "payment_schedule": "首期40%，中期40%，验收20%"
+        },
+        "eligibility_criteria": [
+          {
+            "criteria_type": "industry_focus",
+            "description": "具身智能领域"
+          },
+          {
+            "criteria_type": "rd_intensity",
+            "description": "研发投入占比不低于20%"
+          },
+          {
+            "criteria_type": "team_size",
+            "description": "研发团队不少于30人"
+          },
+          {
+            "criteria_type": "qualification",
+            "description": "企业成立时间不超过5年"
+          }
+        ]
+      },
+      {
+        "incentive_id": "embodied_ai_equipment_subsidy",
+        "incentive_type": "设备购置补贴",
+        "title": "设备购置补贴",
+        "description": "对具身智能研发设备购置给予最高500万元补贴",
+        "amount_details": {
+          "max_amount_cny": 5000000,
+          "currency": "CNY",
+          "coverage_rate": "30%",
+          "conditions": [
+            "设备清单需经专家评审",
+            "设备用于具身智能研发",
+            "购置时间在政策实施后1年内"
+          ]
+        }
+      },
+      {
+        "incentive_id": "embodied_ai_talent_reward",
+        "incentive_type": "人才奖励",
+        "title": "高端人才奖励",
+        "description": "对引进的具身智能领域顶尖人才给予最高800万元奖励",
+        "amount_details": {
+          "max_amount_cny": 8000000,
+          "currency": "CNY",
+          "conditions": [
+            "院士、长江学者等",
+            "在中关村工作满3年",
+            "带领团队不少于20人"
+          ],
+          "target_talent_types": ["phd", "senior_title", "overseas"]
+        }
+      },
+      {
+        "incentive_id": "embodied_ai_tax_break",
+        "incentive_type": "税收优惠",
+        "title": "企业所得税优惠",
+        "description": "具身智能企业所得税减免50%，最高不超过1000万元",
+        "amount_details": {
+          "max_amount_cny": 10000000,
+          "currency": "CNY",
+          "duration": "3年",
+          "conditions": [
+            "企业年度营收超过5000万元",
+            "研发投入占比不低于15%"
+          ]
+        }
+      }
+    ],
+    "requirements": [
+      {
+        "requirement_id": "rd_staff_ratio",
+        "requirement_type": "研发人员比例",
+        "title": "研发人员比例要求",
+        "description": "研发人员占比不低于40%，博士占比不低于30%",
+        "details": {
+          "minimum_percentage": "40%",
+          "doctor_percentage": "30%",
+          "total_staff_requirement": "不少于50人"
+        }
+      },
+      {
+        "requirement_id": "patent_requirement",
+        "requirement_type": "专利数量",
+        "title": "知识产权要求",
+        "description": "拥有发明专利不少于10项，软件著作权不少于15项",
+        "details": {
+          "invention_patents": "不少于10项",
+          "software_copyrights": "不少于15项",
+          "patent_quality": "至少3项为核心专利"
+        }
+      },
+      {
+        "requirement_id": "investment_requirement",
+        "requirement_type": "投资要求",
+        "title": "固定资产投资要求",
+        "description": "固定资产投资不低于5000万元人民币",
+        "details": {
+          "minimum_investment": "5000万元",
+          "investment_scope": "用于具身智能研发和产业化",
+          "investment_timeline": "2年内完成"
+        }
+      },
+      {
+        "requirement_id": "localization_requirement",
+        "requirement_type": "本地化要求",
+        "title": "本地化经营要求",
+        "description": "必须在中关村科学城实际经营，设立独立法人",
+        "details": {
+          "physical_location": "必须在中关村科学城有实际办公场地",
+          "legal_entity": "必须设立独立法人",
+          "tax_residency": "必须在中关村纳税",
+          "employment": "必须雇佣本地员工不少于30人"
+        }
+      }
+    ],
+    "compliance_standards": [
+      {
+        "standard_id": "data_security",
+        "standard_type": "数据安全",
+        "title": "数据安全合规",
+        "description": "用户数据必须存储在境内服务器，符合国家数据安全法规"
+      },
+      {
+        "standard_id": "export_control",
+        "standard_type": "出口管制",
+        "title": "技术出口管制",
+        "description": "涉及核心技术的出口需要审批，遵守国家出口管制法规"
+      }
+    ],
+    "application_process": {
+      "steps": [
+        "1. 在线提交申请材料",
+        "2. 专家评审（30个工作日）",
+        "3. 公示（15个工作日）",
+        "4. 签订协议",
+        "5. 资金拨付"
+      ],
+      "required_documents": [
+        "企业营业执照",
+        "研发项目计划书",
+        "财务报表",
+        "知识产权证明",
+        "团队人员清单",
+        "场地证明"
+      ],
+      "processing_time": "75个工作日",
+      "contact_info": {
+        "department": "中关村科学城管理委员会",
+        "phone": "010-12345678",
+        "email": "policy@zjpark.gov.cn",
+        "address": "北京市海淀区中关村南大街5号"
+      }
+    },
+    "target_industries": ["具身智能", "人工智能", "机器人", "智能交互"],
+    "metadata": {
+      "source_url": "https://www.zjpark.gov.cn/policies/2024/embodied-ai",
+      "crawl_timestamp": "2024-03-15T10:00:00Z",
+      "confidence_score": 0.95,
+      "last_updated": "2024-08-01",
+      "version": "1.0"
+    }
+  },
+  {
+    "policy_id": "shenzhen_hightech_auto_driving_2024",
+    "location": "shenzhen_hightech",
+    "country": "CN",
+    "region": "深圳高新区",
+    "city": "深圳市",
+    "industry": "auto_driving",
+    "policy_type": "comprehensive_incentive",
+    "title": "深圳高新区智能网联汽车产业扶持政策（2024年）",
+    "description": "为促进智能网联汽车产业发展，打造全球智能网联汽车创新中心，特制定本专项扶持政策。重点支持自动驾驶技术研发、测试和应用。",
+    "issuing_authority": "深圳市南山区人民政府",
+    "issue_date": "2024-02-20",
+    "valid_period": "2024-02-20至2026-12-31",
+    "incentives": [
+      {
+        "incentive_id": "auto_driving_rd_grant",
+        "incentive_type": "技术奖励",
+        "title": "自动驾驶研发资助",
+        "description": "对自动驾驶核心技术研发项目给予最高2500万元资助",
+        "amount_details": {
+          "max_amount_cny": 25000000,
+          "currency": "CNY",
+          "conditions": [
+            "核心技术自主可控",
+            "具有产业化前景",
+            "研发团队不少于25人，博士占比不低于35%"
+          ],
+          "support_duration": "3年"
+        }
+      },
+      {
+        "incentive_id": "auto_driving_test_subsidy",
+        "incentive_type": "测试补贴",
+        "title": "自动驾驶测试补贴",
+        "description": "对自动驾驶道路测试给予最高300万元补贴",
+        "amount_details": {
+          "max_amount_cny": 3000000,
+          "currency": "CNY",
+          "conditions": [
+            "获得测试牌照",
+            "完成不少于1000公里测试",
+            "测试数据共享"
+          ]
+        }
+      },
+      {
+        "incentive_id": "auto_driving_factory_rent",
+        "incentive_type": "厂房租金优惠",
+        "title": "厂房租金优惠",
+        "description": "自动驾驶企业厂房租金减免50%，最高300万元/年",
+        "amount_details": {
+          "max_amount_cny": 3000000,
+          "currency": "CNY",
+          "duration": "3年",
+          "conditions": [
+            "厂房面积不少于2000平方米",
+            "用于自动驾驶研发和生产"
+          ]
+        }
+      },
+      {
+        "incentive_id": "auto_driving_talent_reward",
+        "incentive_type": "人才奖励",
+        "title": "高端人才奖励",
+        "description": "对引进的自动驾驶领域顶尖人才给予最高600万元奖励",
+        "amount_details": {
+          "max_amount_cny": 6000000,
+          "currency": "CNY",
+          "conditions": [
+            "院士、长江学者等",
+            "在深圳工作满3年",
+            "带领团队不少于15人"
+          ]
+        }
+      }
+    ],
+    "requirements": [
+      {
+        "requirement_id": "auto_driving_rd_staff",
+        "requirement_type": "研发人员比例",
+        "title": "研发人员比例要求",
+        "description": "研发人员占比不低于35%，博士占比不低于25%",
+        "details": {
+          "minimum_percentage": "35%",
+          "doctor_percentage": "25%",
+          "total_staff_requirement": "不少于40人"
+        }
+      },
+      {
+        "requirement_id": "auto_driving_patent",
+        "requirement_type": "专利数量",
+        "title": "知识产权要求",
+        "description": "拥有发明专利不少于8项，软件著作权不少于12项",
+        "details": {
+          "invention_patents": "不少于8项",
+          "software_copyrights": "不少于12项",
+          "patent_quality": "至少2项为核心专利"
+        }
+      },
+      {
+        "requirement_id": "auto_driving_investment",
+        "requirement_type": "投资要求",
+        "title": "固定资产投资要求",
+        "description": "固定资产投资不低于4000万元人民币",
+        "details": {
+          "minimum_investment": "4000万元",
+          "investment_scope": "用于自动驾驶研发和产业化",
+          "investment_timeline": "2年内完成"
+        }
+      }
+    ],
+    "compliance_standards": [
+      {
+        "standard_id": "auto_driving_safety",
+        "standard_type": "安全标准",
+        "title": "自动驾驶安全标准",
+        "description": "必须符合国家自动驾驶安全标准，通过相关认证"
+      }
+    ],
+    "application_process": {
+      "steps": [
+        "1. 在线提交申请",
+        "2. 专家评审（25个工作日）",
+        "3. 公示（10个工作日）",
+        "4. 签订协议",
+        "5. 资金拨付"
+      ],
+      "required_documents": [
+        "企业营业执照",
+        "研发项目计划书",
+        "财务报表",
+        "知识产权证明",
+        "测试牌照",
+        "场地证明"
+      ],
+      "processing_time": "60个工作日",
+      "contact_info": {
+        "department": "深圳高新区管理委员会",
+        "phone": "0755-12345678",
+        "email": "policy@szpark.gov.cn",
+        "address": "深圳市南山区科技园南区"
+      }
+    },
+    "target_industries": ["自动驾驶", "智能网联汽车", "车联网", "智能交通"],
+    "metadata": {
+      "source_url": "https://www.szpark.gov.cn/policies/2024/auto-driving",
+      "crawl_timestamp": "2024-02-20T09:00:00Z",
+      "confidence_score": 0.92,
+      "last_updated": "2024-07-15",
+      "version": "1.0"
+    }
+  },
+  {
+    "policy_id": "shanghai_zhangjiang_semiconductor_2024",
+    "location": "shanghai_zhangjiang",
+    "country": "CN",
+    "region": "上海张江",
+    "city": "上海市",
+    "industry": "semiconductor",
+    "policy_type": "comprehensive_incentive",
+    "title": "张江科学城集成电路产业专项扶持政策（2024年）",
+    "description": "为促进集成电路产业发展，打造全球集成电路创新高地，特制定本专项扶持政策。重点支持芯片设计、制造、封测等全产业链发展。",
+    "issuing_authority": "上海市浦东新区人民政府",
+    "issue_date": "2024-01-10",
+    "valid_period": "2024-01-10至2026-12-31",
+    "incentives": [
+      {
+        "incentive_id": "semiconductor_rd_grant",
+        "incentive_type": "产业基金",
+        "title": "半导体研发资助",
+        "description": "对集成电路核心技术研发项目给予最高4000万元资助",
+        "amount_details": {
+          "max_amount_cny": 40000000,
+          "currency": "CNY",
+          "conditions": [
+            "核心技术自主可控",
+            "具有产业化前景",
+            "研发团队不少于50人，博士占比不低于40%"
+          ],
+          "support_duration": "3年"
+        }
+      },
+      {
+        "incentive_id": "semiconductor_equipment_subsidy",
+        "incentive_type": "设备购置补贴",
+        "title": "设备购置补贴",
+        "description": "对半导体设备购置给予最高1000万元补贴",
+        "amount_details": {
+          "max_amount_cny": 10000000,
+          "currency": "CNY",
+          "coverage_rate": "20%",
+          "conditions": [
+            "设备清单需经专家评审",
+            "设备用于半导体研发",
+            "购置时间在政策实施后1年内"
+          ]
+        }
+      },
+      {
+        "incentive_id": "semiconductor_tax_break",
+        "incentive_type": "税收优惠",
+        "title": "企业所得税优惠",
+        "description": "集成电路企业所得税三免三减半",
+        "amount_details": {
+          "duration": "3年全免，2年减半",
+          "conditions": [
+            "企业年度营收超过1亿元",
+            "研发投入占比不低于20%"
+          ]
+        }
+      },
+      {
+        "incentive_id": "semiconductor_talent_reward",
+        "incentive_type": "人才奖励",
+        "title": "高端人才奖励",
+        "description": "对引进的半导体领域顶尖人才给予最高1000万元奖励",
+        "amount_details": {
+          "max_amount_cny": 10000000,
+          "currency": "CNY",
+          "conditions": [
+            "院士、长江学者等",
+            "在上海工作满3年",
+            "带领团队不少于30人"
+          ]
+        }
+      }
+    ],
+    "requirements": [
+      {
+        "requirement_id": "semiconductor_rd_staff",
+        "requirement_type": "研发人员比例",
+        "title": "研发人员比例要求",
+        "description": "研发人员占比不低于45%，博士占比不低于35%",
+        "details": {
+          "minimum_percentage": "45%",
+          "doctor_percentage": "35%",
+          "total_staff_requirement": "不少于100人"
+        }
+      },
+      {
+        "requirement_id": "semiconductor_patent",
+        "requirement_type": "专利数量",
+        "title": "知识产权要求",
+        "description": "拥有发明专利不少于15项，软件著作权不少于20项",
+        "details": {
+          "invention_patents": "不少于15项",
+          "software_copyrights": "不少于20项",
+          "patent_quality": "至少5项为核心专利"
+        }
+      },
+      {
+        "requirement_id": "semiconductor_investment",
+        "requirement_type": "投资要求",
+        "title": "固定资产投资要求",
+        "description": "固定资产投资不低于1亿元",
+        "details": {
+          "minimum_investment": "1亿元",
+          "investment_scope": "用于集成电路研发和产业化",
+          "investment_timeline": "3年内完成"
+        }
+      }
+    ],
+    "compliance_standards": [
+      {
+        "standard_id": "semiconductor_export_control",
+        "standard_type": "出口管制",
+        "title": "技术出口管制",
+        "description": "涉及核心技术的出口需要审批，遵守国家出口管制法规"
+      }
+    ],
+    "application_process": {
+      "steps": [
+        "1. 在线提交申请",
+        "2. 专家评审（40个工作日）",
+        "3. 公示（15个工作日）",
+        "4. 签订协议",
+        "5. 资金拨付"
+      ],
+      "required_documents": [
+        "企业营业执照",
+        "研发项目计划书",
+        "财务报表",
+        "知识产权证明",
+        "团队人员清单",
+        "场地证明"
+      ],
+      "processing_time": "90个工作日",
+      "contact_info": {
+        "department": "张江科学城管理委员会",
+        "phone": "021-12345678",
+        "email": "policy@zjpark.gov.cn",
+        "address": "上海市浦东新区张江高科技园区"
+      }
+    },
+    "target_industries": ["半导体", "集成电路", "芯片设计", "芯片制造"],
+    "metadata": {
+      "source_url": "https://www.zjpark.gov.cn/policies/2024/semiconductor",
+      "crawl_timestamp": "2024-01-10T08:00:00Z",
+      "confidence_score": 0.95,
+      "last_updated": "2024-06-30",
+      "version": "1.0"
+    }
+  },
+  {
+    "policy_id": "suzhou_industrial_park_quantum_2024",
+    "location": "suzhou_industrial_park",
+    "country": "CN",
+    "region": "苏州工业园区",
+    "city": "苏州市",
+    "industry": "quantum_computing",
+    "policy_type": "comprehensive_incentive",
+    "title": "苏州工业园区量子计算产业扶持政策（2024年）",
+    "description": "为促进量子计算产业发展，打造全球量子计算创新中心，特制定本专项扶持政策。重点支持量子计算、量子通信、量子信息等前沿技术研发。",
+    "issuing_authority": "苏州工业园区管理委员会",
+    "issue_date": "2024-04-01",
+    "valid_period": "2024-04-01至2026-12-31",
+    "incentives": [
+      {
+        "incentive_id": "quantum_rd_grant",
+        "incentive_type": "专项补贴",
+        "title": "量子计算研发资助",
+        "description": "对量子计算核心技术研发项目给予最高2000万元资助",
+        "amount_details": {
+          "max_amount_cny": 20000000,
+          "currency": "CNY",
+          "conditions": [
+            "核心技术自主可控",
+            "具有产业化前景",
+            "研发团队不少于20人，博士占比不低于50%"
+          ],
+          "support_duration": "3年"
+        }
+      },
+      {
+        "incentive_id": "quantum_equipment_subsidy",
+        "incentive_type": "设备购置补贴",
+        "title": "量子设备购置补贴",
+        "description": "对量子计算设备购置给予最高800万元补贴",
+        "amount_details": {
+          "max_amount_cny": 8000000,
+          "currency": "CNY",
+          "coverage_rate": "40%",
+          "conditions": [
+            "设备清单需经专家评审",
+            "设备用于量子计算研发",
+            "购置时间在政策实施后1年内"
+          ]
+        }
+      },
+      {
+        "incentive_id": "quantum_talent_reward",
+        "incentive_type": "人才奖励",
+        "title": "高端人才奖励",
+        "description": "对引进的量子计算领域顶尖人才给予最高800万元奖励",
+        "amount_details": {
+          "max_amount_cny": 8000000,
+          "currency": "CNY",
+          "conditions": [
+            "院士、长江学者等",
+            "在苏州工作满3年",
+            "带领团队不少于15人"
+          ]
+        }
+      },
+      {
+        "incentive_id": "quantum_tax_break",
+        "incentive_type": "税收优惠",
+        "title": "企业所得税优惠",
+        "description": "量子计算企业所得税减免50%，最高不超过800万元",
+        "amount_details": {
+          "max_amount_cny": 8000000,
+          "currency": "CNY",
+          "duration": "3年",
+          "conditions": [
+            "企业年度营收超过3000万元",
+            "研发投入占比不低于25%"
+          ]
+        }
+      }
+    ],
+    "requirements": [
+      {
+        "requirement_id": "quantum_rd_staff",
+        "requirement_type": "研发人员比例",
+        "title": "研发人员比例要求",
+        "description": "研发人员占比不低于50%，博士占比不低于40%",
+        "details": {
+          "minimum_percentage": "50%",
+          "doctor_percentage": "40%",
+          "total_staff_requirement": "不少于30人"
+        }
+      },
+      {
+        "requirement_id": "quantum_patent",
+        "requirement_type": "专利数量",
+        "title": "知识产权要求",
+        "description": "拥有发明专利不少于8项，软件著作权不少于10项",
+        "details": {
+          "invention_patents": "不少于8项",
+          "software_copyrights": "不少于10项",
+          "patent_quality": "至少3项为核心专利"
+        }
+      },
+      {
+        "requirement_id": "quantum_investment",
+        "requirement_type": "投资要求",
+        "title": "固定资产投资要求",
+        "description": "固定资产投资不低于3000万元人民币",
+        "details": {
+          "minimum_investment": "3000万元",
+          "investment_scope": "用于量子计算研发和产业化",
+          "investment_timeline": "2年内完成"
+        }
+      }
+    ],
+    "compliance_standards": [
+      {
+        "standard_id": "quantum_security",
+        "standard_type": "量子安全",
+        "title": "量子安全合规",
+        "description": "必须符合国家量子安全标准，通过相关认证"
+      }
+    ],
+    "application_process": {
+      "steps": [
+        "1. 在线提交申请",
+        "2. 专家评审（30个工作日）",
+        "3. 公示（15个工作日）",
+        "4. 签订协议",
+        "5. 资金拨付"
+      ],
+      "required_documents": [
+        "企业营业执照",
+        "研发项目计划书",
+        "财务报表",
+        "知识产权证明",
+        "团队人员清单",
+        "场地证明"
+      ],
+      "processing_time": "75个工作日",
+      "contact_info": {
+        "department": "苏州工业园区管理委员会",
+        "phone": "0512-12345678",
+        "email": "policy@sipac.gov.cn",
+        "address": "苏州市工业园区苏州大道东123号"
+      }
+    },
+    "target_industries": ["量子计算", "量子通信", "量子信息", "量子科技"],
+    "metadata": {
+      "source_url": "https://www.sipac.gov.cn/policies/2024/quantum",
+      "crawl_timestamp": "2024-04-01T10:00:00Z",
+      "confidence_score": 0.90,
+      "last_updated": "2024-07-20",
+      "version": "1.0"
+    }
+  },
+  {
+    "policy_id": "hefei_hightech_ai_2024",
+    "location": "hefei_hightech",
+    "country": "CN",
+    "region": "合肥高新区",
+    "city": "合肥市",
+    "industry": "ai",
+    "policy_type": "comprehensive_incentive",
+    "title": "合肥高新区人工智能产业扶持政策（2024年）",
+    "description": "为促进人工智能产业发展，打造全国人工智能创新高地，特制定本专项扶持政策。重点支持机器学习、深度学习、自然语言处理等AI技术研发。",
+    "issuing_authority": "合肥高新技术产业开发区管理委员会",
+    "issue_date": "2024-05-01",
+    "valid_period": "2024-05-01至2026-12-31",
+    "incentives": [
+      {
+        "incentive_id": "ai_rd_grant",
+        "incentive_type": "财政补贴",
+        "title": "人工智能研发资助",
+        "description": "对人工智能核心技术研发项目给予最高1500万元资助",
+        "amount_details": {
+          "max_amount_cny": 15000000,
+          "currency": "CNY",
+          "conditions": [
+            "核心技术自主可控",
+            "具有产业化前景",
+            "研发团队不少于20人，博士占比不低于30%"
+          ],
+          "support_duration": "3年"
+        }
+      },
+      {
+        "incentive_id": "ai_equipment_subsidy",
+        "incentive_type": "设备购置补贴",
+        "title": "设备购置补贴",
+        "description": "对AI研发设备购置给予最高300万元补贴",
+        "amount_details": {
+          "max_amount_cny": 3000000,
+          "currency": "CNY",
+          "coverage_rate": "30%",
+          "conditions": [
+            "设备清单需经专家评审",
+            "设备用于AI研发",
+            "购置时间在政策实施后1年内"
+          ]
+        }
+      },
+      {
+        "incentive_id": "ai_talent_reward",
+        "incentive_type": "人才奖励",
+        "title": "高端人才奖励",
+        "description": "对引进的AI领域顶尖人才给予最高500万元奖励",
+        "amount_details": {
+          "max_amount_cny": 5000000,
+          "currency": "CNY",
+          "conditions": [
+            "院士、长江学者等",
+            "在合肥工作满3年",
+            "带领团队不少于10人"
+          ]
+        }
+      },
+      {
+        "incentive_id": "ai_tax_break",
+        "incentive_type": "税收优惠",
+        "title": "企业所得税优惠",
+        "description": "人工智能企业所得税减免50%，最高不超过800万元",
+        "amount_details": {
+          "max_amount_cny": 8000000,
+          "currency": "CNY",
+          "duration": "3年",
+          "conditions": [
+            "企业年度营收超过3000万元",
+            "研发投入占比不低于20%"
+          ]
+        }
+      }
+    ],
+    "requirements": [
+      {
+        "requirement_id": "ai_rd_staff",
+        "requirement_type": "研发人员比例",
+        "title": "研发人员比例要求",
+        "description": "研发人员占比不低于30%，博士占比不低于20%",
+        "details": {
+          "minimum_percentage": "30%",
+          "doctor_percentage": "20%",
+          "total_staff_requirement": "不少于25人"
+        }
+      },
+      {
+        "requirement_id": "ai_patent",
+        "requirement_type": "专利数量",
+        "title": "知识产权要求",
+        "description": "拥有发明专利不少于5项，软件著作权不少于8项",
+        "details": {
+          "invention_patents": "不少于5项",
+          "software_copyrights": "不少于8项",
+          "patent_quality": "至少2项为核心专利"
+        }
+      },
+      {
+        "requirement_id": "ai_investment",
+        "requirement_type": "投资要求",
+        "title": "固定资产投资要求",
+        "description": "固定资产投资不低于2000万元人民币",
+        "details": {
+          "minimum_investment": "2000万元",
+          "investment_scope": "用于AI研发和产业化",
+          "investment_timeline": "2年内完成"
+        }
+      }
+    ],
+    "compliance_standards": [
+      {
+        "standard_id": "ai_ethics",
+        "standard_type": "伦理标准",
+        "title": "AI伦理合规",
+        "description": "必须符合国家AI伦理标准，通过相关认证"
+      }
+    ],
+    "application_process": {
+      "steps": [
+        "1. 在线提交申请",
+        "2. 专家评审（20个工作日）",
+        "3. 公示（10个工作日）",
+        "4. 签订协议",
+        "5. 资金拨付"
+      ],
+      "required_documents": [
+        "企业营业执照",
+        "研发项目计划书",
+        "财务报表",
+        "知识产权证明",
+        "团队人员清单",
+        "场地证明"
+      ],
+      "processing_time": "55个工作日",
+      "contact_info": {
+        "department": "合肥高新区管理委员会",
+        "phone": "0551-12345678",
+        "email": "policy@hftz.gov.cn",
+        "address": "合肥市高新区天都路123号"
+      }
+    },
+    "target_industries": ["人工智能", "机器学习", "深度学习", "自然语言处理"],
+    "metadata": {
+      "source_url": "https://www.hftz.gov.cn/policies/2024/ai",
+      "crawl_timestamp": "2024-05-01T09:00:00Z",
+      "confidence_score": 0.88,
+      "last_updated": "2024-08-10",
+      "version": "1.0"
+    }
+  },
+  {
+    "policy_id": "guangzhou_tianhe_ai_2024",
+    "location": "guangzhou_tianhe",
+    "country": "CN",
+    "region": "广州天河",
+    "city": "广州市",
+    "industry": "ai",
+    "policy_type": "comprehensive_incentive",
+    "title": "广州天河区人工智能产业扶持政策（2024年）",
+    "description": "为促进人工智能产业发展，打造粤港澳大湾区人工智能创新中心，特制定本专项扶持政策。重点支持AI技术研发、应用场景落地。",
+    "issuing_authority": "广州市天河区人民政府",
+    "issue_date": "2024-06-01",
+    "valid_period": "2024-06-01至2026-12-31",
+    "incentives": [
+      {
+        "incentive_id": "guangzhou_ai_rd_grant",
+        "incentive_type": "财政补贴",
+        "title": "人工智能研发资助",
+        "description": "对人工智能核心技术研发项目给予最高1200万元资助",
+        "amount_details": {
+          "max_amount_cny": 12000000,
+          "currency": "CNY",
+          "conditions": [
+            "核心技术自主可控",
+            "具有产业化前景",
+            "研发团队不少于15人，博士占比不低于25%"
+          ],
+          "support_duration": "3年"
+        }
+      },
+      {
+        "incentive_id": "guangzhou_ai_equipment_subsidy",
+        "incentive_type": "设备购置补贴",
+        "title": "设备购置补贴",
+        "description": "对AI研发设备购置给予最高200万元补贴",
+        "amount_details": {
+          "max_amount_cny": 2000000,
+          "currency": "CNY",
+          "coverage_rate": "30%",
+          "conditions": [
+            "设备清单需经专家评审",
+            "设备用于AI研发",
+            "购置时间在政策实施后1年内"
+          ]
+        }
+      },
+      {
+        "incentive_id": "guangzhou_ai_talent_reward",
+        "incentive_type": "人才奖励",
+        "title": "高端人才奖励",
+        "description": "对引进的AI领域顶尖人才给予最高400万元奖励",
+        "amount_details": {
+          "max_amount_cny": 4000000,
+          "currency": "CNY",
+          "conditions": [
+            "院士、长江学者等",
+            "在广州工作满3年",
+            "带领团队不少于8人"
+          ]
+        }
+      },
+      {
+        "incentive_id": "guangzhou_ai_tax_break",
+        "incentive_type": "税收优惠",
+        "title": "企业所得税优惠",
+        "description": "人工智能企业所得税减免50%，最高不超过600万元",
+        "amount_details": {
+          "max_amount_cny": 6000000,
+          "currency": "CNY",
+          "duration": "3年",
+          "conditions": [
+            "企业年度营收超过2000万元",
+            "研发投入占比不低于15%"
+          ]
+        }
+      }
+    ],
+    "requirements": [
+      {
+        "requirement_id": "guangzhou_ai_rd_staff",
+        "requirement_type": "研发人员比例",
+        "title": "研发人员比例要求",
+        "description": "研发人员占比不低于25%，博士占比不低于15%",
+        "details": {
+          "minimum_percentage": "25%",
+          "doctor_percentage": "15%",
+          "total_staff_requirement": "不少于20人"
+        }
+      },
+      {
+        "requirement_id": "guangzhou_ai_patent",
+        "requirement_type": "专利数量",
+        "title": "知识产权要求",
+        "description": "拥有发明专利不少于3项，软件著作权不少于5项",
+        "details": {
+          "invention_patents": "不少于3项",
+          "software_copyrights": "不少于5项",
+          "patent_quality": "至少1项为核心专利"
+        }
+      },
+      {
+        "requirement_id": "guangzhou_ai_investment",
+        "requirement_type": "投资要求",
+        "title": "固定资产投资要求",
+        "description": "固定资产投资不低于1500万元人民币",
+        "details": {
+          "minimum_investment": "1500万元",
+          "investment_scope": "用于AI研发和产业化",
+          "investment_timeline": "2年内完成"
+        }
+      }
+    ],
+    "compliance_standards": [
+      {
+        "standard_id": "guangzhou_ai_data_security",
+        "standard_type": "数据安全",
+        "title": "数据安全合规",
+        "description": "用户数据必须存储在境内服务器，符合国家数据安全法规"
+      }
+    ],
+    "application_process": {
+      "steps": [
+        "1. 在线提交申请",
+        "2. 专家评审（25个工作日）",
+        "3. 公示（10个工作日）",
+        "4. 签订协议",
+        "5. 资金拨付"
+      ],
+      "required_documents": [
+        "企业营业执照",
+        "研发项目计划书",
+        "财务报表",
+        "知识产权证明",
+        "团队人员清单",
+        "场地证明"
+      ],
+      "processing_time": "60个工作日",
+      "contact_info": {
+        "department": "广州市天河区科技局",
+        "phone": "020-12345678",
+        "email": "policy@thnet.gov.cn",
+        "address": "广州市天河区天府路123号"
+      }
+    },
+    "target_industries": ["人工智能", "机器学习", "深度学习", "自然语言处理"],
+    "metadata": {
+      "source_url": "https://www.thnet.gov.cn/policies/2024/ai",
+      "crawl_timestamp": "2024-06-01T10:00:00Z",
+      "confidence_score": 0.85,
+      "last_updated": "2024-08-15",
+      "version": "1.0"
+    }
+  },
+  {
+    "policy_id": "guangzhou_panyu_biotech_2024",
+    "location": "guangzhou_panyu",
+    "country": "CN",
+    "region": "广州番禺",
+    "city": "广州市",
+    "industry": "biotechnology",
+    "policy_type": "comprehensive_incentive",
+    "title": "广州番禺区生物医药产业扶持政策（2024年）",
+    "description": "为促进生物医药产业发展，打造粤港澳大湾区生物医药创新中心，特制定本专项扶持政策。重点支持生物医药研发、临床试验、产业化。",
+    "issuing_authority": "广州市番禺区人民政府",
+    "issue_date": "2024-07-01",
+    "valid_period": "2024-07-01至2026-12-31",
+    "incentives": [
+      {
+        "incentive_id": "biotech_rd_grant",
+        "incentive_type": "财政补贴",
+        "title": "生物医药研发资助",
+        "description": "对生物医药核心技术研发项目给予最高2000万元资助",
+        "amount_details": {
+          "max_amount_cny": 20000000,
+          "currency": "CNY",
+          "conditions": [
+            "核心技术自主可控",
+            "具有产业化前景",
+            "研发团队不少于30人，博士占比不低于35%"
+          ],
+          "support_duration": "3年"
+        }
+      },
+      {
+        "incentive_id": "biotech_equipment_subsidy",
+        "incentive_type": "设备购置补贴",
+        "title": "设备购置补贴",
+        "description": "对生物医药研发设备购置给予最高500万元补贴",
+        "amount_details": {
+          "max_amount_cny": 5000000,
+          "currency": "CNY",
+          "coverage_rate": "30%",
+          "conditions": [
+            "设备清单需经专家评审",
+            "设备用于生物医药研发",
+            "购置时间在政策实施后1年内"
+          ]
+        }
+      },
+      {
+        "incentive_id": "biotech_talent_reward",
+        "incentive_type": "人才奖励",
+        "title": "高端人才奖励",
+        "description": "对引进的生物医药领域顶尖人才给予最高600万元奖励",
+        "amount_details": {
+          "max_amount_cny": 6000000,
+          "currency": "CNY",
+          "conditions": [
+            "院士、长江学者等",
+            "在广州工作满3年",
+            "带领团队不少于20人"
+          ]
+        }
+      },
+      {
+        "incentive_id": "biotech_tax_break",
+        "incentive_type": "税收优惠",
+        "title": "企业所得税优惠",
+        "description": "生物医药企业所得税减免50%，最高不超过1000万元",
+        "amount_details": {
+          "max_amount_cny": 10000000,
+          "currency": "CNY",
+          "duration": "3年",
+          "conditions": [
+            "企业年度营收超过5000万元",
+            "研发投入占比不低于20%"
+          ]
+        }
+      }
+    ],
+    "requirements": [
+      {
+        "requirement_id": "biotech_rd_staff",
+        "requirement_type": "研发人员比例",
+        "title": "研发人员比例要求",
+        "description": "研发人员占比不低于35%，博士占比不低于25%",
+        "details": {
+          "minimum_percentage": "35%",
+          "doctor_percentage": "25%",
+          "total_staff_requirement": "不少于40人"
+        }
+      },
+      {
+        "requirement_id": "biotech_patent",
+        "requirement_type": "专利数量",
+        "title": "知识产权要求",
+        "description": "拥有发明专利不少于10项，软件著作权不少于15项",
+        "details": {
+          "invention_patents": "不少于10项",
+          "software_copyrights": "不少于15项",
+          "patent_quality": "至少3项为核心专利"
+        }
+      },
+      {
+        "requirement_id": "biotech_investment",
+        "requirement_type": "投资要求",
+        "title": "固定资产投资要求",
+        "description": "固定资产投资不低于3000万元人民币",
+        "details": {
+          "minimum_investment": "3000万元",
+          "investment_scope": "用于生物医药研发和产业化",
+          "investment_timeline": "2年内完成"
+        }
+      }
+    ],
+    "compliance_standards": [
+      {
+        "standard_id": "biotech_regulatory",
+        "standard_type": "监管合规",
+        "title": "监管合规",
+        "description": "必须符合国家生物医药监管法规，通过相关认证"
+      }
+    ],
+    "application_process": {
+      "steps": [
+        "1. 在线提交申请",
+        "2. 专家评审（35个工作日）",
+        "3. 公示（15个工作日）",
+        "4. 签订协议",
+        "5. 资金拨付"
+      ],
+      "required_documents": [
+        "企业营业执照",
+        "研发项目计划书",
+        "财务报表",
+        "知识产权证明",
+        "团队人员清单",
+        "场地证明"
+      ],
+      "processing_time": "80个工作日",
+      "contact_info": {
+        "department": "广州市番禺区科技局",
+        "phone": "020-12345678",
+        "email": "policy@pynet.gov.cn",
+        "address": "广州市番禺区市桥街123号"
+      }
+    },
+    "target_industries": ["生物医药", "生物科技", "基因技术", "疫苗研发"],
+    "metadata": {
+      "source_url": "https://www.pynet.gov.cn/policies/2024/biotech",
+      "crawl_timestamp": "2024-07-01T11:00:00Z",
+      "confidence_score": 0.87,
+      "last_updated": "2024-08-20",
+      "version": "1.0"
+    }
+  },
+  {
+    "policy_id": "guangzhou_huadu_newenergy_2024",
+    "location": "guangzhou_huadu",
+    "country": "CN",
+    "region": "广州花都",
+    "city": "广州市",
+    "industry": "new_energy",
+    "policy_type": "comprehensive_incentive",
+    "title": "广州花都区新能源产业扶持政策（2024年）",
+    "description": "为促进新能源产业发展，打造粤港澳大湾区新能源创新中心，特制定本专项扶持政策。重点支持太阳能、风能、储能等新能源技术研发。",
+    "issuing_authority": "广州市花都区人民政府",
+    "issue_date": "2024-08-01",
+    "valid_period": "2024-08-01至2026-12-31",
+    "incentives": [
+      {
+        "incentive_id": "new_energy_rd_grant",
+        "incentive_type": "财政补贴",
+        "title": "新能源研发资助",
+        "description": "对新能源核心技术研发项目给予最高1800万元资助",
+        "amount_details": {
+          "max_amount_cny": 18000000,
+          "currency": "CNY",
+          "conditions": [
+            "核心技术自主可控",
+            "具有产业化前景",
+            "研发团队不少于25人，博士占比不低于30%"
+          ],
+          "support_duration": "3年"
+        }
+      },
+      {
+        "incentive_id": "new_energy_equipment_subsidy",
+        "incentive_type": "设备购置补贴",
+        "title": "设备购置补贴",
+        "description": "对新能源研发设备购置给予最高400万元补贴",
+        "amount_details": {
+          "max_amount_cny": 4000000,
+          "currency": "CNY",
+          "coverage_rate": "30%",
+          "conditions": [
+            "设备清单需经专家评审",
+            "设备用于新能源研发",
+            "购置时间在政策实施后1年内"
+          ]
+        }
+      },
+      {
+        "incentive_id": "new_energy_talent_reward",
+        "incentive_type": "人才奖励",
+        "title": "高端人才奖励",
+        "description": "对引进的新能源领域顶尖人才给予最高500万元奖励",
+        "amount_details": {
+          "max_amount_cny": 5000000,
+          "currency": "CNY",
+          "conditions": [
+            "院士、长江学者等",
+            "在广州工作满3年",
+            "带领团队不少于15人"
+          ]
+        }
+      },
+      {
+        "incentive_id": "new_energy_tax_break",
+        "incentive_type": "税收优惠",
+        "title": "企业所得税优惠",
+        "description": "新能源企业所得税减免50%，最高不超过800万元",
+        "amount_details": {
+          "max_amount_cny": 8000000,
+          "currency": "CNY",
+          "duration": "3年",
+          "conditions": [
+            "企业年度营收超过4000万元",
+            "研发投入占比不低于18%"
+          ]
+        }
+      }
+    ],
+    "requirements": [
+      {
+        "requirement_id": "new_energy_rd_staff",
+        "requirement_type": "研发人员比例",
+        "title": "研发人员比例要求",
+        "description": "研发人员占比不低于30%，博士占比不低于20%",
+        "details": {
+          "minimum_percentage": "30%",
+          "doctor_percentage": "20%",
+          "total_staff_requirement": "不少于35人"
+        }
+      },
+      {
+        "requirement_id": "new_energy_patent",
+        "requirement_type": "专利数量",
+        "title": "知识产权要求",
+        "description": "拥有发明专利不少于8项，软件著作权不少于12项",
+        "details": {
+          "invention_patents": "不少于8项",
+          "software_copyrights": "不少于12项",
+          "patent_quality": "至少2项为核心专利"
+        }
+      },
+      {
+        "requirement_id": "new_energy_investment",
+        "requirement_type": "投资要求",
+        "title": "固定资产投资要求",
+        "description": "固定资产投资不低于2500万元人民币",
+        "details": {
+          "minimum_investment": "2500万元",
+          "investment_scope": "用于新能源研发和产业化",
+          "investment_timeline": "2年内完成"
+        }
+      }
+    ],
+    "compliance_standards": [
+      {
+        "standard_id": "new_energy_safety",
+        "standard_type": "安全标准",
+        "title": "安全标准",
+        "description": "必须符合国家新能源安全标准，通过相关认证"
+      }
+    ],
+    "application_process": {
+      "steps": [
+        "1. 在线提交申请",
+        "2. 专家评审（30个工作日）",
+        "3. 公示（15个工作日）",
+        "4. 签订协议",
+        "5. 资金拨付"
+      ],
+      "required_documents": [
+        "企业营业执照",
+        "研发项目计划书",
+        "财务报表",
+        "知识产权证明",
+        "团队人员清单",
+        "场地证明"
+      ],
+      "processing_time": "75个工作日",
+      "contact_info": {
+        "department": "广州市花都区科技局",
+        "phone": "020-12345678",
+        "email": "policy@hdnet.gov.cn",
+        "address": "广州市花都区新华街123号"
+      }
+    },
+    "target_industries": ["新能源", "太阳能", "风能", "储能"],
+    "metadata": {
+      "source_url": "https://www.hdnet.gov.cn/policies/2024/new-energy",
+      "crawl_timestamp": "2024-08-01T12:00:00Z",
+      "confidence_score": 0.83,
+      "last_updated": "2024-08-25",
+      "version": "1.0"
+    }
+  },
+  {
+    "policy_id": "guangzhou_baiyun_fintech_2024",
+    "location": "guangzhou_baiyun",
+    "country": "CN",
+    "region": "广州白云",
+    "city": "广州市",
+    "industry": "fintech",
+    "policy_type": "comprehensive_incentive",
+    "title": "广州白云区金融科技产业扶持政策（2024年）",
+    "description": "为促进金融科技产业发展，打造粤港澳大湾区金融科技创新中心，特制定本专项扶持政策。重点支持区块链、数字金融、智能投顾等金融科技技术研发。",
+    "issuing_authority": "广州市白云区人民政府",
+    "issue_date": "2024-09-01",
+    "valid_period": "2024-09-01至2026-12-31",
+    "incentives": [
+      {
+        "incentive_id": "fintech_rd_grant",
+        "incentive_type": "财政补贴",
+        "title": "金融科技研发资助",
+        "description": "对金融科技核心技术研发项目给予最高1000万元资助",
+        "amount_details": {
+          "max_amount_cny": 10000000,
+          "currency": "CNY",
+          "conditions": [
+            "核心技术自主可控",
+            "具有产业化前景",
+            "研发团队不少于15人，博士占比不低于25%"
+          ],
+          "support_duration": "3年"
+        }
+      },
+      {
+        "incentive_id": "fintech_equipment_subsidy",
+        "incentive_type": "设备购置补贴",
+        "title": "设备购置补贴",
+        "description": "对金融科技研发设备购置给予最高200万元补贴",
+        "amount_details": {
+          "max_amount_cny": 2000000,
+          "currency": "CNY",
+          "coverage_rate": "30%",
+          "conditions": [
+            "设备清单需经专家评审",
+            "设备用于金融科技研发",
+            "购置时间在政策实施后1年内"
+          ]
+        }
+      },
+      {
+        "incentive_id": "fintech_talent_reward",
+        "incentive_type": "人才奖励",
+        "title": "高端人才奖励",
+        "description": "对引进的金融科技领域顶尖人才给予最高400万元奖励",
+        "amount_details": {
+          "max_amount_cny": 4000000,
+          "currency": "CNY",
+          "conditions": [
+            "院士、长江学者等",
+            "在广州工作满3年",
+            "带领团队不少于10人"
+          ]
+        }
+      },
+      {
+        "incentive_id": "fintech_tax_break",
+        "incentive_type": "税收优惠",
+        "title": "企业所得税优惠",
+        "description": "金融科技企业所得税减免50%，最高不超过500万元",
+        "amount_details": {
+          "max_amount_cny": 5000000,
+          "currency": "CNY",
+          "duration": "3年",
+          "conditions": [
+            "企业年度营收超过3000万元",
+            "研发投入占比不低于15%"
+          ]
+        }
+      }
+    ],
+    "requirements": [
+      {
+        "requirement_id": "fintech_rd_staff",
+        "requirement_type": "研发人员比例",
+        "title": "研发人员比例要求",
+        "description": "研发人员占比不低于25%，博士占比不低于15%",
+        "details": {
+          "minimum_percentage": "25%",
+          "doctor_percentage": "15%",
+          "total_staff_requirement": "不少于20人"
+        }
+      },
+      {
+        "requirement_id": "fintech_patent",
+        "requirement_type": "专利数量",
+        "title": "知识产权要求",
+        "description": "拥有发明专利不少于5项，软件著作权不少于8项",
+        "details": {
+          "invention_patents": "不少于5项",
+          "software_copyrights": "不少于8项",
+          "patent_quality": "至少2项为核心专利"
+        }
+      },
+      {
+        "requirement_id": "fintech_investment",
+        "requirement_type": "投资要求",
+        "title": "固定资产投资要求",
+        "description": "固定资产投资不低于1500万元人民币",
+        "details": {
+          "minimum_investment": "1500万元",
+          "investment_scope": "用于金融科技研发和产业化",
+          "investment_timeline": "2年内完成"
+        }
+      }
+    ],
+    "compliance_standards": [
+      {
+        "standard_id": "fintech_regulatory",
+        "standard_type": "监管合规",
+        "title": "监管合规",
+        "description": "必须符合国家金融科技监管法规，通过相关认证"
+      }
+    ],
+    "application_process": {
+      "steps": [
+        "1. 在线提交申请",
+        "2. 专家评审（25个工作日）",
+        "3. 公示（10个工作日）",
+        "4. 签订协议",
+        "5. 资金拨付"
+      ],
+      "required_documents": [
+        "企业营业执照",
+        "研发项目计划书",
+        "财务报表",
+        "知识产权证明",
+        "团队人员清单",
+        "场地证明"
+      ],
+      "processing_time": "60个工作日",
+      "contact_info": {
+        "department": "广州市白云区科技局",
+        "phone": "020-12345678",
+        "email": "policy@bynet.gov.cn",
+        "address": "广州市白云区白云街123号"
+      }
+    },
+    "target_industries": ["金融科技", "区块链", "数字金融", "智能投顾"],
+    "metadata": {
+      "source_url": "https://www.bynet.gov.cn/policies/2024/fintech",
+      "crawl_timestamp": "2024-09-01T13:00:00Z",
+      "confidence_score": 0.80,
+      "last_updated": "2024-08-30",
+      "version": "1.0"
+    }
+  }
+]

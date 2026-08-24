@@ -1,0 +1,269 @@
+{
+  "policy_metadata": {
+    "policy_id": "shenzhen-special-economic-zone-ai-policy-2024",
+    "policy_name": "深圳市人工智能产业扶持政策",
+    "policy_type": "incentive_package",
+    "jurisdiction": {
+      "country": "China",
+      "region": "Guangdong",
+      "city": "Shenzhen",
+      "economic_zone": "Shenzhen Special Economic Zone",
+      "admin_level": "municipal"
+    },
+    "effective_date": "2024-01-01",
+    "expiry_date": "2026-12-31",
+    "last_updated": "2024-08-21T00:00:00Z",
+    "source_url": "https://www.sz.gov.cn/ztzl/ai_policy",
+    "language": "zh",
+    "confidence_score": 0.96
+  },
+  "incentives": {
+    "tax_incentives": [
+      {
+        "type": "corporate_tax_reduction",
+        "description": "企业所得税减免政策",
+        "benefit_amount": {
+          "type": "percentage",
+          "value": 45,
+          "currency": "CNY",
+          "cap": 8000000
+        },
+        "duration": {
+          "years": 5,
+          "conditions": ["年营收超过2亿元", "研发投入占比不低于8%"]
+        },
+        "eligibility_criteria": [
+          {
+            "criteria_type": "industry",
+            "condition": "属于人工智能产业",
+            "value": "ai"
+          },
+          {
+            "criteria_type": "investment_amount",
+            "condition": "固定资产投资",
+            "value": 10000000
+          }
+        ]
+      },
+      {
+        "type": "rd_tax_credit",
+        "description": "研发费用加计扣除",
+        "benefit_amount": {
+          "type": "percentage",
+          "value": 200,
+          "currency": "CNY"
+        },
+        "duration": {
+          "years": 5
+        },
+        "eligibility_criteria": [
+          {
+            "criteria_type": "industry",
+            "condition": "高新技术企业",
+            "value": "high_tech"
+          }
+        ]
+      }
+    ],
+    "financial_subsidies": [
+      {
+        "type": "startup_grant",
+        "description": "创业启动资金补贴",
+        "amount": {
+          "type": "fixed_amount",
+          "value": 5000000,
+          "currency": "CNY"
+        },
+        "application_deadline": "2024-12-31",
+        "payment_terms": {
+          "installments": true,
+          "milestones": [
+            {
+              "milestone": "公司注册",
+              "percentage": 25
+            },
+            {
+              "milestone": "场地装修完成",
+              "percentage": 35
+            },
+            {
+              "milestone": "团队组建完成",
+              "percentage": 40
+            }
+          ]
+        }
+      },
+      {
+        "type": "rd_funding",
+        "description": "研发项目资助",
+        "amount": {
+          "type": "percentage_of_investment",
+          "value": 40,
+          "currency": "CNY",
+          "cap": 15000000
+        },
+        "application_deadline": "2024-12-31",
+        "payment_terms": {
+          "installments": true,
+          "milestones": [
+            {
+              "milestone": "项目立项",
+              "percentage": 20
+            },
+            {
+              "milestone": "中期验收",
+              "percentage": 40
+            },
+            {
+              "milestone": "结题验收",
+              "percentage": 40
+            }
+          ]
+        }
+      }
+    ],
+    "land_and_infrastructure": [
+      {
+        "type": "land_grant",
+        "description": "工业用地出让金优惠",
+        "terms": {
+          "duration": {
+            "years": 30,
+            "renewable": true
+          },
+          "cost_savings": 60,
+          "area": 20000,
+          "location": "深圳市人工智能产业园区"
+        }
+      },
+      {
+        "type": "office_space",
+        "description": "办公用房租金补贴",
+        "terms": {
+          "duration": {
+            "years": 5
+          },
+          "cost_savings": 80,
+          "area": 5000
+        }
+      }
+    ]
+  },
+  "requirements": {
+    "staffing_requirements": {
+      "total_employees": {
+        "minimum": 100
+      },
+      "research_staff": {
+        "minimum_count": 50,
+        "percentage": 50,
+        "qualification_requirements": [
+          {
+            "level": "master",
+            "percentage": 30
+          },
+          {
+            "level": "phd",
+            "percentage": 20
+          }
+        ]
+      },
+      "experience_requirements": {
+        "management_experience": 5,
+        "industry_experience": 3
+      }
+    },
+    "financial_requirements": {
+      "minimum_investment": {
+        "amount": 20000000,
+        "currency": "CNY",
+        "investment_type": "total_investment"
+      },
+      "capital_requirements": {
+        "authorized_capital": 10000000,
+        "paid_up_capital": 5000000
+      }
+    },
+    "technology_requirements": {
+      "technology_level": "cutting_edge",
+      "trl_requirements": {
+        "minimum_trl": "pilot",
+        "target_trl": "production"
+      },
+      "patent_requirements": {
+        "minimum_patents": 10,
+        "patent_types": ["invention", "utility_model"]
+      }
+    },
+    "compliance_requirements": {
+      "environmental_compliance": [
+        {
+          "standard": "ISO 14001",
+          "certification_required": true
+        }
+      ],
+      "data_compliance": {
+        "data_localization": true,
+        "data_protection": "enhanced"
+      },
+      "security_compliance": [
+        {
+          "clearance_level": "secret",
+          "background_checks": true
+        }
+      ]
+    }
+  },
+  "application_process": {
+    "steps": [
+      {
+        "step_number": 1,
+        "step_name": "项目申报",
+        "required_documents": ["商业计划书", "团队介绍", "技术方案"],
+        "duration": "30天",
+        "fees": {
+          "amount": 2000,
+          "currency": "CNY"
+        }
+      },
+      {
+        "step_number": 2,
+        "step_name": "材料审核",
+        "required_documents": ["资质证明", "财务报表", "专利证明"],
+        "duration": "45天",
+        "fees": {
+          "amount": 3000,
+          "currency": "CNY"
+        }
+      },
+      {
+        "step_number": 3,
+        "step_name": "现场考察",
+        "required_documents": ["场地证明", "设备清单"],
+        "duration": "20天",
+        "fees": {
+          "amount": 0,
+          "currency": "CNY"
+        }
+      },
+      {
+        "step_number": 4,
+        "step_name": "审批公示",
+        "required_documents": ["审批材料"],
+        "duration": "30天",
+        "fees": {
+          "amount": 0,
+          "currency": "CNY"
+        }
+      }
+    ],
+    "contact_information": {
+      "department": "深圳市科技创新委员会",
+      "contact_person": "李女士",
+      "email": "lisi@sz.gov.cn",
+      "phone": "0755-12345678",
+      "address": "深圳市福田区福中三路市民中心"
+    }
+  },
+  "tags": ["ai", "robotics", "quantum", "fintech", "startup", "subsidy", "land", "tax", "rd", "manufacturing", "cleantech", "shenzhen"]
+}

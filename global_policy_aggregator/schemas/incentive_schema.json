@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Policy Incentive Schema",
+  "description": "Schema for validating policy incentive data",
+  "type": "object",
+  "properties": {
+    "incentive_id": {
+      "type": "string",
+      "description": "Unique identifier for the incentive"
+    },
+    "incentive_type": {
+      "type": "string",
+      "enum": ["tax_break", "subsidy", "grant", "loan", "guarantee", "training_grant", "rtp_credit"],
+      "description": "Type of incentive"
+    },
+    "title": {
+      "type": "string",
+      "description": "Title of the incentive"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the incentive"
+    },
+    "amount_details": {
+      "type": "object",
+      "properties": {
+        "rate_percentage": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Percentage rate (if applicable)"
+        },
+        "max_amount_usd": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Maximum amount in USD"
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Conditions for the incentive"
+        }
+      }
+    },
+    "eligibility_criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "criteria_type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Eligibility criteria"
+    },
+    "validity_period": {
+      "type": "object",
+      "properties": {
+        "start_date": {
+          "type": ["string", "null"],
+          "format": "date"
+        },
+        "end_date": {
+          "type": ["string", "null"],
+          "format": "date"
+        }
+      },
+      "description": "Validity period of the incentive"
+    }
+  },
+  "required": ["incentive_id", "incentive_type", "title", "description"]
+}

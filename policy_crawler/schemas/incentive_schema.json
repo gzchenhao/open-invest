@@ -1,0 +1,202 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Global Investment Incentives Schema",
+  "description": "Schema for structuring global investment incentives and subsidies",
+  "type": "object",
+  "required": ["incentive_id", "location", "industry", "incentive_type", "value_usd", "currency", "validity_period"],
+  "properties": {
+    "incentive_id": {
+      "type": "string",
+      "description": "Unique identifier for the incentive",
+      "example": "shanghai-tax-break-2024-001"
+    },
+    "location": {
+      "type": "string",
+      "description": "Geographic location of the incentive",
+      "example": "Shanghai, China"
+    },
+    "jurisdiction": {
+      "type": "string",
+      "description": "Administrative jurisdiction",
+      "example": "Shanghai Municipal Government"
+    },
+    "industry": {
+      "type": "string",
+      "enum": ["ai_ml", "robotics", "quantum_computing", "biotech", "autonomous_driving", "blockchain", "clean_tech", "semiconductor", "aerospace", "other"],
+      "description": "Target industry for the incentive"
+    },
+    "incentive_type": {
+      "type": "string",
+      "enum": ["tax_break", "subsidy", "grant", "land_grant", "infrastructure_support", "talent_recruitment", "r_f_funding", "export_support", "custom_benefits"],
+      "description": "Type of incentive offered"
+    },
+    "name": {
+      "type": "string",
+      "description": "Official name of the incentive program"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the incentive"
+    },
+    "value_usd": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Value in USD for comparison purposes"
+    },
+    "currency": {
+      "type": "string",
+      "enum": ["USD", "CNY", "EUR", "GBP", "JPY", "SGD", "HKD", "KRW"],
+      "description": "Original currency of the incentive"
+    },
+    "local_value": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Value in local currency"
+    },
+    "validity_period": {
+      "type": "object",
+      "required": ["start_date", "end_date"],
+      "properties": {
+        "start_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Start date of validity"
+        },
+        "end_date": {
+          "type": "string",
+          "format": "date",
+          "description": "End date of validity"
+        },
+        "is_ongoing": {
+          "type": "boolean",
+          "description": "Whether the incentive is ongoing without fixed end date"
+        }
+      }
+    },
+    "eligibility_criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "criteria_type": {
+            "type": "string",
+            "enum": ["revenue", "employee_count", "investment_amount", "r_d_spending", "patent_count", "age", "location", "industry", "ownership"]
+          },
+          "condition": {
+            "type": "string",
+            "description": "Specific condition (e.g., '>= 50', 'in specific zone')"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of the criteria"
+          }
+        }
+      }
+    },
+    "application_process": {
+      "type": "object",
+      "properties": {
+        "required_documents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "application_deadline": {
+          "type": "string",
+          "format": "date"
+        },
+        "processing_time": {
+          "type": "string",
+          "description": "Estimated processing time"
+        },
+        "contact_information": {
+          "type": "object",
+          "properties": {
+            "department": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "phone": {
+              "type": "string"
+            },
+            "website": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        }
+      }
+    },
+    "benefits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "benefit_type": {
+            "type": "string",
+            "enum": ["tax_reduction", "cash_grant", "land_discount", "infrastructure", "training", "market_access", "networking", "regulatory_exemption"]
+          },
+          "details": {
+            "type": "string"
+          },
+          "value_range": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "compliance_requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "requirement_type": {
+            "type": "string",
+            "enum": ["reporting", "audit", "employment", "local_content", "technology_transfer", "ip_protection"]
+          },
+          "frequency": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "source_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "confidence_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Confidence score in data accuracy"
+        },
+        "verification_status": {
+          "type": "string",
+          "enum": ["verified", "pending", "unverified"]
+        }
+      }
+    }
+  }
+}

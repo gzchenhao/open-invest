@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 政策助手 - 对话界面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            text-align: center;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            padding: 1rem;
+            gap: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .chat-main {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            max-width: 70%;
+            padding: 1rem;
+            border-radius: 15px;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .message.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .message.ai {
+            background: #f1f3f4;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .message.system {
+            background: #fff3cd;
+            color: #856404;
+            align-self: center;
+            text-align: center;
+            font-size: 0.9rem;
+            max-width: 90%;
+        }
+        
+        .message-header {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid #e0e0e0;
+            background: #f8f9fa;
+        }
+        
+        .chat-input {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        .chat-input input:focus {
+            border-color: #667eea;
+        }
+        
+        .chat-input button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-input button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .user-profile {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .user-profile h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .user-profile p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .quick-action {
+            background: #f8f9fa;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .quick-action:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+        }
+        
+        .stats h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+        
+        .stat-label {
+            color: #666;
+        }
+        
+        .stat-value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .chat-container {
+                flex-direction: column;
+                padding: 0.5rem;
+            }
+            
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+            
+            .chat-main {
+                order: 1;
+                min-height: 400px;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>AI 政策助手</h1>
+        <p>智能化的政策咨询与申请指导</p>
+    </div>
+    
+    <div class="chat-container">
+        <div class="sidebar">
+            <div class="user-profile">
+                <h3>用户档案</h3>
+                <p><strong>公司:</strong> AI Tech Solutions</p>
+                <p><strong>行业:</strong> 人工智能</p>
+                <p><strong>规模:</strong> 中型企业</p>
+                <p><strong>地点:</strong> 上海</p>
+                <p><strong>投资能力:</strong> $500,000</p>
+            </div>
+            
+            <div class="quick-actions">
+                <h3>快速操作</h3>
+                <button class="quick-action" onclick="sendQuickMessage('帮我搜索上海的人工智能政策')">
+                    🔍 搜索AI政策
+                </button>
+                <button class="quick-action" onclick="sendQuickMessage('推荐一些适合我们的政策')">
+                    🎯 获取推荐
+                </button>
+                <button class="quick-action" onclick="sendQuickMessage('检查我们是否符合政策要求')">
+                    ✅ 合规检查
+                </button>
+                <button class="quick-action" onclick="sendQuickMessage('计算我们能获得多少补贴')">
+                    💰 收益计算
+                </button>
+            </div>
+            
+            <div class="stats">
+                <h3>统计信息</h3>
+                <div class="stat-item">
+                    <span class="stat-label">数据库政策数:</span>
+                    <span class="stat-value" id="policy-count">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">会话次数:</span>
+                    <span class="stat-value" id="session-count">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">响应时间:</span>
+                    <span class="stat-value" id="response-time">0ms</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-main">
+            <div class="chat-messages" id="chat-messages">
+                <div class="message system">
+                    <div class="message-header">AI 助手</div>
+                    您好！我是您的 AI 政策助手。我可以帮您搜索政策、获取推荐、指导申请流程，并进行合规检查。请告诉我您的需求！
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <div class="chat-input">
+                    <input type="text" id="message-input" placeholder="输入您的问题..." onkeypress="handleKeyPress(event)">
+                    <button onclick="sendMessage()">发送</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let messageHistory = [];
+        let sessionCount = 0;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadChatHistory();
+            updateStats();
+        });
+        
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage('user', message);
+                input.value = '';
+                
+                // 显示加载状态
+                const loadingId = addMessage('ai', '<div class="loading"></div>');
+                
+                // 发送到后端
+                fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `message=${encodeURIComponent(message)}&user_id=user_001`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // 移除加载状态
+                    removeMessage(loadingId);
+                    
+                    if (data.success) {
+                        addMessage('ai', data.response);
+                        
+                        // 如果有数据，显示详细信息
+                        if (data.data) {
+                            addMessage('ai', formatDataResponse(data));
+                        }
+                        
+                        // 更新统计
+                        updateStats(data.processing_time_ms);
+                    } else {
+                        addMessage('ai', `抱歉，处理您的请求时出现错误: ${data.error}`);
+                    }
+                })
+                .catch(error => {
+                    removeMessage(loadingId);
+                    addMessage('ai', `抱歉，连接服务器时出现错误: ${error.message}`);
+                });
+            }
+        }
+        
+        // 发送快速消息
+        function sendQuickMessage(message) {
+            document.getElementById('message-input').value = message;
+            sendMessage();
+        }
+        
+        // 处理回车键
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        // 添加消息到聊天界面
+        function addMessage(sender, content) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageId = 'msg_' + Date.now();
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.id = messageId;
+            
+            if (sender === 'user') {
+                messageDiv.innerHTML = `<div class="message-header">您</div>${content}`;
+            } else {
+                messageDiv.innerHTML = `<div class="message-header">AI 助手</div>${content}`;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            messageHistory.push({
+                id: messageId,
+                sender: sender,
+                content: content,
+                timestamp: new Date().toISOString()
+            });
+            
+            return messageId;
+        }
+        
+        // 移除消息
+        function removeMessage(messageId) {
+            const messageElement = document.getElementById(messageId);
+            if (messageElement) {
+                messageElement.remove();
+            }
+        }
+        
+        // 格式化数据响应
+        function formatDataResponse(data) {
+            let formatted = '';
+            
+            if (data.action_type === 'policy_search') {
+                formatted = '<div><strong>搜索结果:</strong><ul>';
+                data.data.search_results.forEach(result => {
+                    formatted += `<li><strong>${result.title}</strong> - 匹配度: ${Math.round(result.match_score * 100)}%</li>`;
+                });
+                formatted += '</ul></div>';
+            } else if (data.action_type === 'policy_recommendation') {
+                formatted = '<div><strong>推荐政策:</strong><ul>';
+                data.data.recommendations.forEach(rec => {
+                    formatted += `<li><strong>${rec.title}</strong> - 优先级: ${rec.priority} - 预估收益: $${Math.round(rec.estimated_benefits_usd).toLocaleString()}</li>`;
+                });
+                formatted += '</ul></div>';
+            }
+            
+            return formatted;
+        }
+        
+        // 更新统计信息
+        function updateStats(responseTime = 0) {
+            sessionCount++;
+            document.getElementById('session-count').textContent = sessionCount;
+            
+            if (responseTime > 0) {
+                document.getElementById('response-time').textContent = responseTime + 'ms';
+            }
+            
+            // 更新政策数量（模拟）
+            fetch('/api/statistics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('policy-count').textContent = data.statistics.database_stats.total_policies || 0;
+                    }
+                })
+                .catch(error => {
+                    console.log('无法获取统计信息:', error);
+                });
+        }
+        
+        // 加载聊天历史
+        function loadChatHistory() {
+            fetch('/api/user/user_001/history')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        data.history.forEach(item => {
+                            addMessage(item.response.action_type === 'user' ? 'user' : 'ai', item.response.message);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.log('无法加载聊天历史:', error);
+                });
+        }
+    </script>
+</body>
+</html>

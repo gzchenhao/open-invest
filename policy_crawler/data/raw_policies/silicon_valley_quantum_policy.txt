@@ -1,0 +1,66 @@
+Silicon Valley Quantum Computing Incentive Program
+Effective Date: January 1, 2024
+
+I. Program Overview
+The Silicon Valley Quantum Computing Incentive Program aims to attract leading quantum computing companies to establish operations in Silicon Valley and foster innovation in quantum technologies.
+
+II. Eligibility Requirements
+1. Company must be registered in California
+2. Primary business focus on quantum computing technology
+3. Minimum investment of $5 million in quantum R&D
+4. Employment of at least 25 full-time employees
+5. Demonstration of proprietary quantum technology
+
+III. Financial Incentives
+
+A. Research & Development Tax Credit
+- 25% tax credit on qualified quantum R&D expenditures
+- Maximum annual credit: $2 million per company
+- Credit carry-forward period: 5 years
+
+B. Infrastructure Grant
+- Up to $10 million for quantum computing facility construction
+- Equipment financing at 0% interest for 5 years
+- Free high-speed internet connectivity for 3 years
+
+C. Workforce Development Grant
+- $5,000 per employee for quantum skills training
+- University partnership funding for quantum education programs
+- Visa sponsorship support for international quantum experts
+
+IV. Technology Requirements
+1. Development of quantum algorithms or quantum hardware
+2. Patent portfolio with minimum 3 quantum-related patents
+3. Collaboration with accredited research institutions
+4. Participation in quantum industry standards development
+
+V. Compliance Requirements
+1. Data localization for all quantum research data
+2. Export control compliance for quantum technologies
+3. Regular reporting to Quantum Technology Review Board
+4. Security clearance for sensitive quantum research
+
+VI. Application Process
+1. Submit preliminary application by March 31, 2024
+2. Provide detailed business plan and financial projections
+3. Demonstrate quantum technology capabilities
+4. Background check and security review
+5. Final approval by Quantum Investment Committee
+
+VII. Required Documentation
+- Business registration documents
+- Financial statements for past 3 years
+- Quantum technology patent documentation
+- Employee qualification records
+- Security compliance plan
+- University partnership agreements
+
+VIII. Contact Information
+Program Director: Dr. Sarah Chen
+Email: quantum@siliconvalley.gov
+Phone: +1 (408) 555-0192
+Address: 3401 Hillview Avenue, Palo Alto, CA 94304
+
+IX. Program Duration
+This program is effective from January 1, 2024, through December 31, 2026.
+Applications must be submitted by December 31, 2025.

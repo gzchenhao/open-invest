@@ -1,0 +1,292 @@
+{
+  "policies": [
+    {
+      "policy_id": "shanghai-quantum-hub-2024",
+      "location": {
+        "country": "China",
+        "region": "Shanghai",
+        "city": "Shanghai",
+        "tech_hub_name": "Shanghai Zhangjiang Hi-Tech Park"
+      },
+      "industry_focus": ["quantum_computing", "ai_ml"],
+      "policy_name": "Shanghai Quantum Computing Industry Development Policy",
+      "policy_type": "incentive_program",
+      "version": "2024.1",
+      "effective_date": "2024-01-01",
+      "expiry_date": "2026-12-31",
+      "last_updated": "2024-01-15T10:00:00Z",
+      "incentives": {
+        "financial_incentives": [
+          {
+            "type": "tax_credit",
+            "amount": {
+              "value": 5000000,
+              "currency": "USD",
+              "period": "annual"
+            },
+            "eligibility_criteria": [
+              "Quantum computing R&D expenditure > $1M annually",
+              "Minimum 50 PhD researchers",
+              "Headquartered in Shanghai",
+              "Focus on quantum algorithms or hardware"
+            ],
+            "application_process": {
+              "required_documents": [
+                "R&D expenditure proof",
+                "Research team credentials",
+                "Business registration",
+                "Technology roadmap"
+              ],
+              "timeline_weeks": 12,
+              "complexity_rating": 3
+            }
+          },
+          {
+            "type": "subsidy",
+            "amount": {
+              "value": 2000000,
+              "currency": "USD",
+              "period": "one_time"
+            },
+            "eligibility_criteria": [
+              "Startup company (< 5 years)",
+              "Quantum computing patent applications",
+              "Private investment > $500K"
+            ],
+            "application_process": {
+              "required_documents": [
+                "Startup registration",
+                "Patent applications",
+                "Investment proof",
+                "Business plan"
+              ],
+              "timeline_weeks": 8,
+              "complexity_rating": 2
+            }
+          }
+        ],
+        "non_financial_incentives": [
+          {
+            "type": "land_lease",
+            "description": "Discounted land lease in tech park",
+            "value": {
+              "duration_years": 10,
+              "area_sqm": 5000,
+              "discount_percentage": 70
+            }
+          },
+          {
+            "type": "infrastructure",
+            "description": "Access to quantum computing facilities",
+            "value": {
+              "duration_years": 5,
+              "discount_percentage": 80
+            }
+          }
+        ]
+      },
+      "requirements": {
+        "staffing_requirements": {
+          "min_employees": 100,
+          "min_researchers": 50,
+          "min_phd_percentage": 30,
+          "min_experience_years": 3,
+          "key_positions": ["Quantum Research Lead", "Hardware Engineer", "Algorithm Specialist"]
+        },
+        "financial_requirements": {
+          "min_investment_usd": 2000000,
+          "min_revenue_usd": 1000000,
+          "net_worth_requirement": 5000000
+        },
+        "intellectual_property": {
+          "min_patents": 5,
+          "min_trademarks": 2,
+          "required_ip_types": ["patent", "trademark"]
+        },
+        "technical_standards": [
+          {
+            "standard_name": "ISO 27001",
+            "certification_required": true,
+            "level_required": "certified"
+          }
+        ]
+      },
+      "compliance_requirements": {
+        "data_localization": {
+          "required": true,
+          "scope": "All quantum algorithm data and research results",
+          "penalties": "Loss of incentives and legal action"
+        },
+        "export_controls": {
+          "applies": true,
+          "restricted_technologies": ["quantum encryption", "quantum sensing"],
+          "licensing_required": true
+        },
+        "security_clearance": {
+          "required": true,
+          "level": "secret",
+          "background_check_depth": "full"
+        }
+      },
+      "application_process": {
+        "steps": [
+          {
+            "step_number": 1,
+            "name": "Pre-application consultation",
+            "description": "Initial meeting with park administration",
+            "duration_days": 14,
+            "required_documents": ["Company profile", "Project proposal"],
+            "review_criteria": ["Alignment with policy goals", "Technical feasibility"]
+          },
+          {
+            "step_number": 2,
+            "name": "Document submission",
+            "description": "Submit complete application package",
+            "duration_days": 30,
+            "required_documents": ["Financial statements", "Team resumes", "IP portfolio", "Compliance plan"],
+            "review_criteria": ["Financial stability", "Team expertise", "IP quality", "Compliance readiness"]
+          },
+          {
+            "step_number": 3,
+            "name": "Site inspection",
+            "description": "On-site verification of facilities",
+            "duration_days": 21,
+            "required_documents": ["Facility access", "Equipment inventory"],
+            "review_criteria": ["Facility adequacy", "Security measures"]
+          },
+          {
+            "step_number": 4,
+            "name": "Final approval",
+            "description": "Policy committee review and approval",
+            "duration_days": 45,
+            "required_documents": ["Final compliance documents", "Legal agreements"],
+            "review_criteria": ["Overall compliance", "Policy alignment", "Economic impact"]
+          }
+        ],
+        "total_timeline_weeks": 26,
+        "success_rate": 65,
+        "contact_info": {
+          "email": "quantum@zhangjiangpark.com",
+          "phone": "+86-21-1234-5678",
+          "website": "https://www.zhangjiangpark.com/en/quantum/",
+          "address": "828 Zhangjiang Road, Pudong New Area, Shanghai"
+        }
+      },
+      "metadata": {
+        "source_url": "https://www.zhangjiangpark.com/en/policies/quantum-2024/",
+        "source_type": "government_website",
+        "confidence_score": 95,
+        "data_quality_rating": 5,
+        "crawl_frequency": "monthly",
+        "language": "en",
+        "translation_available": true
+      }
+    },
+    {
+      "policy_id": "silicon-valley-ai-innovation-2024",
+      "location": {
+        "country": "United States",
+        "region": "California",
+        "city": "San Francisco",
+        "tech_hub_name": "Silicon Valley Innovation Hub"
+      },
+      "industry_focus": ["ai_ml", "generative_ai", "autonomous_driving"],
+      "policy_name": "Silicon Valley AI Innovation Incentive Program",
+      "policy_type": "incentive_program",
+      "version": "2024.1",
+      "effective_date": "2024-01-01",
+      "expiry_date": "2025-12-31",
+      "last_updated": "2024-01-10T09:00:00Z",
+      "incentives": {
+        "financial_incentives": [
+          {
+            "type": "grant",
+            "amount": {
+              "value": 10000000,
+              "currency": "USD",
+              "period": "annual"
+            },
+            "eligibility_criteria": [
+              "AI-focused startup",
+              "Minimum 20 employees",
+              "R&D expenditure > $1M",
+              "Open source contribution"
+            ],
+            "application_process": {
+              "required_documents": [
+                "Business plan",
+                "Financial statements",
+                "Team credentials",
+                "Open source portfolio"
+              ],
+              "timeline_weeks": 16,
+              "complexity_rating": 4
+            }
+          }
+        ],
+        "non_financial_incentives": [
+          {
+            "type": "market_access",
+            "description": "Access to Silicon Valley network and partnerships",
+            "value": {
+              "duration_years": 3,
+              "discount_percentage": 100
+            }
+          }
+        ]
+      },
+      "requirements": {
+        "staffing_requirements": {
+          "min_employees": 20,
+          "min_researchers": 10,
+          "min_phd_percentage": 20,
+          "min_experience_years": 2
+        },
+        "financial_requirements": {
+          "min_investment_usd": 1000000,
+          "min_revenue_usd": 500000
+        },
+        "intellectual_property": {
+          "min_patents": 2,
+          "min_trademarks": 1
+        }
+      },
+      "compliance_requirements": {
+        "export_controls": {
+          "applies": true,
+          "restricted_technologies": ["advanced AI algorithms"],
+          "licensing_required": true
+        }
+      },
+      "application_process": {
+        "steps": [
+          {
+            "step_number": 1,
+            "name": "Application submission",
+            "description": "Submit online application",
+            "duration_days": 30,
+            "required_documents": ["Application form", "Business plan", "Financial docs"],
+            "review_criteria": ["Innovation potential", "Team quality", "Market fit"]
+          }
+        ],
+        "total_timeline_weeks": 12,
+        "success_rate": 40,
+        "contact_info": {
+          "email": "ai-innovation@siliconvalley.org",
+          "phone": "+1-408-123-4567",
+          "website": "https://siliconvalley.org/ai-innovation/",
+          "address": "1 Infinite Loop, Cupertino, CA"
+        }
+      },
+      "metadata": {
+        "source_url": "https://siliconvalley.org/ai-innovation/2024/",
+        "source_type": "government_website",
+        "confidence_score": 90,
+        "data_quality_rating": 4,
+        "crawl_frequency": "weekly",
+        "language": "en",
+        "translation_available": false
+      }
+    }
+  ]
+}

@@ -19,7 +19,6 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
 # Virtual Environment
 venv/
@@ -31,15 +30,42 @@ ENV/
 .idea/
 *.swp
 *.swo
+*~
 
-# Logs
+# Database files
+*.db
+*.sqlite3
+
+# Test and debug files
+test_*.py
+debug_*.py
+debug_*.ps1
+*_test.py
+*_debug.py
+*_fixed.py
+*_simple.py
+
+# Allow test_api.ps1
+!global_policy_aggregator/test_api.ps1
+
+# Temporary files
+*.tmp
+*.bak
 *.log
 
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-
-# OS
+# OS files
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Output directories
+output/
+cleaned_data/
+
+# Git scripts
+git_commit_script.*
+git_operations_report.md
+git_test.md
+
+# Policy database files (too large for GitHub)
+*.db
