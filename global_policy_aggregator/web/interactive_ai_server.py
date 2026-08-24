@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
-交互式AI政策查询系统
+交互式AI政策查询系统（DEMONSTRATION PORTAL — TASK-P0-2.1）
 包含搜索、筛选和AI对话功能
+
+⚠️ 本门户展示的全部政策为 MOCK 演示数据（is_mock=True，0 条 VERIFIED），
+非生产政府政策服务。页面横幅 / 卡片 MOCK 标签 / PDF 免责声明为强制披露层，不得移除。
 """
 
 from fastapi import FastAPI, Request, Form
@@ -31,7 +34,7 @@ policies = [
         "issue_date": "2024-03-15",  # 颁布日期
         "valid_period": "2024-03-15至2026-12-31",  # 有效期
         "source_url": "/api/policy/1/pdf",  # 源文件下载
-        "official_contact": {  # 官方联系方式（非中介）
+        "official_contact": {  # 联系方式字段（全部未核验，TASK-P0-2 已置 null）
             "department": "中关村科学城管理委员会产业发展处",
             "phone": None,  # TASK-P0-2: 未经官方来源核验的电话一律置 null
             "email": None,  # TASK-P0-2: 未经官方来源核验的邮箱一律置 null
@@ -741,7 +744,7 @@ async def home():
             if (policy.official_contact) {
                 contactHtml = `
                     <div style="margin-top: 15px; padding: 12px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
-                        <h4 style="color: #1976d2; margin-bottom: 8px;">📞 官方联系方式（未核验）</h4>
+                        <h4 style="color: #1976d2; margin-bottom: 8px;">📞 联系方式：未核验</h4>
                         <p style="margin: 5px 0; color: #555;"><strong>部门：</strong>${policy.official_contact.department || '未核验'}</p>
                         <p style="margin: 5px 0; color: #555;"><strong>电话：</strong>${policy.official_contact.phone || '未核验（待官方认领后提供）'}</p>
                         <p style="margin: 5px 0; color: #555;"><strong>邮箱：</strong>${policy.official_contact.email || '未核验（待官方认领后提供）'}</p>
@@ -774,6 +777,7 @@ async def home():
             card.innerHTML = `
                 <div class="policy-title">${policy.title}</div>
                 <div class="policy-meta">
+                    ${policy.is_mock ? '<span class="policy-tag" style="background:#fff3cd;color:#856404;border:1px solid #ffc107;font-weight:bold;">⚠️ MOCK / 演示数据 · 未经官方来源核验</span>' : ''}
                     <span class="policy-tag region-tag">${policy.region}</span>
                     <span class="policy-tag industry-tag">${policy.industry}</span>
                     <span class="policy-tag type-tag">${policy.type}</span>
@@ -790,7 +794,7 @@ async def home():
                 ${policy.source_url ? `
                 <div style="margin: 10px 0;">
                     <a href="${policy.source_url}" target="_blank" style="display: inline-block; padding: 10px 20px; background: #dc3545; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; transition: all 0.3s;" onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'">
-                        📄 下载政策红头文件（PDF）
+                        📄 下载演示文档（PDF，非官方红头文件）
                     </a>
                 </div>
                 ` : ''}
@@ -809,7 +813,7 @@ async def home():
                     </ul>
                 </div>
                 
-                <!-- 新增：官方联系方式 -->
+                <!-- 联系方式：未核验 -->
                 ${contactHtml}
                 
                 <!-- 新增：认领勾子 -->
@@ -953,6 +957,19 @@ async def generate_policy_pdf(policy_id: int):
     # 标题
     pdf.set_font(font_name, size=18)
     pdf.cell(0, 15, policy["title"], ln=True, align="C")
+    pdf.ln(2)
+
+    # TASK-P0-2.1 首页醒目免责声明：PDF 不得在无警示情况下呈现 MOCK 政策
+    pdf.set_fill_color(255, 243, 205)  # 黄色警示底（与页面横幅一致）
+    pdf.set_text_color(133, 100, 4)
+    pdf.set_font(font_name, size=10)
+    pdf.multi_cell(
+        0, 6,
+        "⚠️ MOCK / DEMONSTRATION DATA：本文档内容为演示数据，"
+        "未经官方来源核验，不代表任何政府部门的正式政策、补贴承诺或招商条件，"
+        "不得用于实际申报、投资或商业决策。",
+        ln=True, fill=True)
+    pdf.set_text_color(0, 0, 0)
     pdf.ln(5)
     
     # 基本信息
@@ -988,11 +1005,11 @@ async def generate_policy_pdf(policy_id: int):
         pdf.cell(0, 7, f"  {key}: {value}", ln=True)
     pdf.ln(5)
     
-    # 官方联系方式
+    # 联系方式（未核验；字段为 null 时显示“未核验”，绝不生成虚构联系方式）
     contact = policy.get("official_contact", {})
     if contact:
         pdf.set_font(font_name, size=14)
-        pdf.cell(0, 10, "官方联系方式", ln=True)
+        pdf.cell(0, 10, "联系方式（未核验）", ln=True)
         pdf.set_font(font_name, size=11)
         pdf.cell(0, 7, f"  部门: {contact.get('department') or '未核验'}", ln=True)
         pdf.cell(0, 7, f"  电话: {contact.get('phone') or '未核验（待官方认领后提供）'}", ln=True)

@@ -599,4 +599,54 @@ New: `tests/test_provenance.py` — **TEST-PROVENANCE-001** (mock ≠ verified),
 
 ---
 
+## TASK-P0-2.1
+
+### Remote GitHub Reality Verification + Mock Disclosure Repair
+
+**Task Description**: Independent acceptance found that while P0-2 data governance reached the data layer, the **public display layer** (HTML templates, PDF) lacked mandatory MOCK disclosure. This task synced the disclosure to every user-facing surface, with GitHub remote content as the final source of truth. No new features; no data deletion; no history rewrite.
+
+**Verified At**: 2026-08-24
+
+### Remote Verification (first principle: trust the remote, not local)
+
+- `git fetch origin` → LOCAL_HEAD == REMOTE_HEAD == GITHUB_MASTER_HEAD == `07a31cf66dcb201d675e36f25bc1d0570c939a74` → previous push claims were factually correct.
+- **README reality check against `origin/master:README.md`** (not the working copy): all previously-flagged claims already downgraded — remaining hits are `*(PLANNED)*` / `*(UNVERIFIED)*` / `Planned (not yet in repository)` / `prototype` statements. `A2A Ready`: 0 hits; `500+`: 0 hits; `verified government contact`: 0 hits. The independently-reported stale README claims did not match `origin/master` content — likely a stale cache / wrong ref view; recorded here with evidence rather than assumed.
+- **Real gap confirmed**: `origin/master:global_policy_aggregator/web/templates/index.html` had **zero** MOCK disclosure (user finding B was factual). Disclosure existed only in the inline HTML of `interactive_ai_server.py`.
+
+### Web Disclosure (all entry points, no exceptions)
+
+- New governance script `global_policy_aggregator/scripts/inject_mock_disclosure.py` (idempotent, marker `P0-2.1-MOCK-DISCLOSURE`) injected a **bilingual top-of-page banner** (中文 + English, prominent, no click required, not footer/tooltip) into **all 8 templates** (`index/chat/demo/english/simple/simple_demo/test/test_simple.html`) and the inline HTML of `simple_server.py`.
+- Entry-point audit: `ai_agent_interface.py` and `debug_routes.py` render templates (covered); `fixed_server.py` / `interactive_ai_server_new.py` expose API-only routes and always fall back to in-code MOCK data (`web/data/` does not exist — verified), now docstring-marked **LEGACY / DEMONSTRATION ONLY**; `interactive_ai_server.py` marked **DEMONSTRATION PORTAL**.
+- **Per-card MOCK label**: every policy card now renders `⚠️ MOCK / 演示数据 · 未经官方来源核验` badge when `policy.is_mock` (Article 6 — banner alone insufficient).
+- Contact section relabeled `📞 官方联系方式（未核验）` → `📞 联系方式：未核验`; misleading “下载政策红头文件” button → “下载演示文档（PDF，非官方红头文件）”; all residual `官方联系方式` strings removed (incl. code comments).
+
+### PDF Disclosure
+
+`/api/policy/{id}/pdf` now renders a **first-page prominent yellow disclaimer box** immediately under the title: “⚠️ MOCK / DEMONSTRATION DATA：本文档内容为演示数据，未经官方来源核验，不代表任何政府部门的正式政策、补贴承诺或招商条件…” plus the pre-existing footer declaration. PDF contact section title → `联系方式（未核验）`.
+
+### UI Regression Tests
+
+New `tests/test_ui_mock_disclosure.py` (force-added past `.gitignore` `test_*.py` rule, consistent with `test_provenance.py`):
+**TEST-UI-MOCK-001** page contains disclosure banner (before policy content) • **002** card renderer emits MOCK badge + all 12 embedded policies flagged • **003** no “官方联系方式 / Verified Government Contact” anywhere; contact labeled unverified • **004** all contacts null + unverified; null renders as “未核验”; no historical fabricated numbers in served HTML • **005** PDF endpoint returns valid %PDF + generator source carries first-page disclaimer • **006** all 8 templates + 4 server entry points carry disclosure / LEGACY markers. **18 passed.**
+
+### Test Result / Coverage
+
+- `python -m pytest tests/ -q` → **111 passed, 0 failed** (93 pre-existing kept + 18 new). No test deleted/skipped/weakened.
+- Coverage: `--cov=. --cov-report=term-missing` → **TOTAL 58%** (3108 statements). Real measurement.
+
+### Git Evidence
+
+- **Commit Hash**: `<to be back-filled by evidence commit>`
+- **Commit Message**: `fix: disclose mock policy data in public surfaces`
+- **Remote HEAD after push**: `<to be back-filled>`
+- **Historical mock data**: old fabricated values still exist in pre-P0-2 commits — recorded as **HISTORICAL MOCK DATA**; no `filter-repo` / BFG / force push executed (requires separate explicit authorization).
+
+### Remaining Risks
+
+- Git history still contains pre-governance fabricated contacts/URLs in old commits (public browsing possible). Cleanup is a separate authorized task.
+- `policy_database.db` (web directory) not field-audited this round; served portal uses in-code data only.
+- Real (VERIFIED) policy workflow still absent — portal must remain labeled demonstration until it exists.
+
+---
+
 *End of Constitution. Preserve > Modify · Evidence > Assertion · Reality > Documentation · Compatibility > Convenience · Explicit Migration > Silent Deletion · Verified Data > Fabricated Data.*

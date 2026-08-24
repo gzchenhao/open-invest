@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
-交互式AI政策查询系统
+交互式AI政策查询系统（LEGACY / DEMONSTRATION ONLY — TASK-P0-2.1）
 包含搜索、筛选和AI对话功能
+
+⚠️ 本服务器为演示/遗留入口，非生产政府政策服务。其内置回退数据全部为
+MOCK 演示数据（is_mock=True），不得对外宣称为真实政府政策。
 """
 
 from fastapi import FastAPI, Request, Form
