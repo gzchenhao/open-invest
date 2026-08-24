@@ -636,9 +636,9 @@ New `tests/test_ui_mock_disclosure.py` (force-added past `.gitignore` `test_*.py
 
 ### Git Evidence
 
-- **Commit Hash**: `<to be back-filled by evidence commit>`
+- **Commit Hash**: `ca2926bce57170d4644a7ae126b7b325e9cdf8c6` (this commit; recorded via follow-up evidence commit)
 - **Commit Message**: `fix: disclose mock policy data in public surfaces`
-- **Remote HEAD after push**: `<to be back-filled>`
+- **Remote HEAD after push**: `ca2926bce57170d4644a7ae126b7b325e9cdf8c6` (verified via `git ls-remote origin refs/heads/master` + content-level acceptance against `origin/master` blobs)
 - **Historical mock data**: old fabricated values still exist in pre-P0-2 commits — recorded as **HISTORICAL MOCK DATA**; no `filter-repo` / BFG / force push executed (requires separate explicit authorization).
 
 ### Remaining Risks
