@@ -201,7 +201,7 @@ class MockPolicyDatabase:
         """创建上海张江政策"""
         metadata = PolicyMetadata(
             policy_id="shanghai-zhangjiang-2024-tax",
-            source_url="http://www.zhangjiang.gov.cn/policy/2024-tax-incentive",
+            source_url="http://www.zhangjiang.gov.cn/policy/2024-tax-incentive",  # [UNVERIFIED] 虚构政府URL，未经官方核验
             jurisdiction="Shanghai, China",
             policy_type=PolicyType.TAX_INCENTIVE,
             effective_date="2024-01-01",
@@ -295,7 +295,7 @@ class MockPolicyDatabase:
         """创建深圳前海政策"""
         metadata = PolicyMetadata(
             policy_id="shenzhen-qianhai-2024-subsidy",
-            source_url="http://qianhai.sz.gov.cn/policy/2024-subsidy",
+            source_url="http://qianhai.sz.gov.cn/policy/2024-subsidy",  # [UNVERIFIED] 虚构政府URL，未经官方核验
             jurisdiction="Shenzhen, China",
             policy_type=PolicyType.SUBSIDY,
             effective_date="2024-01-01",
@@ -380,7 +380,7 @@ class MockPolicyDatabase:
         """创建硅谷政策"""
         metadata = PolicyMetadata(
             policy_id="silicon-valley-2024-incentive-package",
-            source_url="https://www.siliconvalley.org/policies/2024-incentive-package",
+            source_url="https://www.siliconvalley.org/policies/2024-incentive-package",  # [UNVERIFIED] 虚构政府URL，未经官方核验
             jurisdiction="California, USA",
             policy_type=PolicyType.INCENTIVE_PACKAGE,
             effective_date="2024-01-01",
@@ -468,7 +468,7 @@ class MockPolicyDatabase:
         """创建新加坡政策"""
         metadata = PolicyMetadata(
             policy_id="singapore-2024-land-grant",
-            source_url="https://www.enterprise.gov.sg/policies/2024-land-grant",
+            source_url="https://www.enterprise.gov.sg/policies/2024-land-grant",  # [UNVERIFIED] 虚构政府URL，未经官方核验
             jurisdiction="Singapore",
             policy_type=PolicyType.LAND_GRANT,
             effective_date="2024-01-01",

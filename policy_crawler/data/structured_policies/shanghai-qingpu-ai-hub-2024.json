@@ -1,4 +1,14 @@
 {
+  "mock_metadata": {
+    "status": "MOCK_DATA",
+    "warning": "本文件包含虚构的政府联系方式和政策数据",
+    "purpose": "演示和测试用途，不代表任何真实的政府政策",
+    "fictional_contacts": [
+      "青浦区科技和经济委员会：021-12345678",
+      "邮箱：zhangqp@shqp.gov.cn"
+    ],
+    "note": "请勿将这些信息误认为真实的政府联系方式"
+  },
   "policy_metadata": {
     "policy_id": "shanghai-qingpu-ai-hub-2024",
     "policy_name": "上海市青浦区人工智能产业扶持政策",

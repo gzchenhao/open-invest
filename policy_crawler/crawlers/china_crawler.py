@@ -1,6 +1,20 @@
 """
 China Policy Crawler
 Crawls Chinese tech hub and government policies
+
+=============================================
+⚠️  重要声明：MOCK数据 ⚠️
+=============================================
+本爬虫包含虚构的政府联系方式和政策数据。
+所有数据均为演示和测试用途，不代表任何真实的政府政策。
+
+包含的虚构联系方式示例：
+- 010-12345678 (北京市人工智能办公室)
+- ai@beijing.gov.cn
+
+请勿将这些信息误认为真实的政府联系方式。
+请勿将此爬虫用于实际数据采集。
+=============================================
 """
 
 import asyncio
@@ -17,7 +31,9 @@ class ChinaCrawler:
     """Crawler for Chinese tech hub policies"""
     
     def __init__(self):
-        self.base_url = "https://gov.cn"
+        # UNVERIFIED: base_url 为爬虫配置用途，未经验证的政府域名
+        # 此 URL 不代表真实政府网站，仅为爬虫框架配置
+        self.base_url = "https://gov.cn"  # [UNVERIFIED] 爬虫配置用途，未经验证
         self.policies = []
     
     async def crawl_policies(self) -> List[Dict[str, Any]]:

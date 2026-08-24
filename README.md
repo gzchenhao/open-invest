@@ -8,8 +8,8 @@
 ![Build](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)
 ![Contributors](https://img.shields.io/badge/contributors-wanted-red?style=for-the-badge)
 
-**The Open Standard for Borderless High-Tech Investment & Cross-Border Compliance**  
-*The USB-C for DeepTech • Zero Data Leakage • Agent-to-Agent (A2A) Planned*
+**The Open Framework for Borderless High-Tech Investment & Cross-Border Compliance**  
+*Experimental Framework • Zero Data Leakage Prototype • Agent-to-Agent (A2A) Planned*
 
 [📖 Docs](docs/API.md) • [🚀 Quick Start](#-quick-start) • [🧪 Tests](#-testing) • [📡 API](docs/API.md) • [🤝 Contribute](CONTRIBUTING.md) • [🌍 Join Us](#-join-the-revolution)
 
@@ -21,7 +21,7 @@
 
 **Open Invest Protocol** is the open-source protocol for borderless DeepTech investment and alignment, connecting High-Tech Innovators (Server) with Global Capital & Government Ecosystems (Client).
 
-Like USB-C unified device connectivity and TCP/IP unified network communication, **Open Invest Protocol unifies the data exchange standards between DeepTech projects and global governments**, making cross-border investment promotion transparent, efficient, and secure.
+Like USB-C unified device connectivity and TCP/IP unified network communication, **Open Invest Protocol provides a data exchange framework between DeepTech projects and global governments**, aiming to make cross-border investment promotion more transparent, efficient, and secure.
 
 ### 🎯 Core Value Proposition
 
@@ -425,7 +425,7 @@ python interactive_ai_server.py
 - 🔍 **Smart Search**: Full-text search across policy titles, regions, industries, and descriptions
 - 🏷️ **Region Filter**: Filter policies by high-tech zones (Beijing Zhongguancun, Shanghai Zhangjiang, Shenzhen High-Tech Park, etc.)
 - 📄 **PDF Download**: Download structured policy documents with official contact information
-- 📞 **Official Contacts**: Every policy card displays government contact details (department, phone, email, address)
+- 📞 **Contact Information**: Every policy card displays sample contact details (department, phone, email, address) - *Note: All contact information is for demonstration purposes only*
 - 🎯 **Policy Claim System**: Government bodies can claim and maintain their policy listings
 - 📊 **12 Pre-loaded Policy Records**: Seed data from 10 major Chinese high-tech zones (mock/seed data, marked in code)
 
@@ -452,13 +452,13 @@ Invoke-RestMethod -Uri 'http://localhost:8017/api/stats' -Method GET
 
 ## 🚀 Join the Revolution
 
-🚀 **Join the Open Invest Protocol Revolution!** 🚀
+🔧 **Explore the Open Invest Protocol Framework** 🔧
 
-**Version 3.1.0 with Web Portal & PDF Generation** (built on Python/FastAPI with a tiered-CORS gateway prototype + Global Policy Intelligence Engine + Interactive Web Interface) - **We're calling all hackers, AI pioneers, and policy tech wizards!** 
+**Version 3.1.0 Prototype with Web Portal & PDF Generation** (built on Python/FastAPI with experimental CORS gateway + Global Policy Intelligence Engine + Interactive Web Interface) - **We welcome developers, AI researchers, and policy technologists!** 
 
-This project has completed its 3.1 **prototype** implementation (built on Python/FastAPI with a tiered-CORS gateway prototype, interactive web portal, and PDF policy document generation; full security/auth layer and MCP/A2A are PLANNED). We warmly invite developers interested in embodied AI, government-facing large models, and multi-agent protocols (MCP/A2A) to join us in co-building and defining the open standard for high-tech industrial investment and alignment!
+This project has released its 3.1 **experimental prototype** (built on Python/FastAPI with experimental CORS gateway, interactive web portal, and PDF policy document generation; complete security/auth layer and MCP/A2A features remain PLANNED). We welcome collaboration from developers working on embodied AI, government-facing large models, and multi-agent protocols (MCP/A2A) to explore open frameworks for high-tech industrial investment!
 
-**Let's build the future of intelligent cross-border collaboration, one protocol at a time.** 🤖🌐🚀
+**Let's explore the future of intelligent cross-border collaboration through experimentation.** 🤖🌐🔧
 
 ---
 
@@ -527,9 +527,9 @@ Thanks to all the amazing people who have contributed to this project:
 
 <div align="center">
 
-**Making Borderless DeepTech Investment Possible**  
-*The USB-C for High-Tech Innovation Across Borders*
+**Exploring Borderless DeepTech Investment Frameworks**  
+*Experimental Framework for High-Tech Innovation Research*
 
-⭐ If this project advances borderless DeepTech innovation, give us a star!
+⭐ If this project contributes to DeepTech innovation research, consider giving us a star!
 
 </div>

@@ -1,4 +1,10 @@
 {
+  "mock_metadata": {
+    "is_mock": true,
+    "reason": "演示数据 - 包含虚构的政府联系方式和政策数据",
+    "last_updated": "2024-01-01",
+    "contact_validation": "unverified"
+  },
   "policy_metadata": {
     "policy_id": "shenzhen-special-economic-zone-ai-policy-2024",
     "policy_name": "深圳市人工智能产业扶持政策",

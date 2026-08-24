@@ -1,4 +1,10 @@
 {
+  "mock_metadata": {
+    "is_mock": true,
+    "reason": "演示数据 - 包含虚构的政府联系方式和政策数据",
+    "last_updated": "2024-01-01",
+    "contact_validation": "unverified"
+  },
   "policy_metadata": {
     "policy_id": "shanghai-hi-tech-zone-2024",
     "source_url": "https://www.shanghai.gov.cn/shanghai/node12345/20240101/u1ai12345.html",

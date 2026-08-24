@@ -578,8 +578,8 @@ REQUIREMENTS:
         # Generate raw text
         raw_text = self.generate_raw_policy_text(policy)
         
-        # Create source URL
-        source_url = f"https://{jurisdiction.lower()}-gov-policies/{tech_hub.lower()}-tech-policy-2024"
+        # Create source URL - UNVERIFIED: 动态生成的虚构政府URL
+        source_url = f"https://{jurisdiction.lower()}-gov-policies/{tech_hub.lower()}-tech-policy-2024"  # [UNVERIFIED] 动态生成的虚构URL
         
         # Structure the policy
         structured_policy = self.structurer.structure_policy(raw_text, source_url, jurisdiction)
@@ -600,8 +600,8 @@ REQUIREMENTS:
             mock_policy_data = MockPolicyData(**policy)
             raw_text = self.generate_raw_policy_text(mock_policy_data)
             
-            # Create structured policy
-            source_url = f"https://{policy['jurisdiction'].lower()}-gov-policies/{policy['tech_hub'].lower()}-tech-policy-2024"
+            # Create structured policy - UNVERIFIED: 动态生成的虚构政府URL
+            source_url = f"https://{policy['jurisdiction'].lower()}-gov-policies/{policy['tech_hub'].lower()}-tech-policy-2024"  # [UNVERIFIED] 动态生成的虚构URL
             structured_policy = self.structurer.structure_policy(raw_text, source_url, policy['jurisdiction'])
             
             # Save structured policy

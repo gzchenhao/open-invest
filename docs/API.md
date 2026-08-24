@@ -2,7 +2,7 @@
 
 ## 📖 概述
 
-Open Invest Protocol 基于 JSON-RPC 2.0 标准，提供了一套完整的 API 接口，用于实现高科技项目方与政府招商局之间的安全合规互联。
+Open Invest Protocol 基于 JSON-RPC 2.0 标准，提供了一套实验性 API 接口框架，用于探索高科技项目方与政府招商局之间的互联方案。
 
 ## 🔗 基础信息
 
@@ -11,7 +11,7 @@ Open Invest Protocol 基于 JSON-RPC 2.0 标准，提供了一套完整的 API �
 - **内容类型**: `application/json`
 - **字符编码**: UTF-8
 
-## 🚀 快速开始
+## 🔧 快速开始（实验性）
 
 ### 端点列表
 
@@ -142,7 +142,7 @@ GET /
 {
   "service": "Open Invest Protocol Server",
   "version": "1.0.0",
-  "description": "高科技项目方服务端 - 实现与政府招商局的安全合规互联",
+  "description": "高科技项目方服务端实验 - 探索与政府招商局的互联方案",
   "endpoints": {
     "rpc": "/rpc - JSON-RPC 2.0 endpoint",
     "health": "/health - Health check"
