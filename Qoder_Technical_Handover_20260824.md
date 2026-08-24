@@ -592,7 +592,7 @@ New: `tests/test_provenance.py` — **TEST-PROVENANCE-001** (mock ≠ verified),
 
 ### Git Evidence
 
-- **Commit Hash**: `<to be back-filled by evidence commit>`
+- **Commit Hash**: `ec2e1961811795f89722ce0bd5df3d5fe3caf2bd` (this commit; recorded via follow-up evidence commit)
 - **Commit Message**: `feat: enforce policy provenance and anti-hallucination data governance`
 - **Push**: `origin/master` — result recorded in follow-up evidence commit
 - **Business data check**: Robotaxi / autonomous-driving / historical industry data untouched; no unauthorized deletions (git diff reviewed).
