@@ -313,9 +313,11 @@ Verified At: ...
 If there is no evidence, the task **must not** be marked DONE.
 
 ### 7.3 This Quest Git Evidence
-- **Commit Hash**: `__COMMIT_HASH__`
-- **Push Result**: `origin/master`
+- **Commit Hash**: `580ace39086301cb399dd5625d53e7ec9652055a` (the commit that introduced this document)
+- **Commit Message**: `docs: establish the immutable AI handover constitution and fix data taxonomy`
+- **Push Result**: SUCCESS — `01ba935..580ace3  master -> master` to `origin` (https://github.com/gzchenhao/open-invest.git)
 - **Worktree after push**: CLEAN (only pre-existing untracked `test_*.ps1` remain untracked by design)
+- **Verification**: `git rev-parse HEAD` == pushed commit; `git branch --show-current` == `master`; `git status` up to date with `origin/master`
 
 ---
 
