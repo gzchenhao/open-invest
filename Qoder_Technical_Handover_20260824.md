@@ -431,4 +431,79 @@ Executed 2026-08-24, read-only.
 
 ---
 
+## TASK-P0-1
+
+### Repository Reality Alignment + Test Gate Repair
+
+**Task Description**: Re-establish a trustworthy relationship between README claims, actual code state, and the test system; repair the pytest collection failure and establish `python -m pytest tests/ -q` as the permanent regression gate. No new business features; no MCP/A2A development; no crawler expansion; no business data or Schema deletion.
+
+**Verified At**: 2026-08-24
+
+### Repository Reality Findings
+
+1. **pytest collection failure root cause**: the repository had **zero `__init__.py` files**; tests imported `services.*` / `client.*` while the working directory was repo root, so neither top-level package nor relative imports (`..api` in `client/utils/project_evaluator.py`) could resolve.
+2. **README listed 10+ non-existent files** as implemented (`a2a_protocol_handler.py`, `policy_intelligence_service.py`, `policy_matcher.py`, `schema/policy-schema.json`, `tests/policy/`, `tests/performance/`, `docker-compose.yml`, ...). Many files the README attributed to `global_policy_aggregator/` actually live under `policy_crawler/` (china/eu/silicon_valley/singapore crawlers, data_structurer, intelligence_aggregator).
+3. **MCP/A2A code = zero occurrences repository-wide** → must stay PLANNED.
+4. **Test-code drift**: 7 sync methods wrapped in `asyncio.run`, 2 dict-style `in` assertions on pydantic models, mock fixtures contradicting real 3-sample project data, JSON-RPC error codes not spec-compliant (no -32700/-32600), protocol layer returning pydantic objects unserialized (`result=None` at runtime), missing `industry`/`name` passthrough needed by client evaluator.
+
+### README Changes (Reality Alignment)
+
+**README Claims Corrected / Downgraded**:
+- "A2A Ready / Native support for MCP/A2A" → **PLANNED** (no implementation exists).
+- "500+ global tech hubs" → **PROTOTYPE**: current seed coverage 12 policy records / 10 regions.
+- "10,000+ concurrent, sub-100ms" → **UNVERIFIED benchmark goals** (no load-test evidence).
+- "secure multi-tier gateway / 3.1 implementation" → tiered-CORS gateway **PROTOTYPE**; full auth **not implemented**.
+- "Security penetration tests / Performance benchmarks / A2A protocol interfaces" removed from Test Coverage ✅ list → marked PLANNED.
+- Test commands corrected to the real regression gate: `python -m pytest tests/ -q`.
+- Added **Reality Status Legend** (IMPLEMENTED / PARTIALLY IMPLEMENTED / SCAFFOLDED / PROTOTYPE / PLANNED / UNVERIFIED).
+
+**Non-existent Files Removed From Documentation**: `a2a_protocol_handler.py` (x2), `policy_intelligence_service.py`, `policy_matcher.py`, `schema/policy-schema.json`, `tests/policy/`, `tests/performance/`, `docker-compose.yml`, `docs/README.md` link, fake `global_policy_aggregator/crawlers/{china_crawler,silicon_valley_crawler,eu_crawler,singapore_crawler}.py` entries (real files live in `policy_crawler/`), fake `processors/data_structurer.py` + `intelligence_aggregator.py` under `global_policy_aggregator/`. All moved to an explicit **Planned** note.
+
+**Status Summary**:
+- MCP: **PLANNED** • A2A: **PLANNED**
+- Crawler: **PROTOTYPE** — verified 6 files in `global_policy_aggregator/crawlers/` (5 China-focused + engine), 4 regional crawlers in `policy_crawler/crawlers/`; no live government-site scraping verified.
+- Industry Taxonomy: **UNRESOLVED / OPEN** — `types.py`=5, PolicyCleaner effective output=8, `deeptech_policy_schema.json`=21, web server=12. **This Quest only records, does not unify.** Recommend a dedicated *Industry Taxonomy Design Quest*.
+- Test Gate: **PASS** (68 passed / 0 failed / collection OK).
+
+### Test Gate Repair (before / after)
+
+**Test Collection Before**: FAIL — `ModuleNotFoundError: No module named 'services'` at collection.
+**Test Collection After**: PASS — `python -m pytest tests/ --collect-only -q` collects 68 tests.
+**Full Test Before**: never reached execution stage.
+**Full Test After**: `python -m pytest tests/ -q` → **68 passed, 0 failed** (server 25 + client 17 + integration 26).
+
+**Fixes applied (root-cause, no test deleted/skipped/weakened)**:
+- `pytest.ini`: added `pythonpath = .` (pytest ≥7 native option, no PYTHONPATH hack).
+- Added 11 `__init__.py` package markers (server, server/config, server/services, client, client/api, client/hooks, client/utils, schema, tests/*).
+- Fixed broken imports: `client/main.py`, `client/hooks/ai_agent_direct_apply.py` relative-import chains; `server/main.py` service imports.
+- `server/main.py`: JSON-RPC 2.0 spec compliance — parse error `-32700`, invalid request `-32600` (previously lumped into `-32603`); pydantic result serialization; `industry`/`name` passthrough from projects data.
+- `schema/types.py`: **additive-only** change per INV-002 — defaults for `JsonRpcResponse.result/error/id`; two Optional backward-compatible fields (`name`, `industry`) on `TechReadinessResponse`. **No field deleted or renamed.** Old schema payloads remain valid.
+- Test-side defects proven wrong and fixed (documented, not weakened): 7× `asyncio.run` on sync methods in `test_integration.py`; 2× `in`-on-pydantic-model assertions in `test_server.py`; promotion mock fixtures aligned to the real 3-sample project dataset; `test_analyze_strengths_weaknesses` input expanded to cover the weaknesses branch; added `tests/integration/conftest.py` real-server session fixture (port 8123).
+
+### Coverage
+
+`python -m pytest tests/ --cov=. --cov-report=term -q` (pytest-cov installed) → **TOTAL 67%** (2114 statements, 702 uncovered). Real measured value, not estimated.
+
+### Files Changed
+
+Modified: `README.md`, `pytest.ini`, `server/main.py`, `server/services/tech_readiness_service.py`, `server/services/landing_requirements_service.py`, `schema/types.py` (additive only), `client/main.py`, `client/api/protocol_client.py`, `client/utils/project_evaluator.py`, `client/hooks/ai_agent_direct_apply.py`, `tests/server/test_server.py`, `tests/client/test_client.py`, `tests/integration/test_integration.py`, `Qoder_Technical_Handover_20260824.md`.
+Added: 11× `__init__.py`, `tests/integration/conftest.py`.
+**Business data / policy seed data / Robotaxi data / crawler datasets: NOT TOUCHED.**
+
+### Known Remaining Gaps
+
+- Industry Taxonomy Alignment: **Status OPEN** (5/8/21/12 across components) — requires a dedicated design quest.
+- No authentication on `/rpc`; CORS `allow_origins=["*"]` (dev-only).
+- MCP / A2A: PLANNED, zero implementation.
+- Performance/security test suites: none (PLANNED).
+- Policy data provenance fields still missing (see APPENDIX B).
+
+### Git Evidence
+
+- **Commit Hash**: `__P0_1_COMMIT__` (this commit; self-reference to be recorded in a follow-up evidence commit)
+- **Commit Message**: `fix: align repository reality and repair test gate`
+- **Push**: `origin/master` — result recorded in follow-up evidence commit
+
+---
+
 *End of Constitution. Preserve > Modify · Evidence > Assertion · Reality > Documentation · Compatibility > Convenience · Explicit Migration > Silent Deletion · Verified Data > Fabricated Data.*

@@ -237,14 +237,14 @@ class ProjectEvaluator:
         """
         base_score = 80  # 基础分
         
-        # 根据合规状态调整
+        # 根据合规状态调整（先初始化，避免分支未命中时变量未定义）
         compliance_status = compliance_info.get("compliance_status", "")
+        status_bonus = 0
+        status_penalty = 0
         if "严格监管" in compliance_status:
             status_penalty = 10
         elif "创新监管" in compliance_status:
             status_bonus = 5
-        else:
-            status_penalty = 0
         
         # 根据成本调整
         costs = compliance_info.get("estimated_costs", {})

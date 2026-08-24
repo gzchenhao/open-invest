@@ -49,11 +49,11 @@ class JsonRpcRequest(BaseModel):
 
 
 class JsonRpcResponse(BaseModel):
-    """JSON-RPC 响应模型"""
+    """JSON-RPC 响应模型（按 JSON-RPC 2.0 规范，result 与 error 二选一）"""
     jsonrpc: str = Field(default="2.0", description="JSON-RPC 版本")
-    result: Optional[Dict[str, Any]] = Field(description="响应数据")
-    error: Optional[Dict[str, Any]] = Field(description="错误信息")
-    id: Optional[str] = Field(description="请求ID")
+    result: Optional[Dict[str, Any]] = Field(default=None, description="响应数据")
+    error: Optional[Dict[str, Any]] = Field(default=None, description="错误信息")
+    id: Optional[str] = Field(default=None, description="请求ID")
 
 
 class TechReadinessRequest(BaseModel):
@@ -69,6 +69,10 @@ class TechReadinessResponse(BaseModel):
     timeline: Dict[str, str] = Field(description="预计时间线")
     milestones: List[str] = Field(description="关键里程碑")
     risks: List[str] = Field(description="技术风险")
+    # 可选扩展字段（向后兼容）：客户端项目评估器依赖行业信息发起落地要求查询；
+    # 项目名称用于评估报告展示（服务侧 projects_data 中本就包含这两个字段）
+    name: Optional[str] = Field(default=None, description="项目名称")
+    industry: Optional[IndustryType] = Field(default=None, description="行业类型")
 
 
 class LandingRequirementsRequest(BaseModel):

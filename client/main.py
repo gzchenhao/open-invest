@@ -5,11 +5,16 @@ Open Invest Protocol Client
 
 import logging
 import asyncio
+import sys
+import os
 from typing import List, Dict, Any
 from dataclasses import dataclass
 
-from api.protocol_client import ProtocolClient, ClientType
-from utils.project_evaluator import ProjectEvaluator, ProjectMatchResult
+# 添加项目根目录到 Python 路径（保证直接运行与测试导入行为一致）
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from client.api.protocol_client import ProtocolClient, ClientType
+from client.utils.project_evaluator import ProjectEvaluator, ProjectMatchResult
 
 # 配置日志
 logging.basicConfig(

@@ -5,12 +5,17 @@ Demonstrates how projects can apply to government policies through secure gatewa
 
 import asyncio
 import logging
+import os
+import sys
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 from enum import Enum
 
-from api.protocol_client import ProtocolClient, ClientType
-from utils.project_evaluator import ProjectEvaluator, MatchScore
+# 添加项目根目录到 Python 路径（保证直接运行与测试导入行为一致）
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from client.api.protocol_client import ProtocolClient, ClientType
+from client.utils.project_evaluator import ProjectEvaluator, MatchScore
 
 logger = logging.getLogger(__name__)
 

@@ -9,9 +9,9 @@
 ![Contributors](https://img.shields.io/badge/contributors-wanted-red?style=for-the-badge)
 
 **The Open Standard for Borderless High-Tech Investment & Cross-Border Compliance**  
-*The USB-C for DeepTech • Zero Data Leakage • Agent-to-Agent (A2A) Ready*
+*The USB-C for DeepTech • Zero Data Leakage • Agent-to-Agent (A2A) Planned*
 
-[📖 Docs](docs/README.md) • [🚀 Quick Start](#-quick-start) • [🧪 Tests](#-testing) • [📡 API](docs/API.md) • [🤝 Contribute](CONTRIBUTING.md) • [🌍 Join Us](#-join-the-revolution)
+[📖 Docs](docs/API.md) • [🚀 Quick Start](#-quick-start) • [🧪 Tests](#-testing) • [📡 API](docs/API.md) • [🤝 Contribute](CONTRIBUTING.md) • [🌍 Join Us](#-join-the-revolution)
 
 </div>
 
@@ -26,11 +26,14 @@ Like USB-C unified device connectivity and TCP/IP unified network communication,
 ### 🎯 Core Value Proposition
 
 - **🔌 The USB-C for DeepTech**: Universal standard connecting AI, robotics, quantum computing, and biotech projects with global governments
-- **🔒 Zero Data Leakage**: Built-in data anonymization and access control ensuring core IP never leaves your domain
-- **🤖 Agent-to-Agent (A2A) Ready**: Native support for multi-agent protocols (MCP/A2A) for automated cross-border negotiations
-- **🌐 Borderless Compliance**: Structured policy intelligence from 500+ global tech hubs and special economic zones
-- **⚡ High Performance**: FastAPI-powered, handling 10,000+ concurrent policy queries with sub-100ms response times
+- **🔒 Zero Data Leakage** *(PROTOTYPE)*: Built-in data anonymization utilities (`client/hooks/ai_agent_direct_apply.py::SecurityGateway`) — functional demo, not audited for production
+- **🤖 Agent-to-Agent (A2A)** *(PLANNED)*: Multi-agent protocols (MCP/A2A) are a roadmap item; no MCP/A2A implementation exists in this repository yet
+- **🌐 Borderless Compliance** *(PROTOTYPE)*: Structured policy intelligence — current seed coverage: 12 policy records across 10 regions (China-focused); global expansion is a target, not a verified fact
+- **⚡ FastAPI-Powered** *(UNVERIFIED)*: Built on FastAPI. Performance targets (10,000+ concurrent queries, sub-100ms response) are benchmark goals; no load-test evidence exists yet
 - **🎯 Data-Led Growth**: Global policy intelligence engine serving as bait pool to attract global DeepTech projects
+
+> **Reality Status Legend** (used throughout this README):  
+> **IMPLEMENTED** = code exists with runnable tests/verification • **PARTIALLY IMPLEMENTED** = code exists with notable gaps • **SCAFFOLDED** = structure/interfaces only • **PROTOTYPE** = runnable demo, not production-grade • **PLANNED** = design/roadmap only • **UNVERIFIED** = code may exist but correctness/performance lacks evidence
 
 ---
 
@@ -71,14 +74,13 @@ Client connects to server and generates global investment matching reports.
 ### 4. Test Everything
 
 ```bash
-# Run all tests
-pytest
+# Run all tests (regression gate — minimum verification command)
+python -m pytest tests/ -q
 
 # Run specific test suites
-pytest tests/server/test_server.py
-pytest tests/client/test_client.py
-pytest tests/integration/test_integration.py
-pytest tests/policy/test_policy_crawler.py
+python -m pytest tests/server/test_server.py -q
+python -m pytest tests/client/test_client.py -q
+python -m pytest tests/integration/test_integration.py -q
 ```
 
 ---
@@ -139,9 +141,9 @@ Access economic compliance and risk assessment
 }
 ```
 
-### 🔒 Multi-Tier Data Protection
+### 🔒 Multi-Tier Data Protection *(PARTIALLY IMPLEMENTED)*
 
-Enterprise-grade access control:
+Tiered CORS access control is implemented in `server/main.py` (public/gov/partner/internal tiers). Full authentication and authorization enforcement is **not yet implemented**:
 
 - **public_client**: Public policy data only
 - **gov_client**: Internal government data access
@@ -150,7 +152,7 @@ Enterprise-grade access control:
 
 ### 🌍 Global Policy Intelligence
 
-Structured intelligence from 500+ global tech hubs:
+Structured policy intelligence — current seed coverage: **12 policy records across 10 regions** (China high-tech zones; global expansion is PLANNED):
 
 - **Tax Incentives**: R&D tax credits, corporate tax breaks
 - **Subsidies**: Computing power subsidies, factory rent reductions
@@ -171,7 +173,8 @@ Structured intelligence from 500+ global tech hubs:
 │ • Quantum Computing    │    │ • Data Protection      │    │ • Government Bodies    │
 │ • Biotech Firms       │    │ • Policy Intelligence  │    │ • Special Economic     │
 └─────────────────────────┘    │ • A2A Agent Interface   │    │   Zones               │
-                                └─────────────────────────┘    └─────────────────────────┘
+                                │        (PLANNED)        │    └─────────────────────────┘
+                                └─────────────────────────┘
                                        ▲       ▲       ▲
                                        │       │       │
                                ┌───────┴───────┴───────┴───────┐
@@ -186,110 +189,86 @@ Structured intelligence from 500+ global tech hubs:
 
 ```
 open-invest/
-├── schema/                    # Protocol Specification Layer
-│   ├── api-spec.json          # OpenAPI 3.0 Specification
-│   ├── types.py               # Data Type Definitions
-│   └── policy-schema.json     # Global Policy Intelligence Schema
-├── server/                    # Server Implementation
-│   ├── main.py                # Main Service Application
-│   ├── config/                # Configuration Management
+├── schema/                       # Protocol Specification Layer
+│   ├── api-spec.json             # OpenAPI 3.0 Specification
+│   └── types.py                  # Pydantic Protocol Types (JSON-RPC models)
+├── server/                       # Server Implementation (IMPLEMENTED, 25 endpoint tests)
+│   ├── main.py                   # FastAPI entry, JSON-RPC 2.0 `/rpc` endpoint, tiered CORS
+│   ├── config/
 │   │   └── config.py
-│   ├── services/              # Business Logic
-│   │   ├── tech_readiness_service.py
-│   │   ├── landing_requirements_service.py
-│   │   ├── economic_compliance_service.py
-│   │   ├── data_protection.py
-│   │   ├── data_storage.py
-│   │   ├── policy_intelligence_service.py
-│   │   └── a2a_protocol_handler.py
-│   └── agents/                # AI Agent Interface
-│       └── a2a_protocol_handler.py
-├── client/                    # Client Implementation
-│   ├── main.py                # Main Client Application
-│   ├── api/                   # API Client
+│   └── services/                 # Business Logic
+│       ├── tech_readiness_service.py
+│       ├── landing_requirements_service.py
+│       ├── economic_compliance_service.py
+│       ├── data_protection.py
+│       └── data_storage.py
+├── client/                       # Client Implementation (IMPLEMENTED, 17 tests)
+│   ├── main.py                   # CLI client: investment matching report
+│   ├── api/
 │   │   └── protocol_client.py
-│   ├── utils/                 # Utility Modules
-│   │   ├── project_evaluator.py
-│   │   └── policy_matcher.py
-│   └── hooks/                 # Integration Hooks
-│       └── ai_agent_direct_apply.py
-├── global_policy_aggregator/   # Global Policy Intelligence Engine
-│   ├── crawlers/              # Regional Policy Crawlers
-│   │   ├── china_crawler.py
-│   │   ├── china_cluster_crawler.py  # China Tech Cluster Crawler
-│   │   ├── silicon_valley_crawler.py
-│   │   ├── eu_crawler.py
-│   │   └── singapore_crawler.py
-│   ├── processors/             # Data Processing Pipeline
-│   │   ├── policy_cleaner.py
-│   │   ├── data_structurer.py
-│   │   └── intelligence_aggregator.py
-│   ├── schemas/               # Policy Data Schemas
-│   │   ├── incentive_schema.json
-│   │   ├── requirement_schema.json
-│   │   └── compliance_schema.json
-│   ├── web/                   # Web Interface
-│   │   └── interactive_ai_server.py  # FastAPI Web Portal with PDF Generation
-│   ├── test_api.ps1           # PowerShell API Test Script
-│   └── data/                  # Policy Database
-│       ├── raw_policies/
-│       └── structured_policies/
-├── tests/                     # Test Suite
-│   ├── server/                # Server Tests
-│   ├── client/                # Client Tests
-│   ├── integration/           # Integration Tests
-│   ├── policy/                # Policy Intelligence Tests
-│   └── performance/           # Performance Tests
-├── docs/                      # Documentation
-│   ├── README.md              # Documentation Home
-│   ├── API.md                 # API Documentation
-│   ├── examples/              # Example Code
-│   │   ├── basic_usage.py
-│   │   ├── advanced_usage.py
-│   │   └── ai_agent_direct_apply.py
-│   └── architecture/          # Architecture Guides
-├── marketing/                  # Marketing & Launch Kit
-│   ├── launch_campaign.md
-│   ├── hacker_news_post.md
-│   ├── twitter_thread.md
-│   └── chinese_deep_dive.md
-├── requirements.txt           # Python Dependencies
-├── pytest.ini                # Test Configuration
-├── docker-compose.yml         # Docker Configuration
-└── README.md                  # Project Documentation
+│   ├── utils/
+│   │   └── project_evaluator.py
+│   └── hooks/
+│       └── ai_agent_direct_apply.py  # SecurityGateway anonymization prototype
+├── policy_crawler/               # Original Policy Crawler Engine (PROTOTYPE)
+│   ├── crawlers/                 # china / eu / silicon_valley / singapore
+│   ├── processors/               # policy_cleaner / data_structurer / intelligence_aggregator
+│   ├── schemas/                  # policy_schema.json + domain schemas
+│   └── data/                     # raw_policies/ + structured_policies/ (mock/sample data)
+├── global_policy_aggregator/     # China Policy Intelligence Engine (PROTOTYPE)
+│   ├── crawlers/                 # 5 China-focused crawlers + crawler engine
+│   ├── processors/
+│   │   └── policy_cleaner.py
+│   ├── schemas/                  # incl. deeptech_policy_schema.json
+│   ├── web/
+│   │   └── interactive_ai_server.py  # FastAPI Web Portal + PDF generation
+│   ├── data/                     # raw_policies/ + seed_data/ + structured_policies/
+│   ├── services/  agents/  scripts/  cleaned_data/
+│   └── test_api.ps1              # PowerShell API test script
+├── tests/                        # Test Suite (68 tests, regression gate)
+│   ├── server/                   # Server endpoint tests
+│   ├── client/                   # Client logic tests
+│   └── integration/              # End-to-end server+client tests
+├── docs/                         # Documentation
+│   ├── API.md                    # API Documentation
+│   └── examples/                 # Example scripts (basic_usage, ai_agent_direct_apply, ...)
+├── marketing/                    # Marketing & Launch Kit
+├── requirements.txt              # Python Dependencies
+├── pytest.ini                    # Test Configuration (regression gate)
+├── Qoder_Technical_Handover_20260824.md  # AI Handover Constitution (read this first)
+└── README.md                     # Project Documentation
 ```
+
+**Planned (not yet in repository)**: `a2a_protocol_handler.py` (MCP/A2A), `policy_intelligence_service.py`, `policy_matcher.py`, `tests/policy/`, `tests/performance/`, `docker-compose.yml` — see the Roadmap in the Handover Constitution.
 
 ---
 
 ## 🧪 Testing
 
-Comprehensive test suite ensuring protocol reliability:
+Regression gate for every change (minimum verification command):
 
 ```bash
-# Run all tests
-pytest
+# Regression gate — must pass before any further development
+python -m pytest tests/ -q
 
-# Run specific test categories
-pytest -m unit          # Unit tests
-pytest -m integration   # Integration tests
-pytest -m policy        # Policy intelligence tests
-pytest -m performance   # Performance tests
-pytest -m security      # Security tests
+# Collection check only
+python -m pytest tests/ --collect-only -q
 
-# Generate coverage report
-pytest --cov=server --cov=client --cov=policy_crawler --cov-report=html
+# Coverage report (requires pytest-cov)
+python -m pytest tests/ --cov=. --cov-report=term -q
 ```
 
-### Test Coverage
+### Current Test Reality (verified 2026-08-24)
 
-- ✅ Server API endpoints
-- ✅ Client functionality
-- ✅ Data protection mechanisms
-- ✅ Policy intelligence processing
-- ✅ A2A protocol interfaces
-- ✅ Performance benchmarks
-- ✅ Security penetration tests
-- ✅ Cross-border compliance validation
+- ✅ Server API endpoints — 25 tests
+- ✅ Client functionality — 17 tests
+- ✅ End-to-end integration (real server + client) — 26 tests
+- ✅ Data anonymization (`SecurityGateway`) — covered by client tests
+- ⬜ A2A protocol interfaces — PLANNED (no implementation, no tests)
+- ⬜ Performance benchmarks — PLANNED (no load tests)
+- ⬜ Security penetration tests — PLANNED (no security test suite)
+
+**Current result**: 68 passed, 0 failed • **Coverage**: 67% TOTAL (2114 statements)
 
 ---
 
@@ -446,9 +425,9 @@ python interactive_ai_server.py
 - 🔍 **Smart Search**: Full-text search across policy titles, regions, industries, and descriptions
 - 🏷️ **Region Filter**: Filter policies by high-tech zones (Beijing Zhongguancun, Shanghai Zhangjiang, Shenzhen High-Tech Park, etc.)
 - 📄 **PDF Download**: Download structured policy documents with official contact information
-- 📞 **Official Contacts**: Every policy card displays verified government contact details (department, phone, email, address)
+- 📞 **Official Contacts**: Every policy card displays government contact details (department, phone, email, address)
 - 🎯 **Policy Claim System**: Government bodies can claim and maintain their policy listings
-- 📊 **12 Chinese High-Tech Zones**: Pre-loaded with policies from major innovation hubs
+- 📊 **12 Pre-loaded Policy Records**: Seed data from 10 major Chinese high-tech zones (mock/seed data, marked in code)
 
 ### API Endpoints
 
@@ -475,9 +454,9 @@ Invoke-RestMethod -Uri 'http://localhost:8017/api/stats' -Method GET
 
 🚀 **Join the Open Invest Protocol Revolution!** 🚀
 
-**Version 3.1.0 with Web Portal & PDF Generation** (built on Python/FastAPI with secure multi-tier gateway + Global Policy Intelligence Engine + Interactive Web Interface) - **We're calling all hackers, AI pioneers, and policy tech wizards!** 
+**Version 3.1.0 with Web Portal & PDF Generation** (built on Python/FastAPI with a tiered-CORS gateway prototype + Global Policy Intelligence Engine + Interactive Web Interface) - **We're calling all hackers, AI pioneers, and policy tech wizards!** 
 
-This project has completed its 3.1 implementation (built on Python/FastAPI with a secure multi-tier gateway, interactive web portal, and PDF policy document generation). We warmly invite developers interested in embodied AI, government-facing large models, and multi-agent protocols (MCP/A2A) to join us in co-building and defining the open standard for high-tech industrial investment and alignment!
+This project has completed its 3.1 **prototype** implementation (built on Python/FastAPI with a tiered-CORS gateway prototype, interactive web portal, and PDF policy document generation; full security/auth layer and MCP/A2A are PLANNED). We warmly invite developers interested in embodied AI, government-facing large models, and multi-agent protocols (MCP/A2A) to join us in co-building and defining the open standard for high-tech industrial investment and alignment!
 
 **Let's build the future of intelligent cross-border collaboration, one protocol at a time.** 🤖🌐🚀
 
@@ -485,9 +464,9 @@ This project has completed its 3.1 implementation (built on Python/FastAPI with 
 
 ## 📡 API Documentation
 
-- [OpenAPI 3.0 Specification](docs/api-spec.json)
+- [OpenAPI 3.0 Specification](schema/api-spec.json)
 - [Protocol Types](schema/types.py)
-- [Policy Intelligence Schema](schema/policy-schema.json)
+- [Policy Intelligence Schema](global_policy_aggregator/schemas/deeptech_policy_schema.json)
 
 ## 🤝 Contributing
 

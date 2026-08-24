@@ -227,13 +227,14 @@ class LandingRequirementsService:
             # 根据项目规模调整要求
             scale_adjustments = self._get_scale_adjustments(project_scale)
             
-            # 构建响应
+            # 构建响应（timeline 为 Schema 必填字段，须在构造时传入）
             response = LandingRequirementsResponse(
                 location=location,
                 industry=industry,
                 requirements=location_info["requirements"],
                 incentives=location_info["incentives"],
-                infrastructure=location_info["infrastructure"]
+                infrastructure=location_info["infrastructure"],
+                timeline=industry_info.get("timeline", {})
             )
             
             # 添加行业特定要求
@@ -247,9 +248,7 @@ class LandingRequirementsService:
                     for req in industry_info["special_requirements"]
                 ])
             
-            # 添加时间线信息
-            if "timeline" in industry_info:
-                response.timeline = industry_info["timeline"]
+            # 时间线已在构造时传入（若行业数据无 timeline 则为空字典）
             
             logger.info(f"Successfully retrieved landing requirements for {industry} in {location}")
             return response

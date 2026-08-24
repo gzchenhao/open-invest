@@ -127,7 +127,10 @@ class TechReadinessService:
                 description=project_data["description"],
                 timeline=project_data["timeline"],
                 milestones=project_data["milestones"],
-                risks=project_data["risks"]
+                risks=project_data["risks"],
+                # 可选扩展字段：供客户端评估器发起落地要求查询与报告展示
+                name=project_data.get("name"),
+                industry=project_data.get("industry")
             )
             
             logger.info(f"Successfully retrieved tech readiness for project: {project_id}")

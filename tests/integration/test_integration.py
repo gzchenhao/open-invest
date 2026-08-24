@@ -104,11 +104,11 @@ class TestServerClientIntegration:
         
         # 5. 测试项目评估
         print("  5. 评估项目...")
-        evaluation_result = asyncio.run(self.evaluator.evaluate_project(
+        evaluation_result = self.evaluator.evaluate_project(
             "ai-auto-pilot-2024", 
             "上海", 
             "standard"
-        ))
+        )
         
         assert evaluation_result is not None
         assert evaluation_result.project_id == "ai-auto-pilot-2024"
@@ -121,22 +121,22 @@ class TestServerClientIntegration:
         # 6. 测试批量评估
         print("  6. 批量评估项目...")
         project_ids = ["ai-auto-pilot-2024", "robotics-care-2024", "quantum-sensor-2024"]
-        batch_results = asyncio.run(self.evaluator.batch_evaluate_projects(
+        batch_results = self.evaluator.batch_evaluate_projects(
             project_ids, 
             "上海", 
             "standard"
-        ))
+        )
         
         assert len(batch_results) == 3
         assert all(result.overall_score > 0 for result in batch_results)
         
         # 7. 测试项目排名
         print("  7. 生成项目排名...")
-        rankings = asyncio.run(self.evaluator.get_project_ranking(
+        rankings = self.evaluator.get_project_ranking(
             project_ids, 
             "上海", 
             "standard"
-        ))
+        )
         
         assert len(rankings) == 3
         assert all(isinstance(score, (int, float)) for _, score in rankings)
@@ -179,11 +179,11 @@ class TestServerClientIntegration:
         
         # 3. 测试评估失败
         print("  3. 测试评估失败...")
-        eval_result = asyncio.run(self.evaluator.evaluate_project(
+        eval_result = self.evaluator.evaluate_project(
             "invalid-project-id", 
             "上海", 
             "standard"
-        ))
+        )
         
         assert eval_result is None
         
@@ -253,11 +253,11 @@ class TestServerClientIntegration:
         project_ids = ["ai-auto-pilot-2024", "robotics-care-2024", "quantum-sensor-2024"]
         
         start_time = time.time()
-        results = asyncio.run(self.evaluator.batch_evaluate_projects(
+        results = self.evaluator.batch_evaluate_projects(
             project_ids, 
             "上海", 
             "standard"
-        ))
+        )
         end_time = time.time()
         
         eval_time = end_time - start_time
@@ -325,6 +325,9 @@ class TestRealWorldScenario:
         """测试设置"""
         self.client = TestClient(app)
         self.promotion = GovernmentInvestmentPromotion("http://localhost:8000")
+        # 与 TestServerClientIntegration 一致：跨地区/合规级别比较依赖项目评估器
+        self.protocol_client = ProtocolClient("http://localhost:8000", ClientType.GOV)
+        self.evaluator = ProjectEvaluator(self.protocol_client)
     
     def test_government_investment_scenario(self):
         """测试政府招商引资场景"""
@@ -381,11 +384,11 @@ class TestRealWorldScenario:
         region_results = {}
         
         for region in regions:
-            result = asyncio.run(self.evaluator.evaluate_project(
+            result = self.evaluator.evaluate_project(
                 project_id, 
                 region, 
                 "standard"
-            ))
+            )
             
             if result:
                 region_results[region] = result.overall_score
@@ -411,11 +414,11 @@ class TestRealWorldScenario:
         compliance_results = {}
         
         for level in compliance_levels:
-            result = asyncio.run(self.evaluator.evaluate_project(
+            result = self.evaluator.evaluate_project(
                 project_id, 
                 region, 
                 level
-            ))
+            )
             
             if result:
                 compliance_results[level] = result.overall_score

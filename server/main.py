@@ -58,10 +58,31 @@ async def json_rpc_endpoint(request: Request):
     JSON-RPC 2.0 端点
     统一处理所有协议请求
     """
+    # 阶段1：解析请求体（JSON-RPC 2.0 规范：解析失败返回 -32700 Parse error 信封）
     try:
-        # 解析请求体
         request_data = await request.json()
-        
+    except Exception:
+        logger.error("JSON-RPC parse error: invalid JSON body")
+        response = JsonRpcResponse(
+            jsonrpc="2.0",
+            error={"code": -32700, "message": "Parse error"},
+            id=None
+        )
+        return response.dict()
+    
+    # 阶段2：校验 JSON-RPC 2.0 请求结构（规范：非法请求返回 -32600 Invalid Request 信封）
+    if (not isinstance(request_data, dict)
+            or request_data.get("jsonrpc") != "2.0"
+            or not request_data.get("method")):
+        logger.error("JSON-RPC invalid request: %s", request_data)
+        response = JsonRpcResponse(
+            jsonrpc="2.0",
+            error={"code": -32600, "message": "Invalid Request"},
+            id=request_data.get("id") if isinstance(request_data, dict) else None
+        )
+        return response.dict()
+    
+    try:
         # 验证 JSON-RPC 请求格式
         json_rpc_request = JsonRpcRequest(**request_data)
         
@@ -77,6 +98,12 @@ async def json_rpc_endpoint(request: Request):
             result = await economic_compliance_service.get_economic_and_compliance(params)
         else:
             raise MethodNotFoundError(method)
+        
+        # 服务返回的 pydantic 模型需序列化为 dict 才能装入 JsonRpcResponse.result
+        if hasattr(result, "model_dump"):  # pydantic v2
+            result = result.model_dump()
+        elif hasattr(result, "dict"):  # pydantic v1 兼容
+            result = result.dict()
         
         # 返回 JSON-RPC 响应
         response = JsonRpcResponse(

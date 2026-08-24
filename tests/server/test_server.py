@@ -106,9 +106,12 @@ class TestServer:
         assert "Missing required parameter" in data["error"]["message"]
     
     def test_json_rpc_endpoint_invalid_json(self):
-        """测试无效的JSON"""
+        """测试无效的JSON（JSON-RPC 2.0 规范：解析错误返回 -32700 信封，而非 REST 式 422）"""
         response = self.client.post("/rpc", data="invalid json")
-        assert response.status_code == 422  # Unprocessable entity
+        assert response.status_code == 200
+        data = response.json()
+        assert "error" in data
+        assert data["error"]["code"] == -32700  # Parse error
     
     def test_tech_readiness_endpoint(self):
         """测试技术成熟度端点"""
@@ -127,7 +130,9 @@ class TestServer:
         result = data["result"]
         assert result["project_id"] == "ai-auto-pilot-2024"
         assert result["level"] == "prototype"
-        assert "AI自动驾驶系统" in result["description"]
+        # "AI自动驾驶系统"是项目名称（name 字段），描述为另一段业务文案，不得混用
+        assert result["name"] == "AI自动驾驶系统"
+        assert result["description"]
         assert "2024-Q1" in result["timeline"]
         assert "算法模型训练完成" in result["milestones"]
         assert "算法安全性验证" in result["risks"]
@@ -226,25 +231,25 @@ class TestServer:
             assert data["id"] == request["id"]
     
     def test_cors_headers(self):
-        """测试CORS头部"""
-        response = self.client.post("/rpc", json={
-            "jsonrpc": "2.0",
-            "method": "get_tech_readiness",
-            "params": {"project_id": "ai-auto-pilot-2024"},
-            "id": "test-cors"
+        """测试CORS头部（需携带 Origin 的预检请求，CORS 中间件才会返回相应头部）"""
+        response = self.client.options("/rpc", headers={
+            "Origin": "http://example.com",
+            "Access-Control-Request-Method": "POST"
         })
         
-        # 验证CORS头部
+        # 验证CORS头部（allow_origins=["*"] + allow_credentials=True 时，
+        # Starlette 会回显请求 Origin，并放行凭据与全部方法）
         assert "access-control-allow-origin" in response.headers
+        assert response.headers["access-control-allow-origin"] == "http://example.com"
         assert response.headers["access-control-allow-credentials"] == "true"
-        assert response.headers["access-control-allow-methods"] == "*"
-        assert response.headers["access-control-allow-headers"] == "*"
+        assert "POST" in response.headers["access-control-allow-methods"]
     
     def test_error_handling(self):
-        """测试错误处理"""
-        # 测试空的请求体
+        """测试错误处理（JSON-RPC 2.0 规范：非法请求返回 -32600 信封，而非 REST 式 422）"""
+        # 测试空的请求体（缺少 jsonrpc 与 method）
         response = self.client.post("/rpc", json={})
-        assert response.status_code == 422
+        assert response.status_code == 200
+        assert response.json()["error"]["code"] == -32600  # Invalid Request
         
         # 测试缺少jsonrpc字段
         response = self.client.post("/rpc", json={
@@ -252,7 +257,8 @@ class TestServer:
             "params": {"project_id": "test"},
             "id": "test-error"
         })
-        assert response.status_code == 422
+        assert response.status_code == 200
+        assert response.json()["error"]["code"] == -32600
         
         # 测试无效的jsonrpc版本
         response = self.client.post("/rpc", json={
@@ -261,7 +267,8 @@ class TestServer:
             "params": {"project_id": "test"},
             "id": "test-error"
         })
-        assert response.status_code == 422
+        assert response.status_code == 200
+        assert response.json()["error"]["code"] == -32600
 
 
 class TestTechReadinessService:
@@ -280,7 +287,9 @@ class TestTechReadinessService:
         
         assert result.project_id == "ai-auto-pilot-2024"
         assert result.level.value == "prototype"
-        assert "AI自动驾驶系统" in result.description
+        # "AI自动驾驶系统"是项目名称（name 字段），描述为另一段业务文案，不得混用
+        assert result.name == "AI自动驾驶系统"
+        assert result.description
         assert len(result.timeline) > 0
         assert len(result.milestones) > 0
         assert len(result.risks) > 0
@@ -351,7 +360,7 @@ class TestLandingRequirementsService:
         assert len(result.requirements) > 0
         assert len(result.incentives) > 0
         assert len(result.infrastructure) > 0
-        assert "timeline" in result
+        assert result.timeline is not None  # pydantic 模型不支持 dict 式 'in'，改用字段存在性断言
     
     def test_get_landing_requirements_invalid_location(self):
         """测试无效的地区"""
@@ -404,8 +413,8 @@ class TestEconomicComplianceService:
         assert result.region == "上海"
         assert result.compliance_status == "严格监管"
         assert len(result.requirements) > 0
-        assert "timeline" in result
-        assert "estimated_costs" in result
+        assert result.timeline is not None  # pydantic 模型不支持 dict 式 'in'，改用字段存在性断言
+        assert result.estimated_costs is not None
         assert len(result.risks) > 0
     
     def test_get_compliance_levels(self):

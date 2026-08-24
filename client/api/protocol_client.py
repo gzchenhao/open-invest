@@ -270,8 +270,9 @@ class ProtocolClient:
         return self.client_type
     
     def close(self):
-        """关闭客户端"""
+        """关闭客户端（关闭连接并清空适配器，使 session 不再可用）"""
         self.session.close()
+        self.session.adapters.clear()
         logger.info("Protocol client closed")
     
     def __enter__(self):
