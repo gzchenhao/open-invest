@@ -649,4 +649,56 @@ New `tests/test_ui_mock_disclosure.py` (force-added past `.gitignore` `test_*.py
 
 ---
 
+## TASK-P0-2.2
+
+### Historical Data Exposure Audit + Public Repository Legal Risk Assessment
+
+**Task Description**: Read-only audit of the entire Git history of `origin/master` for fabricated government contacts, fabricated source URLs, and fabricated policy content; formal risk report + future VERIFIED-admission governance rules + anti-regression tests. **No data deletion, no content modification of audited files, no history rewrite.**
+
+**Verified At**: 2026-08-24
+
+### Remote First Baseline
+
+- `git fetch origin` → LOCAL_HEAD == REMOTE_HEAD == GITHUB_HEAD == `8c38be15844d2e20b5893db6c7af3900922d2a02`.
+- Audit scope: all 11 commits `a970ba5..8c38be1` scanned via `git grep` per commit tree (read-only).
+
+### Historical Audit Result
+
+- **HIST_CONTACT_FINDINGS**: fabricated landlines (`021-12345678`, `010-82896688`, `021-50800880`, `0755-86543210`, `010-12345678`) and fabricated gov-domain emails (`quantum@shanghai.gov.cn`, `policy@zjpark.gov.cn`) introduced in `01ba935` (v3.1.0). Portal/seed exposure remediated in `ec2e196` (P0-2, mark + null); **15 files in the current tree still contain these tokens**, 13 of them without any MOCK marker.
+- **HIST_SOURCE_URL_FINDINGS**: fabricated gov.cn URLs in two classes — likely non-existent domains (`zjpark/shqp/zhangjiang/hfht/gzzh/hfep.gov.cn`) and real-style domains with fabricated paths (`shanghai.gov.cn/node12345/...`, `sz.gov.cn/ztzl/ai_policy`). Seed copies remediated; crawler `base_url`s and `structured_policies` copies remain in HEAD. No DNS verification performed; all domains treated as UNVERIFIED.
+- **POLICY CLAIM RISKS**: 35 unique fabricated subsidy-amount strings; pre-P0-2 portal displayed fabricated numbers under an `官方联系方式` heading and README carried unverified marketing claims — both eliminated in current version (category 3 resolved), but permanently recoverable from history.
+- Full tables: `docs/Historical_Data_Exposure_Audit_20260824.md`.
+
+### Risk Level
+
+- **HIGH (H1)**: commits `01ba935`, `580ace3`, `6c0e0e2`, `1eaa39e` carry unmarked fabricated data + `官方联系方式` UI — checkout-able by anyone; only removable via history rewrite (not executed).
+- **HIGH (H2)**: 13 unmarked files with fabricated contacts still in the current tree (list in audit doc §5; frozen as a test-supervised quarantine manifest).
+- **MEDIUM**: governed seed datasets (mock-marked, contacts null), 2 mock-headered scripts still carrying fabricated numbers, crawler base_urls.
+- **LOW**: `.invalid`/example test fixtures, evidence citations in docs, all `is_mock: true` datasets.
+
+### No History Rewrite Decision
+
+No `filter-repo` / `filter-branch` / BFG / force push executed. Record-only, per quest directive. Any remediation (file annotation/quarantine, history rewrite, repo visibility change) **requires explicit written approval — 需要人工批准：YES**.
+
+### Future Governance Rules
+
+New `docs/Policy_Data_Governance.md`: VERIFIED admission requires all 9 fields (`source_url`, `source_title`, `publisher`, `published_date`, `effective_date`, `retrieved_at`, `snapshot`, `confidence`, `verification_method`); statuses MOCK / UNVERIFIED / PARTIALLY_VERIFIED / VERIFIED; no official source ⇒ no VERIFIED; no actual human/agent verification trail ⇒ no “Official” display; history rewrite forbidden without written authorization.
+
+### Regression Tests
+
+New `tests/test_history_policy_rules.py` (force-added past `.gitignore` `test_*.py` rule): **TEST-HISTORY-001** web serving layer zero-tolerance for fabricated contacts + quarantine-manifest containment (new leaking files fail; stale manifest entries fail) • **TEST-HISTORY-002** validator rejects VERIFIED without `source_url`; current datasets + portal contain 0 VERIFIED records • **TEST-HISTORY-003** every MOCK policy surface carries disclaimer (page banner, card badge, PDF first-page box, mock-marked seed datasets).
+
+### Test Result / Coverage
+
+- `python -m pytest tests/ -q --cov=. --cov-report=term` → **120 passed, 0 failed** (111 pre-existing kept + 9 new TEST-HISTORY). No test deleted/skipped/weakened.
+- Coverage: **TOTAL 59%** (3230 statements). Real measurement.
+
+### Git Evidence
+
+- **Commit Hash**: filled by follow-up evidence commit
+- **Commit Message**: `docs: add historical exposure audit and policy governance rules`
+- **Remote HEAD after push**: filled by follow-up evidence commit
+
+---
+
 *End of Constitution. Preserve > Modify · Evidence > Assertion · Reality > Documentation · Compatibility > Convenience · Explicit Migration > Silent Deletion · Verified Data > Fabricated Data.*
