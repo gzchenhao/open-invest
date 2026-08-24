@@ -695,9 +695,10 @@ New `tests/test_history_policy_rules.py` (force-added past `.gitignore` `test_*.
 
 ### Git Evidence
 
-- **Commit Hash**: filled by follow-up evidence commit
+- **Commit Hash**: `5b74ba147a7a2ae4685d2f9add3973e95e3d9ba5` (4 files, +521 lines; recorded via this follow-up evidence commit)
 - **Commit Message**: `docs: add historical exposure audit and policy governance rules`
-- **Remote HEAD after push**: filled by follow-up evidence commit
+- **Remote HEAD after push**: `5b74ba147a7a2ae4685d2f9add3973e95e3d9ba5` (verified via `git ls-remote origin refs/heads/master` + content-level blob acceptance against `origin/master`)
+- **No history rewrite**: zero use of filter-repo / filter-branch / BFG / force push in this task; all 11 pre-existing commits untouched.
 
 ---
 
