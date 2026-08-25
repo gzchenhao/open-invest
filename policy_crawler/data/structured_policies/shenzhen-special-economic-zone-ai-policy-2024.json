@@ -271,5 +271,6 @@
       "address": "深圳市福田区福中三路市民中心"
     }
   },
-  "tags": ["ai", "robotics", "quantum", "fintech", "startup", "subsidy", "land", "tax", "rd", "manufacturing", "cleantech", "shenzhen"]
+  "tags": ["ai", "robotics", "quantum", "fintech", "startup", "subsidy", "land", "tax", "rd", "manufacturing", "cleantech", "shenzhen"],
+  "contact_validation": "UNVERIFIED"
 }

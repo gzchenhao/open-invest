@@ -86,7 +86,25 @@
 
 ---
 
-## 5. History Rewrite Decision
+## 5. Fake Contact Audit Wording Correction
+
+### 🎯 Fake Contact Audit 字段修正
+
+#### 修正原则
+**避免歧义表述**
+- 原字段：`FAKE CONTACT CURRENT TREE: YES` (含糊不清)
+- 修正字段：`FAKE CONTACT WITHOUT DISCLOSURE: YES/NO` (明确表达)
+
+#### 修正内容说明
+✅ **FAKE CONTACT WITHOUT DISCLOSURE: YES**
+- 本仓库包含未公开披露的虚构政府联系方式
+- 所有联系方式均为演示和测试用途
+- 包含MOCK标识的虚构联系方式：13个文件
+- 包含UNVERIFIED标记的URL：3个
+
+---
+
+## 6. History Rewrite Decision
 
 ### 🎯 历史数据处理策略
 
@@ -118,6 +136,31 @@
 - **数据真实性**: 明确标识为演示用途
 - **历史可追溯性**: 完全保留
 - **安全合规性**: 达到企业级标准
+
+---
+
+## 5. Strategic Position
+
+### OpenInvest 战略定位
+
+**OpenInvest Vision:** "The USB-C for DeepTech"
+- **长期战略愿景**: 成为DeepTech领域的USB-C标准，统一高科技项目与政府的数据交换接口
+- **目标**: 促进全球高科技投资的透明化、高效化和安全化
+- **定位**: 开放式协议，连接全球高科技创新者与政府/资本生态系统
+
+### 当前实现状态
+
+**Current Implementation Status:** "Experimental Framework"
+- **技术状态**: 实验性协议框架，3.1版本原型
+- **功能范围**: 包含JSON-RPC 2.0 API接口、政策数据爬取、Web门户和PDF生成
+- **覆盖范围**: 当前种子数据覆盖12个政策记录，10个主要区域（中国重点）
+- **验证状态**: 功能演示可用，非生产级就绪
+
+### 双层表达原则
+
+c ✅ **愿景层**: 长期战略目标的清晰表达
+✅ **现实层**: 当前实验框架的诚实描述
+❌ **禁止**: 将未来愿景描述为已实现事实
 
 ---
 
