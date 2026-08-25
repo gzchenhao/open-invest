@@ -38,6 +38,21 @@ Without Trust: Agents exchange information blindly
 With Trust: Agents exchange verified, permissioned, auditable information
 ```
 
+#### MCP + A2A: The Foundation of Future Trust
+**MCP (Model Context Protocol)** serves as the **future transport layer** that enables agent communication.
+**A2A (Agent-to-Agent)** serves as the **future communication layer** that handles agent interactions.
+
+However, protocols alone are insufficient:
+
+- **MCP**: Enables communication but cannot verify trustworthiness
+- **A2A**: Enables interactions but cannot establish credibility
+- **OpenInvest**: Provides the **trust layer** that makes future A2A valuable
+
+```
+Without Trust Layer: MCP/A2A protocols enable unverified communication
+With Trust Layer: MCP/A2A protocols enable trusted, verified collaboration
+```
+
 ---
 
 ## OpenInvest's Strategic Position
@@ -117,7 +132,7 @@ With Trust: Agents exchange verified, permissioned, auditable information
 • Automated trust verification
 • Multi-agent communication
 • Real-time reputation system
-• Production-ready infrastructure
+• Experimental infrastructure framework
 ```
 
 ### Future Vision: Trust Infrastructure Standard
@@ -174,6 +189,7 @@ Phase 1 (2026-2027): Foundation
 • Architecture completion
 • Protocol design
 • Early partnerships
+• Planned market research
 
 Phase 2 (2028-2029): Adoption  
 • Protocol standardization
@@ -289,7 +305,7 @@ The USB-C standard didn't just connect devices - it created an ecosystem. Simila
 *DeepTech Agent Economy Positioning: August 25, 2026*  
 *Status: Architecture Design Phase*  
 *Vision: "The USB-C for DeepTech"*  
-*Current Status: Experimental Framework*
+*Current Status: Experimental Trust Infrastructure Prototype*
 
 ## Trust Infrastructure Components
 

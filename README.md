@@ -29,6 +29,15 @@ Like USB-C unified device connectivity and TCP/IP unified network communication,
 
 "The USB-C for DeepTech"
 
+## 🎯 Strategic Direction
+
+OpenInvest aims to become:
+"The USB-C for DeepTech"
+by providing a future trust layer
+for DeepTech agent interoperability.
+Current status:
+OpenInvest is currently an experimental framework.
+
 ### 🏗️ Current Status
 
 **OpenInvest is currently an experimental framework.**
