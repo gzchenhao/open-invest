@@ -1,0 +1,30 @@
+{
+  "id": "evidence_policy_support_ai",
+  "type": "evidence",
+  "evidence_type": "policy_support",
+  "title": "AI政策支持证据",
+  "description": "证明AI科技技术有限公司符合国家人工智能发展战略框架支持政策的证据",
+  "source": "mock",
+  "source_reference": "policy_ai_national_framework_2024",
+  "jurisdiction": "中国",
+  "policy_reference": "policy_ai_national_framework_2024",
+  "company_reference": "company_ai_tech_corp",
+  "creation_date": "2024-01-15",
+  "verification_status": "MOCK",
+  "confidence_score": 0.7,
+  "is_mock": true,
+  "metadata": {
+    "evidence_category": "政策符合性",
+    "policy_alignment": "high",
+    "company_sector_match": "exact",
+    "funding_stage_eligibility": "符合",
+    "technical_area_match": "完全匹配",
+    "support_level": "战略支持",
+    "benefit_type": "政策优惠",
+    "compliance_status": "active",
+    "risk_assessment": "low",
+    "last_reviewed": "2024-01-15",
+    "reviewer": "trust_prototype_system",
+    "validation_method": "mock_verification"
+  }
+}

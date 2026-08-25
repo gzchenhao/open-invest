@@ -1,0 +1,26 @@
+{
+  "id": "company_ai_tech_corp",
+  "type": "company",
+  "name": "AI科技技术有限公司",
+  "registration_number": "MOCK-2024-001",
+  "jurisdiction": "中国",
+  "sector": "人工智能",
+  "sub_sector": "机器学习解决方案",
+  "funding_stage": "Series A",
+  "funding_amount_rmb": "50000000",
+  "total_funding_rmb": "120000000",
+  "funding_year": 2023,
+  "headquarters": "北京市海淀区",
+  "founded_date": "2021-03-15",
+  "employee_count": "50-100",
+  "is_mock": true,
+  "metadata": {
+    "company_type": "科技创新企业",
+    "business_focus": "企业级AI解决方案",
+    "target_markets": ["金融", "制造业", "医疗健康"],
+    "technical_strength": ["深度学习", "自然语言处理", "计算机视觉"],
+    "partnerships": ["清华大学", "中科院"],
+    "regulatory_compliance": "active",
+    "competitive_advantage": "自主研发算法专利"
+  }
+}
