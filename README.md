@@ -25,7 +25,7 @@ Like USB-C unified device connectivity and TCP/IP unified network communication,
 
 ### 🎯 Core Value Proposition
 
-- **🔌 The USB-C for DeepTech**: Universal standard connecting AI, robotics, quantum computing, and biotech projects with global governments
+- **🔌 Experimental Framework**: Experimental framework connecting AI, robotics, quantum computing, and biotech projects with global governments
 - **🔒 Zero Data Leakage** *(PROTOTYPE)*: Built-in data anonymization utilities (`client/hooks/ai_agent_direct_apply.py::SecurityGateway`) — functional demo, not audited for production
 - **🤖 Agent-to-Agent (A2A)** *(PLANNED)*: Multi-agent protocols (MCP/A2A) are a roadmap item; no MCP/A2A implementation exists in this repository yet
 - **🌐 Borderless Compliance** *(PROTOTYPE)*: Structured policy intelligence — current seed coverage: 12 policy records across 10 regions (China-focused); global expansion is a target, not a verified fact
@@ -89,7 +89,7 @@ python -m pytest tests/integration/test_integration.py -q
 
 ### 🔧 JSON-RPC 2.0 Interface
 
-Standardized protocol defining three core tools:
+Experimental framework defining three core tools:
 
 #### 1. get_tech_readiness
 Retrieve project technology readiness level
