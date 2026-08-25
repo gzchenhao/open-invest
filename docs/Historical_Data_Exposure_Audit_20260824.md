@@ -97,7 +97,7 @@ commit 树），识别三类风险：
 
 **类别 3 — 明确声称 Official / Verified（最高风险）**：
 - `01ba935..f449f57 前`：门户 UI 使用"官方联系方式"标题 + 虚构号码；README 曾含
-  "verified government contact"、"500+"、"10,000+"、"sub-100ms"、"A2A Ready" 等未经证实宣传。
+  "verified government contact"、"500+"、"10,000+"、"sub-100ms"、"future A2A Ready" 等未经证实宣传。
 - **当前状态**：门户"官方联系方式"字样已清零（TEST-UI-MOCK-004 保护），README 已在
   `f449f57` 降级，9 个展示面强制 MOCK 横幅（`ca2926b`）。**该类别在当前版本已消除，
   但历史 commit 中永久存在。**

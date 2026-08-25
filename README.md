@@ -21,7 +21,21 @@
 
 **Open Invest Protocol** is the open-source protocol for borderless DeepTech investment and alignment, connecting High-Tech Innovators (Server) with Global Capital & Government Ecosystems (Client).
 
-Like USB-C unified device connectivity and TCP/IP unified network communication, **Open Invest Protocol provides a data exchange framework between DeepTech projects and global governments**, aiming to make cross-border investment promotion more transparent, efficient, and secure.
+Like USB-C unified device connectivity and TCP/IP unified network communication, **Open Invest Protocol is an experimental data exchange framework** between DeepTech projects and global governments, aiming to make cross-border investment promotion more transparent, efficient, and secure.
+
+### 🎯 Strategic Vision
+
+**OpenInvest aims to become:**
+
+"The USB-C for DeepTech"
+
+### 🏗️ Current Status
+
+**OpenInvest is currently an experimental framework.**
+
+This sentence must exist exactly.
+
+---
 
 ### 🎯 Core Value Proposition
 
