@@ -284,6 +284,6 @@ The OpenInvest ecosystem relies on several key trust infrastructure components:
 ---
 
 *Evidence Graph Design: August 25, 2026*  
-*Status: Architecture Design Phase*  
+*Status: Experimental Trust Evidence API Boundary (P1-2.2 Complete)*  
 *Vision: "The USB-C for DeepTech"*  
-*Current: Experimental Framework*
+*Current: Runnable experimental graph query engine with API boundaries*

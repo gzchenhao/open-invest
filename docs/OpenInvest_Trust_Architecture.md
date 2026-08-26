@@ -72,12 +72,16 @@ Track and verify information sources, establish provenance chains, and maintain 
 - **Cross-source Validation**: Ability to verify information against multiple independent sources simultaneously
 - **Automated Degradation Detection**: Identification of information that becomes outdated or invalidated
 
-### Current Status
-- **Mock Provenance Framework**: Basic implementation with placeholder verification concepts
-- **Manual Verification**: Currently requires human verification of government contacts
-- **Simple Confidence Indicators**: Basic verification status (VERIFIED/UNVERIFIED/MOCK)
-- **Limited Audit Trail**: Basic tracking of data modifications
-- **Foundation for Expansion**: Core data structures in place for future enhancement
+### Current Status (P1-2.2 - Trust Evidence API Boundary)
+- **Experimental Trust Service**: Internal Python service boundary (`src/trust/trust_service.py`)
+- **Evidence Object Model**: Unified evidence data structure with provenance tracking
+- **Trust Query Language**: Machine-readable query contracts for Agent questions
+- **Graph Query Engine**: High-value explainable graph queries (trace, support, relationship)
+- **Trust Decision Explanation**: Detailed confidence + reason scoring
+- **Safety Gates**: No unauthorized verification status upgrades
+- **API Boundaries**: MCP/A2A integration NOT IMPLEMENTED (future)
+- **Test Coverage**: 164 passed tests, 6 dedicated API safety tests
+- **Mock Agent Simulation**: Demonstration of future Agent integration patterns
 
 ---
 
@@ -189,6 +193,6 @@ The OpenInvest ecosystem relies on several key trust infrastructure components:
 ---
 
 *Architecture Design: August 25, 2026*  
-*Status: Architecture Design Phase*  
+*Status: Experimental Trust Evidence API Boundary (P1-2.2 Complete)*  
 *Vision: "The USB-C for DeepTech"*  
-*Current: Experimental Framework*
+*Current: Runnable experimental trust service with API boundaries*

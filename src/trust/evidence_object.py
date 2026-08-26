@@ -77,7 +77,7 @@ class EvidenceObject:
     def from_dict(cls, data: Dict[str, Any]) -> "EvidenceObject":
         """Create Evidence Object from dictionary."""
         verification_status = VerificationStatus(data.get("verification_status", "UNVERIFIED"))
-        return cls(
+        obj = cls(
             id=data["id"],
             type=data["type"],
             source=data["source"],
@@ -86,6 +86,9 @@ class EvidenceObject:
             confidence_score=data.get("confidence_score", 0.0),
             metadata=data.get("metadata", {})
         )
+        # Preserve original created_time for consistency
+        obj.created_time = data.get("created_time", obj.created_time)
+        return obj
     
     def validate(self) -> bool:
         """Validate Evidence Object data."""

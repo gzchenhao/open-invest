@@ -370,7 +370,7 @@ POST /api/trust/verify           # Submit verification request
 ```
 
 *Agent Trust Model Design: August 25, 2026*  
-*Status: Architecture Design Phase*
+*Status: Experimental Trust Evidence API Boundary (P1-2.2 Complete)*
 
 ## Trust Infrastructure Components
 
@@ -384,4 +384,4 @@ The OpenInvest ecosystem relies on several key trust infrastructure components:
 - **Provenance Layer**: Tracking information origin and chain of custody
 - **Verification Layer**: Mechanisms for validating agent claims and data authenticity  
 *Vision: "The USB-C for DeepTech"*  
-*Current: Experimental Framework*
+*Current: Runnable experimental trust service with API boundaries*
