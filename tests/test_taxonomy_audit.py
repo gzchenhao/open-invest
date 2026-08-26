@@ -271,8 +271,8 @@ class TestTaxonomySafety:
         for py_file in project_root.rglob("*.py"):
             if "__pycache__" in str(py_file):
                 continue
-            # Exclude this audit test file itself
-            if py_file.name == "test_taxonomy_audit.py":
+            # Exclude taxonomy test files themselves
+            if py_file.name in ("test_taxonomy_audit.py", "test_taxonomy_alignment.py"):
                 continue
             try:
                 content = py_file.read_text(encoding="utf-8")

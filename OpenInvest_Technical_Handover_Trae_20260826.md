@@ -24,7 +24,7 @@ OpenInvest is an **Experimental Trust Infrastructure Prototype** for DeepTech Ag
 
 **Current State**: The project has completed multiple QUEST phases (P0, P0-2.x, P1-0, P1-1, P1-2.1, P1-2.2) and established a Trust Infrastructure Prototype with Evidence Objects, Provenance Chains, Trust Scores, Evidence Graphs, and Trust Evidence API boundaries.
 
-**Testing Status**: **187 passed, 0 failed** (as of 2026-08-26)
+**Testing Status**: **216 passed, 0 failed** (as of 2026-08-26)
 
 **Git Status**: LOCAL HEAD == REMOTE HEAD == `6073656` - clean worktree
 
@@ -159,7 +159,7 @@ The project is currently:
 - MCP Server: ❌ NOT IMPLEMENTED
 - A2A Gateway: ❌ NOT IMPLEMENTED
 
-**Testing**: 187 tests passing, 0 failed (as of 2026-08-26, +23 taxonomy audit tests)
+**Testing**: 216 tests passing, 0 failed (as of 2026-08-26, +29 taxonomy alignment tests from P1-3.1)
 
 **Coverage**: ~59% total coverage (verified measurement)
 
@@ -1224,9 +1224,9 @@ TrustQueryResponse:
 
 ### 18.1 Current Test Status
 
-**Test Count**: **187 tests**
+**Test Count**: **216 tests**
 
-**Test Result**: **187 passed, 0 failed** (as of 2026-08-26, +23 taxonomy audit tests from P1-3.0)
+**Test Result**: **216 passed, 0 failed** (as of 2026-08-26, +29 taxonomy alignment tests from P1-3.1)
 
 **Coverage**: **~59% total coverage** (verified measurement)
 
@@ -1268,6 +1268,9 @@ TrustQueryResponse:
 **Taxonomy Audit Tests** (23 tests):
 - `tests/test_taxonomy_audit.py` — 23 tests (P1-3.0)
 
+**Taxonomy Alignment Tests** (29 tests):
+- `tests/test_taxonomy_alignment.py` — 29 tests (P1-3.1)
+
 ### 18.3 Regression Gate
 
 **Regression Test Command**:
@@ -1275,7 +1278,7 @@ TrustQueryResponse:
 python -m pytest tests/ -q --tb=no
 ```
 
-**Expected Result**: **187 passed, 0 failed**
+**Expected Result**: **216 passed, 0 failed**
 
 **Regression Protection**:
 - Test suite enforces all safety rules
@@ -1393,17 +1396,22 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 **TRAP-001**: Industry Taxonomy Inconsistency
 - **Issue**: 4 different industry taxonomies exist (5/8/21/12 categories)
 - **Impact**: Confusion about industry classification
-- **Status**: **AUDITED** (P1-3.0 Complete, 2026-08-26) — See `docs/Industry_Taxonomy_Audit_20260826.md`
+- **Status**: **DESIGNED** (P1-3.0 Audit + P1-3.1 Design Complete, 2026-08-26)
+- **Documents**:
+  - Audit: `docs/Industry_Taxonomy_Audit_20260826.md`
+  - Design: `docs/Industry_Taxonomy_Alignment_Design.md`
 - **Audit Findings**:
   - 5 = `schema/types.py` IndustryType enum (5 values)
   - 8 = `policy_cleaner.py` industry_mapping output (8 distinct EN values from 10 CN keys)
   - 12 = `interactive_ai_server.py` Web Portal mock policies (12 unique CN industry labels)
-  - 21 = **UNVERIFIED** — cannot locate exact source in current codebase
-  - At least 7 independent taxonomy definitions exist across components (PARALLEL TAXONOMIES)
+  - 21 = **VERIFIED** — `schemas/deeptech_policy_schema.json` L138-160 (21 enum values, file exists but no Python code references it)
+  - At least 11 independent taxonomy definitions exist across components (PARALLEL TAXONOMIES)
   - No formal mapping between taxonomies
   - Naming inconsistencies: biotech/biotechnology, autonomous_driving/auto_driving
+- **Design Outcome**: Proposed 16 canonical categories + other + unknown = 18 slots
+- **Implementation**: NOT STARTED — design only, no destructive migration
 - **Recommendation**: Hierarchical taxonomy design (Layer 1: Registry, Layer 2: Component Mappings, Layer 3: Display Names)
-- **Action**: Do not silently unify — dedicated design quest (P1-3.1) required
+- **Action**: Implementation requires dedicated future quest (P1-3.2 or later)
 
 **TRAP-002**: Missing `is_mock` Field in Schema
 - **Issue**: `is_mock` field not in original schema design
@@ -1576,15 +1584,15 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-3.0 — Industry Taxonomy Consistency Audit**
+**Current Quest**: **P1-3.1 — Canonical Industry Taxonomy Design**
 
 **Status**: ✅ **COMPLETE**
 
 **Completion Date**: 2026-08-26
 
-**Commit**: `2aee908` - "docs: audit industry taxonomy consistency (P1-3.0)"
+**Previous Quest**: P1-3.0 — Industry Taxonomy Consistency Audit ✅ COMPLETE
 
-**Previous Quest**: P1-2.2 — Experimental Trust Evidence Service Boundary ✅ COMPLETE
+**Quest Before**: P1-2.2 — Experimental Trust Evidence Service Boundary ✅ COMPLETE
 
 ### 23.2 Quest Achievement Summary
 
@@ -1614,13 +1622,14 @@ git rev-parse origin/master
 - All files committed and pushed
 
 **Test Evidence**:
-- 187 tests passing
+- 216 tests passing
 - 0 tests failing
-- 23 new taxonomy audit tests passing (P1-3.0)
+- 23 taxonomy audit tests (P1-3.0)
+- 29 taxonomy alignment tests (P1-3.1)
 
 **Documentation Evidence**:
-- Complete Trust_Evidence_API.md (464 lines)
-- Updated architecture documents
+- Complete Industry_Taxonomy_Audit_20260826.md (P1-3.0 audit)
+- Complete Industry_Taxonomy_Alignment_Design.md (P1-3.1 design)
 - All "NOT IMPLEMENTED" claims clearly labeled
 
 **Runtime Evidence**:
@@ -1634,13 +1643,13 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**OPTION A**: Industry Taxonomy Alignment Design (P1-3.1)
+**OPTION A**: Industry Taxonomy Implementation (P1-3.2)
 - **Priority**: HIGH
-- **Purpose**: Based on P1-3.0 audit, design and implement unified industry classification
-- **Scope**: Hierarchical taxonomy design (Registry → Component Mappings → Display Names)
-- **Dependencies**: P1-3.0 audit complete — see `docs/Industry_Taxonomy_Audit_20260826.md`
+- **Purpose**: Implement the canonical taxonomy registry and legacy mapping layer
+- **Scope**: Create `src/trust/canonical_taxonomy.py`, add mapping layer to components
+- **Dependencies**: P1-3.1 design complete — see `docs/Industry_Taxonomy_Alignment_Design.md`
 - **Estimated Effort**: Medium-High
-- **Key Decision Required**: Confirm canonical taxonomy baseline, hierarchical vs flat structure, and "21" source
+- **Key Constraint**: No destructive migration; backward compatible; unknown → `unknown`
 
 **OPTION B**: Real Policy Verification Workflow
 - **Priority**: HIGH
@@ -1888,12 +1897,14 @@ docs/Agent_Trust_Model.md               # Agent trust model
 docs/Policy_Evidence_Graph.md           # Evidence graph design
 docs/Policy_Data_Governance.md          # Data governance rules
 docs/Industry_Taxonomy_Audit_20260826.md # Industry taxonomy audit (P1-3.0)
+docs/Industry_Taxonomy_Alignment_Design.md # Canonical taxonomy design (P1-3.1)
 ```
 
-### B.6 Taxonomy Audit
+### B.6 Taxonomy Audit & Design
 
 ```
-tests/test_taxonomy_audit.py            # Taxonomy consistency audit tests (23 tests)
+tests/test_taxonomy_audit.py            # Taxonomy consistency audit tests (23 tests, P1-3.0)
+tests/test_taxonomy_alignment.py        # Taxonomy alignment design tests (29 tests, P1-3.1)
 ```
 
 ---
