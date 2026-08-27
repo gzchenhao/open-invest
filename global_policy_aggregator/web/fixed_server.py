@@ -12,6 +12,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import json
 import re
+import sys
 from pathlib import Path
 
 app = FastAPI()
@@ -76,6 +77,18 @@ def load_policies():
                     "details": [incentive.get("title", "") for incentive in detailed_policy.get("incentives", [])],
                     "requirements": {req.get("requirement_type", ""): req.get("description", "") for req in detailed_policy.get("requirements", [])}
                 }
+                
+                # P1-3.3: Add canonical_industry from legacy industry key
+                try:
+                    _project_root = str(Path(__file__).parent.parent.parent)
+                    if _project_root not in sys.path:
+                        sys.path.insert(0, _project_root)
+                    from schema.canonical_taxonomy import get_registry
+                    _reg = get_registry()
+                    _legacy_key = detailed_policy.get("industry", "")
+                    simplified_policy["canonical_industry"] = _reg.resolve(_legacy_key) if _legacy_key else "unknown"
+                except Exception:
+                    pass  # Graceful degradation
                 
                 policies.append(simplified_policy)
                 

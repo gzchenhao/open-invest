@@ -14,7 +14,9 @@ import json
 import re
 import io
 import os
+import sys
 from datetime import datetime
+from pathlib import Path
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -455,6 +457,19 @@ policies = [
         }
     }
 ]
+
+# P1-3.3: Enrich policies with canonical_industry (non-destructive, optional field)
+try:
+    _project_root = str(Path(__file__).parent.parent.parent)
+    if _project_root not in sys.path:
+        sys.path.insert(0, _project_root)
+    from schema.canonical_taxonomy import get_registry
+    _registry = get_registry()
+    for _p in policies:
+        _legacy = _p.get("industry", "")
+        _p["canonical_industry"] = _registry.resolve(_legacy) if _legacy else "unknown"
+except Exception:
+    pass  # Graceful degradation: canonical_industry simply not added
 
 def search_policies(query="", region="", industry="", min_amount=0):
     """搜索政策"""

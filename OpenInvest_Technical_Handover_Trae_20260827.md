@@ -1,10 +1,10 @@
 # OpenInvest Technical Handover — Trae
 
-**Document**: `OpenInvest_Technical_Handover_Trae_20260826.md`  
+**Document**: `OpenInvest_Technical_Handover_Trae_20260827.md`  
 **Purpose**: The unique OpenInvest Project Master Handover Manual for cross LLM/Agent/IDE/development tool switching. Any future AI coding agent must read and obey this document before touching the repository.  
 **Created**: 2026-08-26  
 **Repository**: https://github.com/gzchenhao/open-invest.git (branch `master`)  
-**Last Updated**: 2026-08-26  
+**Last Updated**: 2026-08-27  
 
 **Precedence (highest → lowest)**:
 1. Existing Code & Data
@@ -24,7 +24,7 @@ OpenInvest is an **Experimental Trust Infrastructure Prototype** for DeepTech Ag
 
 **Current State**: The project has completed multiple QUEST phases (P0, P0-2.x, P1-0, P1-1, P1-2.1, P1-2.2) and established a Trust Infrastructure Prototype with Evidence Objects, Provenance Chains, Trust Scores, Evidence Graphs, and Trust Evidence API boundaries.
 
-**Testing Status**: **282 passed, 0 failed** (as of 2026-08-26)
+**Testing Status**: **342 passed, 0 failed** (as of 2026-08-27)
 
 **Git Status**: LOCAL HEAD == REMOTE HEAD == `d0878e1` - clean worktree
 
@@ -159,7 +159,7 @@ The project is currently:
 - MCP Server: ❌ NOT IMPLEMENTED
 - A2A Gateway: ❌ NOT IMPLEMENTED
 
-**Testing**: 282 tests passing, 0 failed (as of 2026-08-26, +66 canonical taxonomy tests from P1-3.2)
+**Testing**: 342 tests passing, 0 failed (as of 2026-08-27, +60 taxonomy integration tests from P1-3.3)
 
 **Coverage**: ~59% total coverage (verified measurement)
 
@@ -1224,9 +1224,9 @@ TrustQueryResponse:
 
 ### 18.1 Current Test Status
 
-**Test Count**: **282 tests**
+**Test Count**: **342 tests**
 
-**Test Result**: **282 passed, 0 failed** (as of 2026-08-26, +66 canonical taxonomy tests from P1-3.2)
+**Test Result**: **342 passed, 0 failed** (as of 2026-08-27, +60 taxonomy integration tests from P1-3.3)
 
 **Coverage**: **~59% total coverage** (verified measurement)
 
@@ -1274,6 +1274,9 @@ TrustQueryResponse:
 **Canonical Taxonomy Tests** (66 tests):
 - `tests/test_canonical_taxonomy.py` — 66 tests (P1-3.2)
 
+**Taxonomy Integration Tests** (60 tests):
+- `tests/test_taxonomy_integration.py` — 60 tests (P1-3.3)
+
 ### 18.3 Regression Gate
 
 **Regression Test Command**:
@@ -1281,7 +1284,7 @@ TrustQueryResponse:
 python -m pytest tests/ -q --tb=no
 ```
 
-**Expected Result**: **282 passed, 0 failed**
+**Expected Result**: **342 passed, 0 failed**
 
 **Regression Protection**:
 - Test suite enforces all safety rules
@@ -1399,18 +1402,20 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 **TRAP-001**: Industry Taxonomy Inconsistency
 - **Issue**: 4 different industry taxonomies exist (5/8/21/12 categories)
 - **Impact**: Confusion about industry classification
-- **Status**: **IMPLEMENTED** (P1-3.0 Audit + P1-3.1 Design + P1-3.2 Implementation, 2026-08-26)
+- **Status**: **INTEGRATED** (P1-3.0 Audit + P1-3.1 Design + P1-3.2 Implementation + P1-3.3 Integration, 2026-08-27)
 - **Documents**:
   - Audit: `docs/Industry_Taxonomy_Audit_20260826.md`
   - Design: `docs/Industry_Taxonomy_Alignment_Design.md`
   - Implementation: `docs/Canonical_Taxonomy_Registry_Implementation_20260826.md`
+  - Integration: `docs/Canonical_Taxonomy_Integration_20260827.md`
 - **Implementation**:
   - Canonical Registry: `schema/canonical_taxonomy.py` (16 active + other + unknown = 18 slots)
   - Legacy Mapping Layer: 10 sources tracked, all legacy values resolvable
-  - Tests: 66 new canonical taxonomy tests
-  - Parser: NOT MODIFIED (backward compatible)
+  - Integration: Parser + Cleaning Service + Web Portal enriched with `canonical_industry` field
+  - Tests: 66 canonical + 60 integration = 126 taxonomy tests
+  - Parser: ADDITIVE only (added `canonical_industry` to StructuredPolicy, legacy `industry` preserved)
   - Data: NOT MODIFIED (no migration)
-  - API: NO BREAKING CHANGE
+  - API: NO BREAKING CHANGE (canonical_industry is optional)
   - Trust Infrastructure: NOT MODIFIED
 - **Audit Findings**:
   - 5 = `schema/types.py` IndustryType enum (5 values)
@@ -1423,7 +1428,7 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 - **Design Outcome**: Proposed 16 canonical categories + other + unknown = 18 slots
 - **Implementation**: NOT STARTED — design only, no destructive migration
 - **Recommendation**: Hierarchical taxonomy design (Layer 1: Registry, Layer 2: Component Mappings, Layer 3: Display Names)
-- **Action**: Future quest can integrate registry into Parser/Web Portal via resolve() method
+- **Action**: Registry integrated into Parser/Web Portal via `canonical_industry` field. Legacy `industry` preserved.
 
 **TRAP-002**: Missing `is_mock` Field in Schema
 - **Issue**: `is_mock` field not in original schema design
@@ -1596,15 +1601,15 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-3.2 — Implement Canonical Taxonomy Registry and Legacy Mapping Layer**
+**Current Quest**: **P1-3.3 — Canonical Taxonomy Integration**
 
 **Status**: ✅ **COMPLETE**
 
-**Completion Date**: 2026-08-26
+**Completion Date**: 2026-08-27
 
-**Previous Quest**: P1-3.1 — Canonical Industry Taxonomy Design ✅ COMPLETE
+**Previous Quest**: P1-3.2 — Implement Canonical Taxonomy Registry and Legacy Mapping Layer ✅ COMPLETE
 
-**Quest Before**: P1-3.0 — Industry Taxonomy Consistency Audit ✅ COMPLETE
+**Quest Before**: P1-3.1 — Canonical Industry Taxonomy Design ✅ COMPLETE
 
 ### 23.2 Quest Achievement Summary
 
@@ -1634,16 +1639,18 @@ git rev-parse origin/master
 - All files committed and pushed
 
 **Test Evidence**:
-- 282 tests passing
+- 342 tests passing
 - 0 tests failing
 - 23 taxonomy audit tests (P1-3.0)
 - 29 taxonomy alignment tests (P1-3.1)
 - 66 canonical taxonomy implementation tests (P1-3.2)
+- 60 taxonomy integration tests (P1-3.3)
 
 **Documentation Evidence**:
 - Complete Industry_Taxonomy_Audit_20260826.md (P1-3.0 audit)
 - Complete Industry_Taxonomy_Alignment_Design.md (P1-3.1 design)
 - Complete Canonical_Taxonomy_Registry_Implementation_20260826.md (P1-3.2 implementation)
+- Complete Canonical_Taxonomy_Integration_20260827.md (P1-3.3 integration)
 - All "NOT IMPLEMENTED" claims clearly labeled
 
 **Runtime Evidence**:
@@ -1657,13 +1664,13 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**OPTION A**: Canonical Taxonomy Integration (P1-3.3)
-- **Priority**: MEDIUM
-- **Purpose**: Integrate canonical registry into Parser/Web Portal via resolve() method
-- **Scope**: Add canonical_industry field to parser output, web portal responses
-- **Dependencies**: P1-3.2 registry complete — see `schema/canonical_taxonomy.py`
-- **Estimated Effort**: Medium
-- **Key Constraint**: Backward compatible; no breaking changes to existing API
+**OPTION A**: Evidence Graph Taxonomy Integration (P1-3.4)
+- **Priority**: LOW
+- **Purpose**: Integrate canonical taxonomy into Evidence Graph sector field
+- **Scope**: Map Evidence Graph sector strings to canonical IDs
+- **Dependencies**: P1-3.3 integration complete
+- **Estimated Effort**: Low
+- **Key Constraint**: Evidence Graph is design-only; maintain compatibility
 
 **OPTION B**: Real Policy Verification Workflow
 - **Priority**: HIGH
@@ -1913,14 +1920,16 @@ docs/Policy_Data_Governance.md          # Data governance rules
 docs/Industry_Taxonomy_Audit_20260826.md # Industry taxonomy audit (P1-3.0)
 docs/Industry_Taxonomy_Alignment_Design.md # Canonical taxonomy design (P1-3.1)
 docs/Canonical_Taxonomy_Registry_Implementation_20260826.md # Implementation doc (P1-3.2)
+docs/Canonical_Taxonomy_Integration_20260827.md # Integration doc (P1-3.3)
 ```
 
-### B.6 Taxonomy Audit, Design & Implementation
+### B.6 Taxonomy Audit, Design, Implementation & Integration
 
 ```
 tests/test_taxonomy_audit.py            # Taxonomy consistency audit tests (23 tests, P1-3.0)
 tests/test_taxonomy_alignment.py        # Taxonomy alignment design tests (29 tests, P1-3.1)
 tests/test_canonical_taxonomy.py        # Canonical taxonomy implementation tests (66 tests, P1-3.2)
+tests/test_taxonomy_integration.py      # Taxonomy integration tests (60 tests, P1-3.3)
 schema/canonical_taxonomy.py            # Canonical Industry Registry + Legacy Mapping Layer
 ```
 
@@ -1967,6 +1976,6 @@ schema/canonical_taxonomy.py            # Canonical Industry Registry + Legacy M
 
 *Preserve > Modify · Evidence > Assertion · Reality > Documentation · Compatibility > Convenience · Explicit Migration > Silent Deletion · Verified Data > Fabricated Data · Vision vs Reality · Safety First*
 
-**Last Updated**: 2026-08-26  
+**Last Updated**: 2026-08-27
 **Next Review**: After next major Quest completion  
 **Maintainer**: Future AI agents following handover instructions

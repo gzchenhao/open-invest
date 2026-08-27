@@ -16,6 +16,19 @@ import sqlite3
 
 from processors.policy_cleaner import PolicyCleaner, StructuredPolicy
 
+# P1-3.3: Canonical taxonomy integration (lazy import)
+_canonical_registry = None
+
+def _get_canonical_registry():
+    """Lazy-load the canonical taxonomy registry."""
+    global _canonical_registry
+    if _canonical_registry is None:
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+        from schema.canonical_taxonomy import get_registry
+        _canonical_registry = get_registry()
+    return _canonical_registry
+
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -291,6 +304,10 @@ class ChinaPolicyCleaningService:
             if industry_cn in text:
                 info["industry"] = industry_en
                 break
+        
+        # P1-3.3: Resolve canonical industry from legacy value
+        legacy_industry = info.get("industry", "other")
+        info["canonical_industry"] = _get_canonical_registry().resolve(legacy_industry)
         
         # 政策类型
         china_policy_type_mapping = {

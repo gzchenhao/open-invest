@@ -8,9 +8,22 @@ import json
 import logging
 from datetime import datetime, date
 from typing import Dict, List, Any, Optional, Union
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import jsonschema
 from pathlib import Path
+
+# P1-3.3: Canonical taxonomy integration (lazy import to avoid circular dependency)
+_canonical_registry = None
+
+def _get_canonical_registry():
+    """Lazy-load the canonical taxonomy registry."""
+    global _canonical_registry
+    if _canonical_registry is None:
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+        from schema.canonical_taxonomy import get_registry
+        _canonical_registry = get_registry()
+    return _canonical_registry
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +42,7 @@ class StructuredPolicy:
     requirements: List[Dict[str, Any]]
     compliance_standards: List[Dict[str, Any]]
     metadata: Dict[str, Any]
+    canonical_industry: Optional[str] = None  # P1-3.3: canonical industry ID (optional, backward compatible)
 
 class PolicyCleaner:
     """政策数据清洗器"""
@@ -114,19 +128,21 @@ class PolicyCleaner:
         compliance = self._extract_compliance_standards(raw_policy_text)
         
         # 5. 构建结构化政策
+        legacy_industry = basic_info.get("industry", "other")
         policy = StructuredPolicy(
             policy_id=self._generate_policy_id(basic_info),
             location=basic_info.get("location", ""),
             country=basic_info.get("country", ""),
             region=basic_info.get("region", ""),
-            industry=basic_info.get("industry", "other"),
+            industry=legacy_industry,
             policy_type=basic_info.get("policy_type", "other"),
             title=basic_info.get("title", ""),
             description=basic_info.get("description", ""),
             incentives=incentives,
             requirements=requirements,
             compliance_standards=compliance,
-            metadata=self._build_metadata(raw_policy_text, source_url)
+            metadata=self._build_metadata(raw_policy_text, source_url),
+            canonical_industry=_get_canonical_registry().resolve(legacy_industry),  # P1-3.3
         )
         
         # 6. 验证数据完整性
