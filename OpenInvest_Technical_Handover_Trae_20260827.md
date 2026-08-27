@@ -26,7 +26,7 @@ OpenInvest is an **Experimental Trust Infrastructure Prototype** for DeepTech Ag
 
 **Testing Status**: **342 passed, 0 failed** (as of 2026-08-27)
 
-**Git Status**: LOCAL HEAD == REMOTE HEAD == `d4d3e75` - clean worktree
+**Git Status**: LOCAL HEAD == REMOTE HEAD == `b32a5c0` - clean worktree
 
 **MCP/A2A Status**: **Future Architecture** — NOT IMPLEMENTED
 
@@ -1613,34 +1613,34 @@ git rev-parse origin/master
 
 ### 23.2 Quest Achievement Summary
 
-**Implemented Components**:
-- ✅ Trust Evidence Service (`src/trust/trust_service.py`)
-- ✅ Request/Response Models (`src/trust/trust_request_response.py`)
-- ✅ Trust Query Contract (`src/trust/trust_query_contract.py`)
-- ✅ Graph Query Engine (`src/trust/graph_query_engine.py`)
-- ✅ Mock Agent Demo (`examples/trust_demo/`)
-- ✅ 6 API Safety Tests
-- ✅ Complete Documentation (`docs/Trust_Evidence_API.md` - 464 lines)
+**P1-3.3 Implemented Components**:
+- ✅ `canonical_industry` field added to `StructuredPolicy` (optional, backward compatible)
+- ✅ Registry integrated into `PolicyCleaner.clean_policy_text()`
+- ✅ Registry integrated into `ChinaPolicyCleaningService`
+- ✅ Web Portal (`interactive_ai_server.py`) enriched with `canonical_industry`
+- ✅ Fixed Server (`fixed_server.py`) enriched with `canonical_industry`
+- ✅ 60 taxonomy integration tests (`tests/test_taxonomy_integration.py`)
+- ✅ Complete Integration Documentation (`docs/Canonical_Taxonomy_Integration_20260827.md`)
 
-**Test Status**: **164 passed, 0 failed** (baseline maintained)
+**Test Status**: **342 passed, 0 failed** (+60 new integration tests)
 
-**Files Changed**: 11 files, 3044 lines added
+**Files Changed**: 4 source files modified, 2 new files (integration test + integration doc)
 
-**NOT IMPLEMENTED**:
-- ❌ MCP integration (clearly labeled)
-- ❌ A2A integration (clearly labeled)
-- ❌ Production deployment (experimental prototype only)
+**NOT MODIFIED**:
+- ❌ Trust Infrastructure (EvidenceObject, Provenance, TrustScore, EvidenceGraph)
+- ❌ Seed data / real government data
+- ❌ Legacy `industry` field semantics
+- ❌ MCP / A2A status
 
 ### 23.3 Quest Verification
 
 **Git Evidence**:
-- LOCAL HEAD == REMOTE HEAD == `ea60f10`
+- LOCAL HEAD == REMOTE HEAD == `b32a5c0`
 - Worktree clean
 - All files committed and pushed
 
 **Test Evidence**:
-- 342 tests passing
-- 0 tests failing
+- 342 tests passing, 0 failed
 - 23 taxonomy audit tests (P1-3.0)
 - 29 taxonomy alignment tests (P1-3.1)
 - 66 canonical taxonomy implementation tests (P1-3.2)
