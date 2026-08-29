@@ -56,7 +56,8 @@ Legacy clients that only read `industry` continue to work unchanged.
 ## 4. canonical_industry Behavior
 
 - Always populated when registry is available
-- Falls back gracefully if registry import fails (field simply not added)
+- Web servers (`interactive_ai_server.py`, `fixed_server.py`): graceful degradation if registry import fails (field simply not added)
+- Parser/Cleaning Service (`policy_cleaner.py`, `china_policy_cleaning_service.py`): fail loudly if registry import fails (no silent wrong classification)
 - Value is always a valid canonical ID (16 active + other + unknown)
 - Deterministic: same legacy value → same canonical value
 

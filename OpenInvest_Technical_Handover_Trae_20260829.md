@@ -1,10 +1,10 @@
 # OpenInvest Technical Handover — Trae
 
-**Document**: `OpenInvest_Technical_Handover_Trae_20260827.md`  
+**Document**: `OpenInvest_Technical_Handover_Trae_20260829.md`  
 **Purpose**: The unique OpenInvest Project Master Handover Manual for cross LLM/Agent/IDE/development tool switching. Any future AI coding agent must read and obey this document before touching the repository.  
 **Created**: 2026-08-26  
 **Repository**: https://github.com/gzchenhao/open-invest.git (branch `master`)  
-**Last Updated**: 2026-08-27  
+**Last Updated**: 2026-08-29  
 
 **Precedence (highest → lowest)**:
 1. Existing Code & Data
@@ -24,9 +24,11 @@ OpenInvest is an **Experimental Trust Infrastructure Prototype** for DeepTech Ag
 
 **Current State**: The project has completed multiple QUEST phases (P0, P0-2.x, P1-0, P1-1, P1-2.1, P1-2.2) and established a Trust Infrastructure Prototype with Evidence Objects, Provenance Chains, Trust Scores, Evidence Graphs, and Trust Evidence API boundaries.
 
-**Testing Status**: **342 passed, 0 failed** (as of 2026-08-27)
+**Testing Status**: **342 passed, 0 failed** (as of 2026-08-29)
 
-**Git Status**: LOCAL HEAD == REMOTE HEAD == `b32a5c0` - clean worktree
+**Git Status**: LOCAL HEAD == REMOTE HEAD — see Section 22 for current hash. Note: handover records the preceding verified commit; the current HEAD is the commit containing this handover update (self-reference limitation).
+
+> **Self-reference note**: The Git hash recorded below is the last verified commit BEFORE this handover edit. The act of committing this handover creates a newer hash. Always run `git rev-parse HEAD` for the actual current hash.
 
 **MCP/A2A Status**: **Future Architecture** — NOT IMPLEMENTED
 
@@ -146,7 +148,7 @@ The project is currently:
 
 ### 4.1 Actual Project Status
 
-**Development Phase**: P1-2.2 Complete — Experimental Trust Evidence API Boundary
+**Development Phase**: P1-3.3.1 Complete — Canonical Taxonomy Integration Independently Verified (P1-3.0 → P1-3.1 → P1-3.2 → P1-3.3 → P1-3.3.1)
 
 **Implementation Status**:
 - Evidence Object Model: ✅ Implemented
@@ -187,7 +189,7 @@ The project is currently:
 
 **Client**: Python-based protocol client
 
-**Testing**: pytest-based test suite with 164 tests
+**Testing**: pytest-based test suite with 342 tests
 
 **Documentation**: Multiple architecture and API documents
 
@@ -1426,9 +1428,9 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
   - No formal mapping between taxonomies
   - Naming inconsistencies: biotech/biotechnology, autonomous_driving/auto_driving
 - **Design Outcome**: Proposed 16 canonical categories + other + unknown = 18 slots
-- **Implementation**: NOT STARTED — design only, no destructive migration
 - **Recommendation**: Hierarchical taxonomy design (Layer 1: Registry, Layer 2: Component Mappings, Layer 3: Display Names)
 - **Action**: Registry integrated into Parser/Web Portal via `canonical_industry` field. Legacy `industry` preserved.
+- **Independent Verification**: **PASS WITH FINDINGS** (P1-3.3.1, 2026-08-29) — 93 legacy values re-collected from actual sources, all deterministically resolvable; ai_hardware → UNKNOWN preserved; report: `docs/Canonical_Taxonomy_Integration_Independent_Verification_20260827.md`. Follow-up: add runtime tests for ChinaPolicyCleaningService/fixed_server canonical_industry population.
 
 **TRAP-002**: Missing `is_mock` Field in Schema
 - **Issue**: `is_mock` field not in original schema design
@@ -1545,9 +1547,9 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 
 **Remote**: `origin → https://github.com/gzchenhao/open-invest.git`
 
-**LOCAL HEAD**: `60736567624db8cac49371d6d8d0382f27641234`
+**LOCAL HEAD**: See `git rev-parse HEAD` — handover records the preceding verified commit (self-reference limitation)
 
-**REMOTE HEAD**: `60736567624db8cac49371d6d8d0382f27641234`
+**REMOTE HEAD**: Same as LOCAL HEAD (verified after every push)
 
 **Status**: **LOCAL HEAD == REMOTE HEAD** ✅
 
@@ -1556,14 +1558,15 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 ### 22.2 Recent Commit History
 
 ```
+21ba734 docs: fix handover Section 23.2/23.3 for P1-3.3 accuracy (2026-08-27)
+789091d docs: update handover git hash to d4d3e75 (P1-3.3 final) (2026-08-27)
+d4d3e75 feat: integrate canonical taxonomy with legacy outputs (P1-3.3) (2026-08-27)
+e34b8be docs: update handover git hash to d0878e1 (P1-3.2 final) (2026-08-26)
+d0878e1 feat: implement canonical taxonomy registry and legacy mapping layer (P1-3.2) (2026-08-26)
+cca4d71 docs: update handover git hash to a232821 (P1-3.1 final) (2026-08-26)
+a232821 docs: design canonical industry taxonomy (P1-3.1) (2026-08-26)
+6796866 docs: audit industry taxonomy consistency (P1-3.0) (2026-08-26)
 ea60f10 feat: establish experimental trust evidence service boundary (2026-08-26)
-0dcc3d8 docs: verify OpenInvest trust evidence prototype foundation (2026-08-26)
-6f5ce43 feat: build OpenInvest trust evidence prototype foundation (2026-08-26)
-5b74ba1 docs: add historical exposure audit and policy governance rules (2026-08-24)
-ca2926b fix: disclose mock policy data in public surfaces (2026-08-24)
-ec2e196 feat: enforce policy provenance and anti-hallucination data governance (2026-08-24)
-f449f57 fix: align repository reality and repair test gate (2026-08-24)
-580ace3 docs: establish the immutable AI handover constitution and fix data taxonomy (2026-08-24)
 ```
 
 ### 22.3 Git Verification Commands
@@ -1601,19 +1604,31 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-3.3 — Canonical Taxonomy Integration**
+**Current Quest**: **P1-3.3.1 — Canonical Taxonomy Integration Independent Verification**
 
-**Status**: ✅ **COMPLETE**
+**Status**: ✅ **COMPLETE — VERDICT: PASS WITH FINDINGS** (2026-08-29)
 
-**Completion Date**: 2026-08-27
+**Completion Date**: 2026-08-29
 
-**Previous Quest**: P1-3.2 — Implement Canonical Taxonomy Registry and Legacy Mapping Layer ✅ COMPLETE
+**Previous Quest**: P1-3.3 — Canonical Taxonomy Integration ✅ COMPLETE (verified)
 
-**Quest Before**: P1-3.1 — Canonical Industry Taxonomy Design ✅ COMPLETE
+**Quest Before**: P1-3.2 — Implement Canonical Taxonomy Registry and Legacy Mapping Layer ✅ COMPLETE (verified)
 
 ### 23.2 Quest Achievement Summary
 
-**P1-3.3 Implemented Components**:
+**P1-3.3.1 Verification Results (Independent Audit)**:
+- ✅ 93 legacy values re-collected FROM ACTUAL SOURCE FILES — all 10 source counts match claims; all deterministically resolvable
+- ✅ ai_hardware → UNKNOWN preserved (no guessing)
+- ✅ 21-category deeptech schema: L138-160 confirmed, no Python runtime reference, 21/21 mapped
+- ✅ Parser runtime checks 37/37 PASS (determinism, unknown handling, backward compat, trust boundary)
+- ✅ Trust Infrastructure: ZERO changes (diff audit e34b8be..HEAD)
+- ✅ Data: ZERO changes; MOCK preserved everywhere
+- ✅ Backward compatibility: 7/7 checks PASS
+- ✅ Safety: no forbidden claims (production-ready/verified/MCP/A2A)
+- Findings: 10 (F-01..F-10); 9 fixed or accepted, F-10 recorded as FOLLOW-UP
+- Report: `docs/Canonical_Taxonomy_Integration_Independent_Verification_20260827.md`
+
+**P1-3.3 Implemented Components (verified)**:
 - ✅ `canonical_industry` field added to `StructuredPolicy` (optional, backward compatible)
 - ✅ Registry integrated into `PolicyCleaner.clean_policy_text()`
 - ✅ Registry integrated into `ChinaPolicyCleaningService`
@@ -1635,8 +1650,8 @@ git rev-parse origin/master
 ### 23.3 Quest Verification
 
 **Git Evidence**:
-- LOCAL HEAD == REMOTE HEAD == `b32a5c0`
-- Worktree clean
+- P1-3.3 verified at commit `21ba734` (LOCAL == REMOTE, worktree clean)
+- Handover update commits record the preceding verified commit (self-reference limitation, see Section 22.1)
 - All files committed and pushed
 
 **Test Evidence**:
@@ -1645,12 +1660,14 @@ git rev-parse origin/master
 - 29 taxonomy alignment tests (P1-3.1)
 - 66 canonical taxonomy implementation tests (P1-3.2)
 - 60 taxonomy integration tests (P1-3.3)
+- Independent verification: 37/37 parser runtime checks PASS (P1-3.3.1, see Section 23.2)
 
 **Documentation Evidence**:
 - Complete Industry_Taxonomy_Audit_20260826.md (P1-3.0 audit)
 - Complete Industry_Taxonomy_Alignment_Design.md (P1-3.1 design)
 - Complete Canonical_Taxonomy_Registry_Implementation_20260826.md (P1-3.2 implementation)
 - Complete Canonical_Taxonomy_Integration_20260827.md (P1-3.3 integration)
+- Complete Canonical_Taxonomy_Integration_Independent_Verification_20260827.md (P1-3.3.1 independent verification)
 - All "NOT IMPLEMENTED" claims clearly labeled
 
 **Runtime Evidence**:
@@ -1663,6 +1680,10 @@ git rev-parse origin/master
 ## 24. Next Recommended Quest
 
 ### 24.1 Immediate Next Steps
+
+**FOLLOW-UP (from P1-3.3.1 audit)**: Add runtime tests for `ChinaPolicyCleaningService` and `fixed_server.py` `canonical_industry` population (Finding F-10)
+- **Priority**: LOW-MEDIUM
+- **Effort**: Small (2-3 tests)
 
 **OPTION A**: Evidence Graph Taxonomy Integration (P1-3.4)
 - **Priority**: LOW
@@ -1729,7 +1750,7 @@ git log -3 --oneline
 git ls-remote origin master
 python -m pytest tests/ -q
 ```
-- **Expected Output**: Worktree clean, LOCAL HEAD == REMOTE HEAD, 187 passed
+- **Expected Output**: Worktree clean, LOCAL HEAD == REMOTE HEAD, 342 passed
 - **Action Required**: If discrepancies found, record before proceeding
 
 **STEP 3**: Check Project Reality
@@ -1819,7 +1840,7 @@ python -m pytest tests/ -q
 
 **Command**: `python -m pytest tests/ -q --tb=no`
 
-**Result**: `187 passed, 1 warning in 6.67s`
+**Result**: `342 passed, 1 warning` (as of 2026-08-29, includes P1-3.3.1 verification regression)
 
 **Warning**: StarletteDeprecationWarning (third-party library, not project issue)
 
@@ -1827,9 +1848,9 @@ python -m pytest tests/ -q
 
 ### A.2 Git Evidence
 
-**LOCAL HEAD**: `60736567624db8cac49371d6d8d0382f27641234`
+**LOCAL HEAD**: See `git rev-parse HEAD` (self-reference limitation — handover records preceding verified commit)
 
-**REMOTE HEAD**: `60736567624db8cac49371d6d8d0382f27641234`
+**REMOTE HEAD**: Same as LOCAL HEAD ✅
 
 **Status**: LOCAL HEAD == REMOTE HEAD ✅
 
@@ -1921,6 +1942,7 @@ docs/Industry_Taxonomy_Audit_20260826.md # Industry taxonomy audit (P1-3.0)
 docs/Industry_Taxonomy_Alignment_Design.md # Canonical taxonomy design (P1-3.1)
 docs/Canonical_Taxonomy_Registry_Implementation_20260826.md # Implementation doc (P1-3.2)
 docs/Canonical_Taxonomy_Integration_20260827.md # Integration doc (P1-3.3)
+docs/Canonical_Taxonomy_Integration_Independent_Verification_20260827.md # Independent verification report (P1-3.3.1)
 ```
 
 ### B.6 Taxonomy Audit, Design, Implementation & Integration
