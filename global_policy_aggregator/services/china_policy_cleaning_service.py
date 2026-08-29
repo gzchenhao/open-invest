@@ -249,6 +249,10 @@ class ChinaPolicyCleaningService:
             country=basic_info.get("country", "CN"),
             region=basic_info.get("region", ""),
             industry=basic_info.get("industry", "other"),
+            # P1-3.4 (F-10 closure): propagate the resolved canonical value to
+            # the output StructuredPolicy; previously it stayed only in
+            # basic_info and policy.canonical_industry was always None.
+            canonical_industry=basic_info.get("canonical_industry"),
             policy_type=basic_info.get("policy_type", "other"),
             title=basic_info.get("title", ""),
             description=basic_info.get("description", ""),

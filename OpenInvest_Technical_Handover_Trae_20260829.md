@@ -24,7 +24,7 @@ OpenInvest is an **Experimental Trust Infrastructure Prototype** for DeepTech Ag
 
 **Current State**: The project has completed multiple QUEST phases (P0, P0-2.x, P1-0, P1-1, P1-2.1, P1-2.2) and established a Trust Infrastructure Prototype with Evidence Objects, Provenance Chains, Trust Scores, Evidence Graphs, and Trust Evidence API boundaries.
 
-**Testing Status**: **342 passed, 0 failed** (as of 2026-08-29)
+**Testing Status**: **377 passed, 0 failed** (as of 2026-08-29)
 
 **Git Status**: LOCAL HEAD == REMOTE HEAD — see Section 22 for current hash. Note: handover records the preceding verified commit; the current HEAD is the commit containing this handover update (self-reference limitation).
 
@@ -161,7 +161,7 @@ The project is currently:
 - MCP Server: ❌ NOT IMPLEMENTED
 - A2A Gateway: ❌ NOT IMPLEMENTED
 
-**Testing**: 342 tests passing, 0 failed (as of 2026-08-27, +60 taxonomy integration tests from P1-3.3)
+**Testing**: 377 tests passing, 0 failed (as of 2026-08-29, +35 runtime integration tests from P1-3.4)
 
 **Coverage**: ~59% total coverage (verified measurement)
 
@@ -189,7 +189,7 @@ The project is currently:
 
 **Client**: Python-based protocol client
 
-**Testing**: pytest-based test suite with 342 tests
+**Testing**: pytest-based test suite with 377 tests
 
 **Documentation**: Multiple architecture and API documents
 
@@ -1226,9 +1226,9 @@ TrustQueryResponse:
 
 ### 18.1 Current Test Status
 
-**Test Count**: **342 tests**
+**Test Count**: **377 tests**
 
-**Test Result**: **342 passed, 0 failed** (as of 2026-08-27, +60 taxonomy integration tests from P1-3.3)
+**Test Result**: **377 passed, 0 failed** (as of 2026-08-29, +35 runtime integration tests from P1-3.4)
 
 **Coverage**: **~59% total coverage** (verified measurement)
 
@@ -1286,7 +1286,7 @@ TrustQueryResponse:
 python -m pytest tests/ -q --tb=no
 ```
 
-**Expected Result**: **342 passed, 0 failed**
+**Expected Result**: **377 passed, 0 failed**
 
 **Regression Protection**:
 - Test suite enforces all safety rules
@@ -1604,17 +1604,27 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-3.3.1 — Canonical Taxonomy Integration Independent Verification**
+**Current Quest**: **P1-3.4 — Runtime Integration Test Closure (F-10)**
 
-**Status**: ✅ **COMPLETE — VERDICT: PASS WITH FINDINGS** (2026-08-29)
+**Status**: ✅ **COMPLETE — VERDICT: PASS WITH FINDINGS, F-10 CLOSED** (2026-08-29)
 
 **Completion Date**: 2026-08-29
 
-**Previous Quest**: P1-3.3 — Canonical Taxonomy Integration ✅ COMPLETE (verified)
+**Previous Quest**: P1-3.3.1 — Canonical Taxonomy Integration Independent Verification ✅ COMPLETE (verified)
 
-**Quest Before**: P1-3.2 — Implement Canonical Taxonomy Registry and Legacy Mapping Layer ✅ COMPLETE (verified)
+**Quest Before**: P1-3.3 — Canonical Taxonomy Integration ✅ COMPLETE (verified)
 
 ### 23.2 Quest Achievement Summary
+
+**P1-3.4 Runtime Integration Closure Results**:
+- ✅ **F-10 CLOSED**: real runtime coverage for `ChinaPolicyCleaningService` (20 tests) and `fixed_server.py` (15 tests)
+- ✅ Finding A FIXED: canonical value was resolved but never propagated to `StructuredPolicy` output (always None) — minimal 4-line fix, no mapping change
+- ✅ Finding B RECORDED: fixed_server enrichment dead in current repo state (seed file absent); fallback emits no canonical field (safe graceful degradation, unchanged)
+- ✅ ai_hardware → UNKNOWN proven at real runtime (fixed_server seed path)
+- ✅ Determinism 20 runs on both paths; Mock markers preserved; Trust Infrastructure untouched
+- Report: `docs/Canonical_Taxonomy_Runtime_Integration_Test_Closure_20260829.md`
+
+**Test Status**: **377 passed, 0 failed** (+35 new runtime integration tests)
 
 **P1-3.3.1 Verification Results (Independent Audit)**:
 - ✅ 93 legacy values re-collected FROM ACTUAL SOURCE FILES — all 10 source counts match claims; all deterministically resolvable
@@ -1655,11 +1665,12 @@ git rev-parse origin/master
 - All files committed and pushed
 
 **Test Evidence**:
-- 342 tests passing, 0 failed
+- 377 tests passing, 0 failed
 - 23 taxonomy audit tests (P1-3.0)
 - 29 taxonomy alignment tests (P1-3.1)
 - 66 canonical taxonomy implementation tests (P1-3.2)
 - 60 taxonomy integration tests (P1-3.3)
+- 35 runtime integration tests (P1-3.4: cleaning service 20 + fixed server 15)
 - Independent verification: 37/37 parser runtime checks PASS (P1-3.3.1, see Section 23.2)
 
 **Documentation Evidence**:
@@ -1668,6 +1679,7 @@ git rev-parse origin/master
 - Complete Canonical_Taxonomy_Registry_Implementation_20260826.md (P1-3.2 implementation)
 - Complete Canonical_Taxonomy_Integration_20260827.md (P1-3.3 integration)
 - Complete Canonical_Taxonomy_Integration_Independent_Verification_20260827.md (P1-3.3.1 independent verification)
+- Complete Canonical_Taxonomy_Runtime_Integration_Test_Closure_20260829.md (P1-3.4 F-10 closure)
 - All "NOT IMPLEMENTED" claims clearly labeled
 
 **Runtime Evidence**:
@@ -1681,11 +1693,9 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**FOLLOW-UP (from P1-3.3.1 audit)**: Add runtime tests for `ChinaPolicyCleaningService` and `fixed_server.py` `canonical_industry` population (Finding F-10)
-- **Priority**: LOW-MEDIUM
-- **Effort**: Small (2-3 tests)
+**FOLLOW-UP (from P1-3.3.1 audit)**: ~~Add runtime tests for `ChinaPolicyCleaningService` and `fixed_server.py` canonical_industry population (Finding F-10)~~ → **CLOSED by P1-3.4** (2026-08-29), see `docs/Canonical_Taxonomy_Runtime_Integration_Test_Closure_20260829.md`. Residual follow-up: optionally enrich the fixed_server fallback path (Finding P134-B, safe as-is).
 
-**OPTION A**: Evidence Graph Taxonomy Integration (P1-3.4)
+**OPTION A**: Evidence Graph Taxonomy Integration (P1-3.5)
 - **Priority**: LOW
 - **Purpose**: Integrate canonical taxonomy into Evidence Graph sector field
 - **Scope**: Map Evidence Graph sector strings to canonical IDs
@@ -1750,7 +1760,7 @@ git log -3 --oneline
 git ls-remote origin master
 python -m pytest tests/ -q
 ```
-- **Expected Output**: Worktree clean, LOCAL HEAD == REMOTE HEAD, 342 passed
+- **Expected Output**: Worktree clean, LOCAL HEAD == REMOTE HEAD, 377 passed
 - **Action Required**: If discrepancies found, record before proceeding
 
 **STEP 3**: Check Project Reality
@@ -1840,7 +1850,7 @@ python -m pytest tests/ -q
 
 **Command**: `python -m pytest tests/ -q --tb=no`
 
-**Result**: `342 passed, 1 warning` (as of 2026-08-29, includes P1-3.3.1 verification regression)
+**Result**: `377 passed, 1 warning` (as of 2026-08-29, includes P1-3.4 runtime integration tests)
 
 **Warning**: StarletteDeprecationWarning (third-party library, not project issue)
 
