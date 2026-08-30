@@ -24,7 +24,7 @@ OpenInvest is an **Experimental Trust Infrastructure Prototype** for DeepTech Ag
 
 **Current State**: The project has completed multiple QUEST phases (P0, P0-2.x, P1-0, P1-1, P1-2.1, P1-2.2) and established a Trust Infrastructure Prototype with Evidence Objects, Provenance Chains, Trust Scores, Evidence Graphs, and Trust Evidence API boundaries.
 
-**Testing Status**: **377 passed, 0 failed** (as of 2026-08-29)
+**Testing Status**: **406 passed, 0 failed** (as of 2026-08-30)
 
 **Git Status**: LOCAL HEAD == REMOTE HEAD — see Section 22 for current hash. Note: handover records the preceding verified commit; the current HEAD is the commit containing this handover update (self-reference limitation).
 
@@ -1046,6 +1046,17 @@ TrustQueryResponse:
     warning: str  # Risk warnings
 ```
 
+### 15.4 Canonical Industry Integration (P1-3.5, 2026-08-30)
+
+`GraphNode` carries an additive derived field `canonical_industry`, resolved deterministically from `data["sector"]` via the canonical taxonomy registry (legacy source T11_evidence_graph). No second taxonomy mapping exists.
+
+- Missing sector → `canonical_industry = None`; provided-but-unresolvable → `"unknown"`; `ai_hardware` stays UNKNOWN.
+- Serialized only when non-None (sector-less nodes keep the pre-P1-3.5 output shape); `from_dict` prefers a stored value, legacy serializations recompute.
+- `data["sector"]` is never mutated; `find_company_evidence` substring filter unchanged.
+- Runtime-observed sector values: `"AI"` (example code) and `"人工智能"` (demo JSON, not runtime-loaded). Design-doc values (BIOTECH/QUANTUM/CLEAN_TECH/ADVANCED_MATERIALS/OTHER) have unit-level coverage only — no runtime call site feeds them today.
+- `EvidenceObject` has no sector field, so service-created evidence nodes always have `canonical_industry = None`.
+- Trust/Provenance/MOCK/UNVERIFIED semantics: ZERO changes (test-enforced). Report: `docs/Evidence_Graph_Taxonomy_Integration_20260830.md`.
+
 ---
 
 ## 16. Trust Evidence API
@@ -1286,7 +1297,7 @@ TrustQueryResponse:
 python -m pytest tests/ -q --tb=no
 ```
 
-**Expected Result**: **377 passed, 0 failed**
+**Expected Result**: **406 passed, 0 failed**
 
 **Regression Protection**:
 - Test suite enforces all safety rules
@@ -1558,6 +1569,7 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 ### 22.2 Recent Commit History
 
 ```
+7109b4c feat: integrate canonical taxonomy with evidence graph sector (P1-3.5) (2026-08-30)
 21ba734 docs: fix handover Section 23.2/23.3 for P1-3.3 accuracy (2026-08-27)
 789091d docs: update handover git hash to d4d3e75 (P1-3.3 final) (2026-08-27)
 d4d3e75 feat: integrate canonical taxonomy with legacy outputs (P1-3.3) (2026-08-27)
@@ -1604,17 +1616,29 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-3.4 — Runtime Integration Test Closure (F-10)**
+**Current Quest**: **P1-3.5 — Evidence Graph Taxonomy Integration (OPTION A)**
 
-**Status**: ✅ **COMPLETE — VERDICT: PASS WITH FINDINGS, F-10 CLOSED** (2026-08-29)
+**Status**: ✅ **COMPLETE — VERDICT: PASS** (2026-08-30)
 
-**Completion Date**: 2026-08-29
+**Completion Date**: 2026-08-30
 
-**Previous Quest**: P1-3.3.1 — Canonical Taxonomy Integration Independent Verification ✅ COMPLETE (verified)
+**Previous Quest**: P1-3.4 — Runtime Integration Test Closure (F-10) ✅ COMPLETE (2026-08-29)
 
-**Quest Before**: P1-3.3 — Canonical Taxonomy Integration ✅ COMPLETE (verified)
+**Quest Before**: P1-3.3.1 — Canonical Taxonomy Integration Independent Verification ✅ COMPLETE (verified)
 
 ### 23.2 Quest Achievement Summary
+
+**P1-3.5 Evidence Graph Taxonomy Integration Results**:
+- ✅ Audit-first: Evidence Graph sector was a free string with de-facto taxonomy semantics (query filter); runtime-observed values only `"AI"` (example code) and `"人工智能"` (demo JSON, not runtime-loaded); design-doc enum = registry source T11
+- ✅ Additive integration: `GraphNode.canonical_industry` (optional derived field) resolved via `schema/canonical_taxonomy.py` — zero second mapping, zero registry changes, single-file change (`src/trust/evidence_graph.py`)
+- ✅ Mapping: AI→ai, BIOTECH→biotech, QUANTUM→quantum_computing, CLEAN_TECH→new_energy, ADVANCED_MATERIALS→new_materials, OTHER→other, 人工智能→ai (alias); unresolved→unknown; **ai_hardware stays UNKNOWN**; missing sector→None (prefer null)
+- ✅ Backward compatible: sector never mutated; serialization additive (omit when None); legacy serializations recompute on load; `find_company_evidence` unchanged
+- ✅ Trust/Provenance/MOCK/UNVERIFIED: ZERO semantic changes (test-enforced, no VERIFIED escalation)
+- ✅ 29 new tests (`tests/test_evidence_graph_taxonomy.py`, TEST-EG-TAX-001..045; `git add -f` per existing `.gitignore` governance)
+- ✅ Known limitation recorded: service evidence nodes always canonical None (EvidenceObject has no sector field); 5 design-doc sector values unit-level only (no runtime call site today)
+- Report: `docs/Evidence_Graph_Taxonomy_Integration_20260830.md`
+
+**Test Status**: **406 passed, 0 failed** (+29 new Evidence Graph taxonomy tests)
 
 **P1-3.4 Runtime Integration Closure Results**:
 - ✅ **F-10 CLOSED**: real runtime coverage for `ChinaPolicyCleaningService` (20 tests) and `fixed_server.py` (15 tests)
@@ -1695,13 +1719,7 @@ git rev-parse origin/master
 
 **FOLLOW-UP (from P1-3.3.1 audit)**: ~~Add runtime tests for `ChinaPolicyCleaningService` and `fixed_server.py` canonical_industry population (Finding F-10)~~ → **CLOSED by P1-3.4** (2026-08-29), see `docs/Canonical_Taxonomy_Runtime_Integration_Test_Closure_20260829.md`. Residual follow-up: optionally enrich the fixed_server fallback path (Finding P134-B, safe as-is).
 
-**OPTION A**: Evidence Graph Taxonomy Integration (P1-3.5)
-- **Priority**: LOW
-- **Purpose**: Integrate canonical taxonomy into Evidence Graph sector field
-- **Scope**: Map Evidence Graph sector strings to canonical IDs
-- **Dependencies**: P1-3.3 integration complete
-- **Estimated Effort**: Low
-- **Key Constraint**: Evidence Graph is design-only; maintain compatibility
+**OPTION A**: ~~Evidence Graph Taxonomy Integration (P1-3.5)~~ → ✅ **COMPLETE (2026-08-30, see Section 23.2)** — additive `canonical_industry` on `GraphNode`, 29 tests, registry unchanged.
 
 **OPTION B**: Real Policy Verification Workflow
 - **Priority**: HIGH
@@ -1726,12 +1744,9 @@ git rev-parse origin/master
 
 ### 24.2 Recommended Approach
 
-**Start with OPTION A (Industry Taxonomy Alignment)**:
-- **Reasoning**: Resolves existing technical debt
-- **Benefits**: Consistent data model across all components
-- **Risk**: Low — does not affect safety or production readiness
+**~~Start with OPTION A (Industry Taxonomy Alignment)~~ → DONE (P1-3.5, 2026-08-30)**
 
-**Then proceed to OPTION B (Real Policy Verification)**:
+**Next: proceed to OPTION B (Real Policy Verification)**:
 - **Reasoning**: Enables transition from mock to real data
 - **Benefits**: System becomes useful for real decisions
 - **Risk**: Medium — requires official source access
