@@ -17,6 +17,38 @@ import time
 from typing import Dict, Any, List, Optional, Set
 from enum import Enum
 
+_canonical_registry = None
+
+
+def _get_canonical_registry():
+    """Lazily load the canonical industry taxonomy registry.
+
+    Reuses schema/canonical_taxonomy.py (P1-3.2/P1-3.3). No second taxonomy
+    mapping is defined here. Import failures propagate so a broken registry
+    is never silently replaced by guessed values.
+    """
+    global _canonical_registry
+    if _canonical_registry is None:
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+        from schema.canonical_taxonomy import get_registry
+        _canonical_registry = get_registry()
+    return _canonical_registry
+
+
+def resolve_sector_canonical(sector: Any) -> Optional[str]:
+    """Resolve a raw sector value to a canonical industry ID.
+
+    Deterministic: delegates entirely to the canonical taxonomy registry
+    (legacy source T11_evidence_graph). Provided but unresolvable values
+    resolve to "unknown" per registry semantics. None input yields None
+    (a missing sector carries no canonical claim).
+    """
+    if sector is None:
+        return None
+    return _get_canonical_registry().resolve(sector)
+
 
 class NodeType(Enum):
     """Node types for evidence graph"""
@@ -34,8 +66,13 @@ class RelationType(Enum):
 
 
 class GraphNode:
-    """Node in the evidence graph."""
-    
+    """Node in the evidence graph.
+
+    canonical_industry (P1-3.5) is an additive derived field resolved from
+    data["sector"] via the canonical taxonomy registry. It is None when
+    sector is absent, and data["sector"] is never mutated.
+    """
+
     def __init__(
         self,
         node_id: str,
@@ -47,25 +84,43 @@ class GraphNode:
         self.type = node_type
         self.data = data
         self.created_time = created_time or time.time()
-    
+        self.canonical_industry = (
+            resolve_sector_canonical(data["sector"]) if "sector" in data else None
+        )
+
     def to_dict(self) -> Dict[str, Any]:
-        """Convert node to dictionary."""
-        return {
+        """Convert node to dictionary.
+
+        canonical_industry is serialized only when present, so output for
+        sector-less nodes keeps the pre-P1-3.5 shape (backward compatible).
+        """
+        node_dict = {
             "id": self.id,
             "type": self.type.value,
             "data": self.data,
             "created_time": self.created_time
         }
-    
+        if self.canonical_industry is not None:
+            node_dict["canonical_industry"] = self.canonical_industry
+        return node_dict
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "GraphNode":
-        """Create node from dictionary."""
-        return cls(
+        """Create node from dictionary.
+
+        A stored canonical_industry wins over recomputation; legacy
+        serializations without the field recompute from data["sector"]
+        when present.
+        """
+        node = cls(
             node_id=data["id"],
             node_type=NodeType(data["type"]),
             data=data["data"],
             created_time=data.get("created_time")
         )
+        if "canonical_industry" in data:
+            node.canonical_industry = data["canonical_industry"]
+        return node
 
 
 class GraphEdge:
