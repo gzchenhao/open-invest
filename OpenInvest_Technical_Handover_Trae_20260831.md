@@ -1583,6 +1583,7 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 ### 22.2 Recent Commit History
 
 ```
+abbab3a feat: wire verification event log into trust service runtime + content identity (P1-4.2) (2026-08-31)
 72760fb feat: durable verification event log + F-04 trust safety containment (P1-4.1) (2026-08-31)
 1d97c4f docs: audit and design real policy verification workflow (P1-4.0) (2026-08-31)
 db5004e docs: add agent reporting protocol to handover Section 26 (feedback protocol) (2026-08-31)
