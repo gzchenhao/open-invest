@@ -187,14 +187,14 @@ class TestVerificationEventLog(unittest.TestCase):
             self.log.append(d)
 
     def test_el_004_verified_requires_human_role(self):
-        # Safety: decision="verified" with a non-human role is refused
-        d = self._make_decision(decision="verified", actor_role="agent")
+        # Safety: decision="verified" with a non-human-authority role is refused
+        d = self._make_decision(decision="verified", actor_role="system")
         with self.assertRaises(ValueError):
             self.log.append(d)
 
     def test_el_005_human_can_record_verified(self):
-        # The ONLY path to record a "verified" event: actor_role="human"
-        d = self._make_decision(decision="verified", actor_role="human")
+        # The ONLY path to record a "verified" event: actor_role in HUMAN_AUTHORITY_ROLES
+        d = self._make_decision(decision="verified", actor_role="human_verifier")
         self.log.append(d)
         events, _ = self.log.replay()
         self.assertEqual(len(events), 1)
