@@ -15,15 +15,23 @@ OpenInvest - Trust Evidence API Boundary
 """
 
 import json
+import os
 import time
+import uuid
 from typing import Dict, Any, List, Optional, Union
 from dataclasses import dataclass, asdict
+from datetime import datetime, timezone
 
 from .evidence_object import EvidenceObject, VerificationStatus
 from .provenance import ProvenanceChain
 from .trust_score import TrustScoreCalculator
 from .evidence_graph import EvidenceGraph, NodeType, RelationType
 from .graph_query_engine import GraphQueryEngine
+from .verification_event_log import (
+    VerificationDecision,
+    VerificationEventLog,
+    compute_content_identity,
+)
 
 
 @dataclass
@@ -54,11 +62,22 @@ class TrustEvidenceService:
     - Production verification: NOT IMPLEMENTED
     """
     
-    def __init__(self):
-        """Initialize trust evidence service."""
+    def __init__(self, event_log_path: Optional[str] = None):
+        """Initialize trust evidence service.
+
+        Args:
+            event_log_path: Optional path to the durable verification event
+                log (JSONL).  When provided, verify_evidence() records
+                VerificationDecision events to this log.  When None (default),
+                no event log is active — backward compatible with all
+                existing callers that use TrustEvidenceService().
+        """
         self.evidence_graph = EvidenceGraph()
         self.graph_query_engine = GraphQueryEngine(self.evidence_graph)
         self.trust_calculator = TrustScoreCalculator()
+        self.event_log: Optional[VerificationEventLog] = (
+            VerificationEventLog(event_log_path) if event_log_path else None
+        )
         self.service_status = ServiceStatus(
             is_ready=True,
             service_name="OpenInvest Trust Evidence Service",
@@ -194,13 +213,32 @@ class TrustEvidenceService:
             if verification_method == "mock":
                 provenance.add_verification_event(
                     verifier="mock_system",
-                    method="mock_verification", 
+                    method="mock_verification",
                     result="mock_result"
                 )
-                
+
                 # Update verification status
                 evidence.verification_status = VerificationStatus.MOCK
-                
+
+                # P1-4.2: Record durable verification event if log is active.
+                # This records the decision but does NOT grant VERIFIED —
+                # mock verification always results in MOCK status.
+                if self.event_log is not None:
+                    content_id = compute_content_identity(evidence.to_dict())
+                    decision = VerificationDecision(
+                        event_id=uuid.uuid4().hex,
+                        evidence_id=evidence_id,
+                        decision="mock",
+                        actor="mock_system",
+                        actor_role="system",
+                        method="mock_verification",
+                        timestamp=datetime.now(timezone.utc).isoformat(),
+                        content_identity=content_id,
+                        evidence_refs=[evidence.source_reference] if evidence.source_reference else [],
+                        notes="Mock verification (not authoritative)",
+                    )
+                    self.event_log.append(decision)  # raises on failure — never silent
+
                 return {
                     "success": True,
                     "evidence_id": evidence_id,
@@ -224,7 +262,38 @@ class TrustEvidenceService:
                 "error": str(e),
                 "message": "Failed to verify evidence"
             }
-    
+
+    def get_verification_history(self, evidence_id: str) -> Dict[str, Any]:
+        """Get durable verification event history for an evidence.
+
+        P1-4.2: reads from the VerificationEventLog (if active).  Returns
+        the chronological list of VerificationDecision records.  If no
+        event log is configured, returns success=False with a clear message.
+
+        This is a READ-ONLY operation — it never changes verification_status.
+        """
+        if self.event_log is None:
+            return {
+                "success": False,
+                "error": "No event log configured",
+                "message": "TrustEvidenceService was initialized without event_log_path"
+            }
+        try:
+            events = self.event_log.get_events_for_evidence(evidence_id)
+            return {
+                "success": True,
+                "evidence_id": evidence_id,
+                "event_count": len(events),
+                "events": [e.to_dict() for e in events],
+                "message": f"{len(events)} verification event(s) found"
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "message": "Failed to retrieve verification history"
+            }
+
     def get_provenance(self, evidence_id: str) -> Dict[str, Any]:
         """
         Get provenance chain for evidence.

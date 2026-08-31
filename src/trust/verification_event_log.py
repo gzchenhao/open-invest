@@ -34,6 +34,34 @@ from typing import Any, Dict, List, Optional, Tuple
 
 
 # ---------------------------------------------------------------------------
+# Content Identity — SHA-256 of canonical evidence content
+# ---------------------------------------------------------------------------
+
+# Fields included in content identity (stable, ordered, deterministic).
+_CONTENT_IDENTITY_FIELDS = (
+    "id", "type", "source", "source_reference",
+    "verification_status", "confidence_score",
+)
+
+
+def compute_content_identity(evidence_data: Optional[Dict[str, Any]]) -> Optional[str]:
+    """Compute SHA-256 content identity for an evidence dict.
+
+    The canonical content is a JSON string built from a FIXED set of fields
+    with sort_keys=True, ensuring key ordering does not affect the hash.
+    This is a CONTENT identity, NOT a verification proof — SHA-256 alone
+    never implies VERIFIED, official, or trustworthy.
+
+    Returns None for None input (no content → no identity).
+    """
+    if evidence_data is None:
+        return None
+    canonical = {k: evidence_data.get(k) for k in _CONTENT_IDENTITY_FIELDS}
+    canonical_json = json.dumps(canonical, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(canonical_json.encode("utf-8")).hexdigest()
+
+
+# ---------------------------------------------------------------------------
 # VerificationDecision — additive dataclass
 # ---------------------------------------------------------------------------
 

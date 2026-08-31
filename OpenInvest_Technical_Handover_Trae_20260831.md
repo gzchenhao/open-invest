@@ -1299,7 +1299,7 @@ TrustQueryResponse:
 python -m pytest tests/ -q --tb=no
 ```
 
-**Expected Result**: **434 passed, 0 failed**
+**Expected Result**: **465 passed, 0 failed**
 
 **Regression Protection**:
 - Test suite enforces all safety rules
@@ -1633,17 +1633,26 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-4.1 — Durable Verification Event Log + F-04 Trust Safety Containment**
+**Current Quest**: **P1-4.2 — Verification Event Log Runtime Wiring + Content Identity**
 
 **Status**: ✅ **COMPLETE — VERDICT: PASS** (2026-08-31)
 
 **Completion Date**: 2026-08-31
 
-**Previous Quest**: P1-4.0 — Real Policy Verification Workflow Audit & Design ✅ COMPLETE (2026-08-31)
+**Previous Quest**: P1-4.1 — Durable Verification Event Log + F-04 Trust Safety Containment ✅ COMPLETE (2026-08-31)
 
-**Quest Before**: P1-3.5 — Evidence Graph Taxonomy Integration ✅ COMPLETE (2026-08-30)
+**Quest Before**: P1-4.0 — Real Policy Verification Workflow Audit & Design ✅ COMPLETE (2026-08-31)
 
 ### 23.2 Quest Achievement Summary
+
+**P1-4.2 Verification Event Log Runtime Wiring + Content Identity Results (IMPLEMENTED + VERIFIED)**:
+- ✅ RUNTIME WIRING: `TrustEvidenceService.__init__` gains optional `event_log_path`; `verify_evidence(mock)` now appends `VerificationDecision` (decision="mock", actor_role="system", content_identity) to durable JSONL log; new `get_verification_history()` read-only API
+- ✅ CONTENT IDENTITY: `compute_content_identity()` — SHA-256 of canonical JSON (fixed fields, sort_keys=True); key-order independent; deterministic; None input → None
+- ✅ F-04 SECOND-LAYER SAFETY: verified across all status × label combinations — VERIFIED+government=80 (legitimate); UNVERIFIED/MOCK/REJECTED+government=50 (contained); agent candidate ≠ VERIFIED; missing event ≠ VERIFIED; missing verifier → ValueError
+- ✅ Backward compatible: `TrustEvidenceService()` without event_log_path works unchanged; legacy EvidenceObject without content_identity loads; 434 existing tests all pass
+- ✅ VERIFIED remains ungrantable: no Human Verification Authority exists; verify_evidence only sets MOCK; EventLog records but never grants
+- ✅ Test count: 434 → 465 (+31 new, 0 failed, 1 pre-existing warning)
+- Report: `docs/Real_Policy_Verification_Runtime_Wiring_20260831.md`
 
 **P1-4.1 Durable Verification Event Log + F-04 Containment Results (IMPLEMENTED + VERIFIED)**:
 - ✅ F-04 CONTAINED: `source="government"/"official"` label no longer raises trust score (0.8/0.7 → default 50) or marks source_reliability "high" for UNVERIFIED/MOCK evidence; VERIFIED path preserved (80); explanation explicitly states "NOT verified"; 9 tests enforce
@@ -1653,7 +1662,7 @@ git rev-parse origin/master
 - ✅ Test count: 406 → 434 (+28 new, 0 failed, 1 pre-existing warning)
 - Report: `docs/Real_Policy_Verification_Durable_Event_Log_20260831.md`
 
-**Test Status**: **434 passed, 0 failed** (as of 2026-08-31)
+**Testing Status**: **465 passed, 0 failed** (as of 2026-08-31)
 
 **P1-4.0 Real Policy Verification Workflow Audit & Design Results (AUDIT / DESIGN)**:
 - ✅ AUDIT: **VERIFIED production path: NOT FOUND** — repo-wide, no code grants VERIFIED; `provenance_validator.py` only validates pre-existing labels; `verify_evidence()` is mock-only and sets MOCK ("not authoritative"); all 21 seed records are `is_mock:true / "mock"`; zero verified policies
@@ -1742,6 +1751,7 @@ git rev-parse origin/master
 - Independent verification: 37/37 parser runtime checks PASS (P1-3.3.1, see Section 23.2)
 
 **Documentation Evidence**:
+- Complete Real_Policy_Verification_Runtime_Wiring_20260831.md (P1-4.2 runtime wiring + content identity)
 - Complete Real_Policy_Verification_Durable_Event_Log_20260831.md (P1-4.1 implementation + F-04 containment)
 - Complete Real_Policy_Verification_Workflow_Design_20260831.md (P1-4.0 audit + design)
 - Complete Evidence_Graph_Taxonomy_Integration_20260830.md (P1-3.5)
@@ -1764,13 +1774,15 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**NEXT QUEST — P1-4.2: Wire VerificationEventLog into TrustEvidenceService + Content Identity**
+**NEXT QUEST — P1-4.3: Human Verification Authority Gate**
 - **Priority**: MEDIUM-HIGH
-- **Purpose**: Connect the dormant event log infrastructure to the trust service runtime path; introduce sha256 content_identity at evidence creation for future source-change detection
-- **Scope**: wire `VerificationEventLog.append()` into `TrustEvidenceService.verify_evidence()`; add `content_identity` computation to `EvidenceObject`; NO VERIFIED grant, NO crawler, NO real data
-- **Guardrails**: VERIFIED must remain ungrantable; mock verification path records events but does not upgrade status; Phase 3 (human gate) still required before any VERIFIED
-- **Dependencies**: P1-4.1 complete (event log + adapter exist)
+- **Purpose**: Design and implement the minimal interface for a registered human verifier to record a "verified" decision; extend provenance validator to enforce that a "verified" label without a matching human decision event is a governance violation
+- **Scope**: human verifier identity interface + validator extension; NO automatic VERIFIED, NO crawler, NO real data
+- **Guardrails**: VERIFIED grantable ONLY via human authority + recorded decision event; agent remains blocked; MOCK excluded
+- **Dependencies**: P1-4.2 complete (event log wired + content identity)
 - **Estimated Effort**: Medium
+
+**~~P1-4.2: Verification Event Log Runtime Wiring~~ → ✅ COMPLETE (2026-08-31)** — EventLog wired into verify_evidence, content_identity implemented, 465 tests, 0 failed
 
 **~~P1-4.1: Durable Verification Event Log~~ → ✅ COMPLETE (2026-08-31)** — F-04 contained, event log + adapter implemented, 434 tests, 0 failed
 
@@ -1832,7 +1844,7 @@ git log -3 --oneline
 git ls-remote origin master
 python -m pytest tests/ -q
 ```
-- **Expected Output**: Worktree clean, LOCAL HEAD == REMOTE HEAD, 434 passed
+- **Expected Output**: Worktree clean, LOCAL HEAD == REMOTE HEAD, 465 passed
 - **Action Required**: If discrepancies found, record before proceeding
 
 **STEP 3**: Check Project Reality
@@ -1958,7 +1970,7 @@ python -m pytest tests/ -q
 
 **Command**: `python -m pytest tests/ -q --tb=no`
 
-**Result**: `434 passed, 0 failed, 1 warning` (as of 2026-08-31, includes P1-4.1 verification infrastructure tests + F-04 containment)
+**Result**: `465 passed, 0 failed, 1 warning` (as of 2026-08-31, includes P1-4.2 runtime wiring + content identity + F-04 second-layer safety)
 
 **Warning**: StarletteDeprecationWarning (third-party library, not project issue)
 
