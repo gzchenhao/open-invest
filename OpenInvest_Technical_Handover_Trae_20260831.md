@@ -1583,7 +1583,9 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 ### 22.2 Recent Commit History
 
 ```
-abbab3a feat: wire verification event log into trust service runtime + content identity (P1-4.2) (2026-08-31)
+9f87fa0 fix: update P1-4.1 tests for human authority role vocabulary (P1-4.3) (2026-08-31)
+50e4de1 feat: human verification authority gate — VERIFIED requires human decision event (P1-4.3) (2026-08-31)
+b24d169 fix: add future marker to MCP/A2A reference in P1-4.2 doc (vision test) (2026-08-31)
 72760fb feat: durable verification event log + F-04 trust safety containment (P1-4.1) (2026-08-31)
 1d97c4f docs: audit and design real policy verification workflow (P1-4.0) (2026-08-31)
 db5004e docs: add agent reporting protocol to handover Section 26 (feedback protocol) (2026-08-31)
