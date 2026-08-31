@@ -1583,7 +1583,7 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 ### 22.2 Recent Commit History
 
 ```
-<P1-4.1 commit hash> feat: durable verification event log + F-04 trust safety containment (P1-4.1) (2026-08-31)
+72760fb feat: durable verification event log + F-04 trust safety containment (P1-4.1) (2026-08-31)
 1d97c4f docs: audit and design real policy verification workflow (P1-4.0) (2026-08-31)
 db5004e docs: add agent reporting protocol to handover Section 26 (feedback protocol) (2026-08-31)
 7109b4c feat: integrate canonical taxonomy with evidence graph sector (P1-3.5) (2026-08-30)
