@@ -67,7 +67,8 @@ class TrustScoreCalculator:
         """
         
         # Calculate score components
-        source_score = self._calculate_source_score(evidence_dict.get("source", ""), source_reliability)
+        source_score = self._calculate_source_score(
+            evidence_dict.get("source", ""), source_reliability, verification_status)
         completeness_score = self._calculate_completeness_score(evidence_dict, evidence_completeness)
         verification_score = self._calculate_verification_score(verification_status)
         freshness_score = self._calculate_freshness_score(freshness_days)
@@ -106,11 +107,20 @@ class TrustScoreCalculator:
             }
         }
     
-    def _calculate_source_score(self, source: str, manual_weight: float) -> float:
-        """Calculate source reliability score."""
-        # Use predefined weights if available
-        if source.lower() in self.source_reliability_weights:
-            return self.source_reliability_weights[source.lower()]
+    def _calculate_source_score(self, source: str, manual_weight: float,
+                                verification_status: str = "UNVERIFIED") -> float:
+        """Calculate source reliability score.
+
+        P1-4.1 F-04 containment (TRAP-005): the preset weights for source
+        labels ("government"/"official"/...) are caller-supplied FREE TEXT and
+        are NOT a verification authority. They apply ONLY when the evidence is
+        already VERIFIED (which nothing in this system can grant
+        automatically). For UNVERIFIED/MOCK evidence the label is treated as
+        an unverified category and falls back to the manual weight.
+        """
+        if str(verification_status).upper() == "VERIFIED":
+            if source.lower() in self.source_reliability_weights:
+                return self.source_reliability_weights[source.lower()]
         # Fall back to manual weight
         return manual_weight
     

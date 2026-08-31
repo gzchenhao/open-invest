@@ -356,8 +356,17 @@ class TrustEvidenceService:
             confidence_factors["source_reliability"] = "low"
             reasons.append("Source marked as mock for demonstration")
         elif source_reliability in ["government", "official"]:
-            confidence_factors["source_reliability"] = "high"
-            reasons.append("Source is government/official")
+            # P1-4.1 F-04 containment: a free-text source label is NOT a
+            # verification authority. Report "high" only for already-VERIFIED
+            # evidence; otherwise label it explicitly as an unverified claim.
+            if evidence.verification_status.value == "VERIFIED":
+                confidence_factors["source_reliability"] = "high"
+                reasons.append("Source is government/official (verified)")
+            else:
+                confidence_factors["source_reliability"] = "unverified_label"
+                reasons.append(
+                    "Source labeled government/official but NOT verified "
+                    "(label is not verification authority)")
         elif source_reliability in ["academic", "industry"]:
             confidence_factors["source_reliability"] = "medium"
             reasons.append("Source is academic/industry")

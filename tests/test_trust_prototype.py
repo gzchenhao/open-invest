@@ -278,6 +278,10 @@ class TestTrustPrototype(unittest.TestCase):
         self.assertTrue(minimal_evidence.validate())
         
         # Test trust score with different inputs
+        # P1-4.1 note: verification_status is an explicit parameter of
+        # calculate_trust_score (the dict field alone is not read). The high
+        # case must rely on a VERIFIED status parameter, not on the (now
+        # contained, F-04) free-text source label boost.
         high_trust_data = {
             "id": "high_trust",
             "type": "policy", 
@@ -294,8 +298,10 @@ class TestTrustPrototype(unittest.TestCase):
             "verification_status": "UNVERIFIED"
         }
         
-        high_score = self.calculator.calculate_trust_score(high_trust_data)
-        low_score = self.calculator.calculate_trust_score(low_trust_data)
+        high_score = self.calculator.calculate_trust_score(
+            high_trust_data, verification_status="VERIFIED")
+        low_score = self.calculator.calculate_trust_score(
+            low_trust_data, verification_status="UNVERIFIED")
         
         # High trust should have higher score
         self.assertGreater(high_score["score"], low_score["score"])

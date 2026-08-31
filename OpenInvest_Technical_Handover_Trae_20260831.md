@@ -1,10 +1,10 @@
 # OpenInvest Technical Handover — Trae
 
-**Document**: `OpenInvest_Technical_Handover_Trae_20260829.md`  
+**Document**: `OpenInvest_Technical_Handover_Trae_20260831.md`  
 **Purpose**: The unique OpenInvest Project Master Handover Manual for cross LLM/Agent/IDE/development tool switching. Any future AI coding agent must read and obey this document before touching the repository.  
 **Created**: 2026-08-26  
 **Repository**: https://github.com/gzchenhao/open-invest.git (branch `master`)  
-**Last Updated**: 2026-08-29  
+**Last Updated**: 2026-08-31  
 
 **Precedence (highest → lowest)**:
 1. Existing Code & Data
@@ -1299,7 +1299,7 @@ TrustQueryResponse:
 python -m pytest tests/ -q --tb=no
 ```
 
-**Expected Result**: **406 passed, 0 failed**
+**Expected Result**: **434 passed, 0 failed**
 
 **Regression Protection**:
 - Test suite enforces all safety rules
@@ -1486,8 +1486,8 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 **TRAP-005**: Label-Based Implicit Source Trust (found in P1-4.0 audit, finding F-04)
 - **Issue**: `trust_score.py:39-45` maps free-text `source` label "government"→0.8 / "official"→0.7; `trust_service.py:358-360` marks `confidence_factors["source_reliability"]="high"` with reason "Source is government/official" — trust elevation from an UNVERIFIED caller-supplied label
 - **Impact**: NOT a VERIFIED escalation (status untouched), but trust score/explanation can be inflated by any caller passing `source="government"`
-- **Status**: RECORDED, NOT FIXED (Trust module is protected; fix requires dedicated safety quest)
-- **Action**: source_reliability must key on verified provenance, not free text (see design doc §11 T-12)
+- **Status**: ✅ **CONTAINED in P1-4.1** (2026-08-31) — label weights now apply ONLY when `verification_status == "VERIFIED"`; UNVERIFIED/MOCK government label → default score 50, explanation "NOT verified"; 9 tests enforce
+- **Action**: Future P1-4.2+ should key source_reliability on verified provenance records, not on status string (see design doc §4)
 
 **TRAP-006**: Divergent Verification Status Vocabularies (found in P1-4.0 audit)
 - **Issue**: uppercase enum in `src/trust/evidence_object.py` (UNVERIFIED/MOCK/VERIFIED/REJECTED) vs lowercase enum in `global_policy_aggregator/processors/provenance_validator.py` (verified/partially_verified/unverified/mock) vs docs-only PENDING/OUTDATED
@@ -1583,6 +1583,7 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 ### 22.2 Recent Commit History
 
 ```
+<P1-4.1 commit hash> feat: durable verification event log + F-04 trust safety containment (P1-4.1) (2026-08-31)
 1d97c4f docs: audit and design real policy verification workflow (P1-4.0) (2026-08-31)
 db5004e docs: add agent reporting protocol to handover Section 26 (feedback protocol) (2026-08-31)
 7109b4c feat: integrate canonical taxonomy with evidence graph sector (P1-3.5) (2026-08-30)
@@ -1632,17 +1633,27 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-3.5 — Evidence Graph Taxonomy Integration (OPTION A)**
+**Current Quest**: **P1-4.1 — Durable Verification Event Log + F-04 Trust Safety Containment**
 
-**Status**: ✅ **COMPLETE — VERDICT: PASS** (2026-08-30)
+**Status**: ✅ **COMPLETE — VERDICT: PASS** (2026-08-31)
 
-**Completion Date**: 2026-08-30
+**Completion Date**: 2026-08-31
 
-**Previous Quest**: P1-3.4 — Runtime Integration Test Closure (F-10) ✅ COMPLETE (2026-08-29)
+**Previous Quest**: P1-4.0 — Real Policy Verification Workflow Audit & Design ✅ COMPLETE (2026-08-31)
 
-**Quest Before**: P1-3.3.1 — Canonical Taxonomy Integration Independent Verification ✅ COMPLETE (verified)
+**Quest Before**: P1-3.5 — Evidence Graph Taxonomy Integration ✅ COMPLETE (2026-08-30)
 
 ### 23.2 Quest Achievement Summary
+
+**P1-4.1 Durable Verification Event Log + F-04 Containment Results (IMPLEMENTED + VERIFIED)**:
+- ✅ F-04 CONTAINED: `source="government"/"official"` label no longer raises trust score (0.8/0.7 → default 50) or marks source_reliability "high" for UNVERIFIED/MOCK evidence; VERIFIED path preserved (80); explanation explicitly states "NOT verified"; 9 tests enforce
+- ✅ NEW `src/trust/verification_event_log.py`: `VerificationDecision` (frozen additive dataclass: event_id/evidence_id/decision/actor/actor_role/method/timestamp/content_identity/evidence_refs/notes) + `VerificationEventLog` (append-only JSONL; fsync; malformed lines reported not skipped; duplicate event_id rejected; write failure propagates OSError) + `VerificationStatusAdapter` (read-only normaliser for uppercase/lowercase vocabularies; unknown → "unknown" never "verified")
+- ✅ SAFETY: Agent cannot record "verified" decision (ValueError at append); "verified" requires actor_role="human"; no Human Authority exists → VERIFIED remains ungrantable; recording events does NOT change EvidenceObject status
+- ✅ Backward compatible: no API/schema/enum change; 406 existing tests all pass
+- ✅ Test count: 406 → 434 (+28 new, 0 failed, 1 pre-existing warning)
+- Report: `docs/Real_Policy_Verification_Durable_Event_Log_20260831.md`
+
+**Test Status**: **434 passed, 0 failed** (as of 2026-08-31)
 
 **P1-4.0 Real Policy Verification Workflow Audit & Design Results (AUDIT / DESIGN)**:
 - ✅ AUDIT: **VERIFIED production path: NOT FOUND** — repo-wide, no code grants VERIFIED; `provenance_validator.py` only validates pre-existing labels; `verify_evidence()` is mock-only and sets MOCK ("not authoritative"); all 21 seed records are `is_mock:true / "mock"`; zero verified policies
@@ -1731,6 +1742,9 @@ git rev-parse origin/master
 - Independent verification: 37/37 parser runtime checks PASS (P1-3.3.1, see Section 23.2)
 
 **Documentation Evidence**:
+- Complete Real_Policy_Verification_Durable_Event_Log_20260831.md (P1-4.1 implementation + F-04 containment)
+- Complete Real_Policy_Verification_Workflow_Design_20260831.md (P1-4.0 audit + design)
+- Complete Evidence_Graph_Taxonomy_Integration_20260830.md (P1-3.5)
 - Complete Industry_Taxonomy_Audit_20260826.md (P1-3.0 audit)
 - Complete Industry_Taxonomy_Alignment_Design.md (P1-3.1 design)
 - Complete Canonical_Taxonomy_Registry_Implementation_20260826.md (P1-3.2 implementation)
@@ -1750,16 +1764,18 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**NEXT QUEST — P1-4.1: Real Policy Verification Workflow Implementation, Phase 1 (Durable Verification Event Log)**
-- **Priority**: HIGH
-- **Purpose**: Give verification decisions durable, append-only persistence (the prerequisite every other control depends on — see design doc §18)
-- **Scope (Phase 1 only)**: append-only JSONL event log + additive `VerificationDecision` dataclass + read-only status vocabulary adapter; NO enum changes, NO crawler activation, NO real data, NO Trust Score changes
-- **Guardrails**: VERIFIED must remain ungrantable until Phase 3 (human gate) lands; validator extension: verified label without matching decision event = governance violation
-- **Dependencies**: None (design complete in `docs/Real_Policy_Verification_Workflow_Design_20260831.md`)
+**NEXT QUEST — P1-4.2: Wire VerificationEventLog into TrustEvidenceService + Content Identity**
+- **Priority**: MEDIUM-HIGH
+- **Purpose**: Connect the dormant event log infrastructure to the trust service runtime path; introduce sha256 content_identity at evidence creation for future source-change detection
+- **Scope**: wire `VerificationEventLog.append()` into `TrustEvidenceService.verify_evidence()`; add `content_identity` computation to `EvidenceObject`; NO VERIFIED grant, NO crawler, NO real data
+- **Guardrails**: VERIFIED must remain ungrantable; mock verification path records events but does not upgrade status; Phase 3 (human gate) still required before any VERIFIED
+- **Dependencies**: P1-4.1 complete (event log + adapter exist)
 - **Estimated Effort**: Medium
 
-**Follow-up findings from P1-4.0 audit (separate quests, do NOT bundle into P1-4.1)**:
-- TRAP-005 / F-04: label-based source trust (`source="government"` → 0.8 score + "high" factor) — needs dedicated Trust safety quest
+**~~P1-4.1: Durable Verification Event Log~~ → ✅ COMPLETE (2026-08-31)** — F-04 contained, event log + adapter implemented, 434 tests, 0 failed
+
+**Follow-up findings from P1-4.0 audit (separate quests)**:
+- ~~TRAP-005 / F-04: label-based source trust~~ → ✅ **CONTAINED in P1-4.1** (2026-08-31)
 - G-09: duplicate `@dataclass` decorator `trust_request_response.py:235-236` — cosmetic fix next time that module is legitimately opened
 - README "Trust & Verification Semantics" section (design doc §14)
 
@@ -1816,7 +1832,7 @@ git log -3 --oneline
 git ls-remote origin master
 python -m pytest tests/ -q
 ```
-- **Expected Output**: Worktree clean, LOCAL HEAD == REMOTE HEAD, 377 passed
+- **Expected Output**: Worktree clean, LOCAL HEAD == REMOTE HEAD, 434 passed
 - **Action Required**: If discrepancies found, record before proceeding
 
 **STEP 3**: Check Project Reality
@@ -1942,7 +1958,7 @@ python -m pytest tests/ -q
 
 **Command**: `python -m pytest tests/ -q --tb=no`
 
-**Result**: `406 passed, 0 failed, 1 warning` (as of 2026-08-30, includes P1-3.4 runtime integration tests + 29 P1-3.5 Evidence Graph taxonomy tests)
+**Result**: `434 passed, 0 failed, 1 warning` (as of 2026-08-31, includes P1-4.1 verification infrastructure tests + F-04 containment)
 
 **Warning**: StarletteDeprecationWarning (third-party library, not project issue)
 
