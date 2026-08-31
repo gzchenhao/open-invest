@@ -845,6 +845,8 @@ Implemented inside `PolicyCleaner`:
 
 ### 13.1 Evidence Object
 
+> **P1-4.0 correction (2026-08-31, Repository Wins)**: the field list below previously described an aspirational model. Actual `src/trust/evidence_object.py`: fields `id`, `type` (free string, **no EvidenceType enum**), `source`, `source_reference`, `verification_status`, `confidence_score`, `created_time`, `metadata` (free dict). There is **no `content` field, no `provenance` field, no PARTIALLY_VERIFIED** (actual enum: UNVERIFIED / MOCK / VERIFIED / REJECTED).
+
 **Definition**: Structured representation of verifiable information
 
 **Location**: `src/trust/evidence_object.py`
@@ -1478,8 +1480,20 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 **RISK-003**: No Real Policy Verification Workflow
 - **Issue**: Zero real government policies verified
 - **Impact**: System remains mock-only
-- **Status**: Future architecture
-- **Action**: Implement verification workflow before claiming production readiness
+- **Status**: P1-4.0 AUDIT + DESIGN COMPLETE (2026-08-31, see `docs/Real_Policy_Verification_Workflow_Design_20260831.md`); implementation deferred to P1-4.1
+- **Action**: Implement P1-4.1 Phase 1 (durable verification event log) before any production readiness claim
+
+**TRAP-005**: Label-Based Implicit Source Trust (found in P1-4.0 audit, finding F-04)
+- **Issue**: `trust_score.py:39-45` maps free-text `source` label "government"→0.8 / "official"→0.7; `trust_service.py:358-360` marks `confidence_factors["source_reliability"]="high"` with reason "Source is government/official" — trust elevation from an UNVERIFIED caller-supplied label
+- **Impact**: NOT a VERIFIED escalation (status untouched), but trust score/explanation can be inflated by any caller passing `source="government"`
+- **Status**: RECORDED, NOT FIXED (Trust module is protected; fix requires dedicated safety quest)
+- **Action**: source_reliability must key on verified provenance, not free text (see design doc §11 T-12)
+
+**TRAP-006**: Divergent Verification Status Vocabularies (found in P1-4.0 audit)
+- **Issue**: uppercase enum in `src/trust/evidence_object.py` (UNVERIFIED/MOCK/VERIFIED/REJECTED) vs lowercase enum in `global_policy_aggregator/processors/provenance_validator.py` (verified/partially_verified/unverified/mock) vs docs-only PENDING/OUTDATED
+- **Impact**: status semantics fragmentation; PARTIALLY_VERIFIED exists only in the policy island, REJECTED only in the trust island
+- **Status**: RECORDED; P1-4.1 design mandates read-only adapter, never enum rewrite
+- **Action**: see design doc §7 backward-compatibility decision
 
 ---
 
@@ -1628,6 +1642,23 @@ git rev-parse origin/master
 
 ### 23.2 Quest Achievement Summary
 
+**P1-4.0 Real Policy Verification Workflow Audit & Design Results (AUDIT / DESIGN)**:
+- ✅ AUDIT: **VERIFIED production path: NOT FOUND** — repo-wide, no code grants VERIFIED; `provenance_validator.py` only validates pre-existing labels; `verify_evidence()` is mock-only and sets MOCK ("not authoritative"); all 21 seed records are `is_mock:true / "mock"`; zero verified policies
+- ✅ AUDIT: architecture is **two disconnected islands** (Policy Intelligence pipeline vs `src/trust` prototype; no runtime PolicyRecord→EvidenceObject bridge) plus a third island (`server/` has zero trust/verification coupling)
+- ✅ AUDIT: provenance is **ephemeral** (ProvenanceChain re-created per query; verification events discarded; no snapshot/content hash) → system cannot durably answer "why believe this policy"
+- ✅ AUDIT (F-04 / TRAP-005): **label-based implicit trust** — `source="government"/"official"` free text raises trust score (0.8/0.7) and marks source_reliability "high" with NO verification (not a VERIFIED escalation; recorded, not fixed)
+- ✅ AUDIT (TRAP-006): divergent verification vocabularies (uppercase trust island vs lowercase policy island vs docs-only PENDING/OUTDATED)
+- ✅ AUDIT: DOCUMENTED vs IMPLEMENTED drift in §13.1/§13.2 — **corrected in this handover** (Repository Wins)
+- ✅ AUDIT: existing protections confirmed (url_status ≠ source_verification_status; mock→verified blocked + test-enforced; honest README status legend)
+- ✅ DESIGN: 5-level Verification Authority Model (L1 existence → L4 human authority = ONLY path to VERIFIED; L5 agent = advisory only)
+- ✅ DESIGN: state machine (MOCK orthogonal; UNVERIFIED→VERIFIED forbidden; CANDIDATE_REVIEW_REQUIRED intermediate; mandatory demotion on source change; verifier identity+timestamp+evidence mandatory)
+- ✅ DESIGN: additive Verification Evidence Contract (content_identity / verification_method / verification_actor / verification_timestamp / verification_evidence — all optional additive, no breaking schema change)
+- ✅ DESIGN: 12-threat model; P1-4.1 four-phase plan (durable event log → content identity → human gate → agent-assisted candidates)
+- ✅ Part 12: NO new tests by design — "No production implementation; existing regression suite remains the validation baseline"
+- Report: `docs/Real_Policy_Verification_Workflow_Design_20260831.md`
+
+**Test Status**: **406 passed, 0 failed** (unchanged — audit/design quest, no code changes)
+
 **P1-3.5 Evidence Graph Taxonomy Integration Results**:
 - ✅ Audit-first: Evidence Graph sector was a free string with de-facto taxonomy semantics (query filter); runtime-observed values only `"AI"` (example code) and `"人工智能"` (demo JSON, not runtime-loaded); design-doc enum = registry source T11
 - ✅ Additive integration: `GraphNode.canonical_industry` (optional derived field) resolved via `schema/canonical_taxonomy.py` — zero second mapping, zero registry changes, single-file change (`src/trust/evidence_graph.py`)
@@ -1717,16 +1748,22 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**FOLLOW-UP (from P1-3.3.1 audit)**: ~~Add runtime tests for `ChinaPolicyCleaningService` and `fixed_server.py` canonical_industry population (Finding F-10)~~ → **CLOSED by P1-3.4** (2026-08-29), see `docs/Canonical_Taxonomy_Runtime_Integration_Test_Closure_20260829.md`. Residual follow-up: optionally enrich the fixed_server fallback path (Finding P134-B, safe as-is).
-
-**OPTION A**: ~~Evidence Graph Taxonomy Integration (P1-3.5)~~ → ✅ **COMPLETE (2026-08-30, see Section 23.2)** — additive `canonical_industry` on `GraphNode`, 29 tests, registry unchanged.
-
-**OPTION B**: Real Policy Verification Workflow
+**NEXT QUEST — P1-4.1: Real Policy Verification Workflow Implementation, Phase 1 (Durable Verification Event Log)**
 - **Priority**: HIGH
-- **Purpose**: Implement workflow for verifying real government policies
-- **Scope**: Official source verification, human/agent confirmation workflow
-- **Dependencies**: None
-- **Estimated Effort**: High
+- **Purpose**: Give verification decisions durable, append-only persistence (the prerequisite every other control depends on — see design doc §18)
+- **Scope (Phase 1 only)**: append-only JSONL event log + additive `VerificationDecision` dataclass + read-only status vocabulary adapter; NO enum changes, NO crawler activation, NO real data, NO Trust Score changes
+- **Guardrails**: VERIFIED must remain ungrantable until Phase 3 (human gate) lands; validator extension: verified label without matching decision event = governance violation
+- **Dependencies**: None (design complete in `docs/Real_Policy_Verification_Workflow_Design_20260831.md`)
+- **Estimated Effort**: Medium
+
+**Follow-up findings from P1-4.0 audit (separate quests, do NOT bundle into P1-4.1)**:
+- TRAP-005 / F-04: label-based source trust (`source="government"` → 0.8 score + "high" factor) — needs dedicated Trust safety quest
+- G-09: duplicate `@dataclass` decorator `trust_request_response.py:235-236` — cosmetic fix next time that module is legitimately opened
+- README "Trust & Verification Semantics" section (design doc §14)
+
+**Historical options**:
+- ~~OPTION A: Evidence Graph Taxonomy Integration (P1-3.5)~~ → ✅ COMPLETE (2026-08-30)
+- ~~OPTION B: Real Policy Verification Workflow — audit & design~~ → ✅ COMPLETE as P1-4.0 (2026-08-31); **implementation continues as P1-4.1**
 
 **OPTION C**: Production Hardening
 - **Priority**: MEDIUM
@@ -1746,10 +1783,12 @@ git rev-parse origin/master
 
 **~~Start with OPTION A (Industry Taxonomy Alignment)~~ → DONE (P1-3.5, 2026-08-30)**
 
-**Next: proceed to OPTION B (Real Policy Verification)**:
-- **Reasoning**: Enables transition from mock to real data
-- **Benefits**: System becomes useful for real decisions
-- **Risk**: Medium — requires official source access
+**~~Next: proceed to OPTION B (Real Policy Verification)~~ → AUDIT + DESIGN DONE (P1-4.0, 2026-08-31)**
+
+**Next: P1-4.1 Phase 1 — Durable Verification Event Log**:
+- **Reasoning**: every designed control (state machine enforcement, demotion, human gate) depends on persistence that does not exist today (design doc §18)
+- **Benefits**: first real foundation for Policy → Evidence → Provenance → Verification → Trust chain
+- **Risk**: Medium — must NOT grant VERIFIED in Phase 1; additive only
 
 **Finally approach OPTIONS C and D**:
 - **Reasoning**: Production readiness requires real data first
