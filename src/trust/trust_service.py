@@ -30,6 +30,8 @@ from .graph_query_engine import GraphQueryEngine
 from .verification_event_log import (
     VerificationDecision,
     VerificationEventLog,
+    HumanVerificationGate,
+    HUMAN_AUTHORITY_ROLES,
     compute_content_identity,
 )
 
@@ -292,6 +294,161 @@ class TrustEvidenceService:
                 "success": False,
                 "error": str(e),
                 "message": "Failed to retrieve verification history"
+            }
+
+    def record_human_verification(
+        self,
+        evidence_id: str,
+        verifier_id: str,
+        verifier_role: str,
+        verification_evidence: List[str],
+        notes: str = "",
+    ) -> Dict[str, Any]:
+        """P1-4.3: Record a human verification decision and attempt to grant VERIFIED.
+
+        This is the ONLY method that can result in evidence.verification_status
+        being set to VERIFIED.  It enforces all security rules:
+
+        - verifier_role must be in HUMAN_AUTHORITY_ROLES (Rule A/B)
+        - verifier_id must be present (Rule B)
+        - verification_evidence must be non-empty (Rule B)
+        - content_identity is computed from the evidence (Rule D)
+        - The decision event is persisted to the durable EventLog (Rule C)
+        - The evidence must NOT be MOCK (Rule E)
+        - The HumanVerificationGate must confirm all conditions (Rule F)
+
+        If ANY condition fails, VERIFIED is NOT granted and the failure
+        reason is returned.  The event is still recorded only if the
+        EventLog's own safety gates pass (agent+verified→ValueError).
+
+        Agent/System/Mock can NEVER call this method successfully because
+        their roles are not in HUMAN_AUTHORITY_ROLES.
+
+        Returns: {"success": bool, "evidence_id": str, "verification_status": str, ...}
+        """
+        if self.event_log is None:
+            return {
+                "success": False,
+                "error": "No event log configured",
+                "message": "Human verification requires a durable event log"
+            }
+
+        # Rule A/B: validate verifier_role
+        if verifier_role not in HUMAN_AUTHORITY_ROLES:
+            return {
+                "success": False,
+                "evidence_id": evidence_id,
+                "error": "invalid_verifier_role",
+                "verification_status": "UNVERIFIED",
+                "message": f"verifier_role '{verifier_role}' is not in HUMAN_AUTHORITY_ROLES "
+                           f"({sorted(HUMAN_AUTHORITY_ROLES)}). Agent/System/Mock cannot grant VERIFIED."
+            }
+
+        # Rule B: verifier_id must be present
+        if not verifier_id or not str(verifier_id).strip():
+            return {
+                "success": False,
+                "evidence_id": evidence_id,
+                "error": "missing_verifier_id",
+                "verification_status": "UNVERIFIED",
+                "message": "verifier_id must be present (Rule B)"
+            }
+
+        # Rule B: verification_evidence must be non-empty
+        if not verification_evidence:
+            return {
+                "success": False,
+                "evidence_id": evidence_id,
+                "error": "missing_verification_evidence",
+                "verification_status": "UNVERIFIED",
+                "message": "verification_evidence must be non-empty (Rule B)"
+            }
+
+        try:
+            # Get the evidence via existing API
+            result = self.get_evidence(evidence_id)
+            if not result["success"]:
+                return {
+                    "success": False,
+                    "evidence_id": evidence_id,
+                    "error": "evidence_not_found",
+                    "verification_status": "UNVERIFIED",
+                    "message": f"Evidence '{evidence_id}' not found"
+                }
+
+            evidence_data = result["evidence"]
+            current_content_identity = compute_content_identity(evidence_data)
+
+            # Rule E: MOCK is orthogonal — can never be VERIFIED
+            is_mock = (
+                evidence_data.get("verification_status") == "MOCK"
+                or (evidence_data.get("metadata", {}) or {}).get("is_mock", False)
+            )
+
+            # Record the human decision event to the durable log
+            decision = VerificationDecision(
+                event_id=uuid.uuid4().hex,
+                evidence_id=evidence_id,
+                decision="verified",
+                actor=verifier_id,
+                actor_role=verifier_role,
+                method="human_verification",
+                timestamp=datetime.now(timezone.utc).isoformat(),
+                content_identity=current_content_identity,
+                evidence_refs=verification_evidence,
+                notes=notes,
+            )
+            self.event_log.append(decision)  # raises on failure — never silent
+
+            # Gate check: verify ALL conditions before granting VERIFIED
+            gate = HumanVerificationGate(self.event_log)
+            gate_result = gate.can_grant_verified(
+                evidence_id=evidence_id,
+                expected_content_identity=current_content_identity,
+                evidence_is_mock=is_mock,
+            )
+
+            if gate_result["granted"]:
+                # ONLY path to set VERIFIED — through the gate
+                # Mutate the stored GraphNode data directly
+                node = self.evidence_graph.nodes[evidence_id]
+                node.data["verification_status"] = "VERIFIED"
+                return {
+                    "success": True,
+                    "evidence_id": evidence_id,
+                    "verification_status": "VERIFIED",
+                    "verifier_id": verifier_id,
+                    "verifier_role": verifier_role,
+                    "content_identity": current_content_identity,
+                    "event_id": decision.event_id,
+                    "message": "Human verification recorded and VERIFIED granted via gate"
+                }
+            else:
+                return {
+                    "success": False,
+                    "evidence_id": evidence_id,
+                    "verification_status": evidence_data.get("verification_status", "UNVERIFIED"),
+                    "verifier_id": verifier_id,
+                    "event_id": decision.event_id,
+                    "gate_reasons": gate_result["reasons"],
+                    "message": "Human decision recorded but VERIFIED NOT granted — gate conditions not met"
+                }
+
+        except ValueError as e:
+            return {
+                "success": False,
+                "evidence_id": evidence_id,
+                "error": "event_log_rejected",
+                "verification_status": "UNVERIFIED",
+                "message": str(e)
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "evidence_id": evidence_id,
+                "error": str(e),
+                "verification_status": "UNVERIFIED",
+                "message": "Failed to record human verification"
             }
 
     def get_provenance(self, evidence_id: str) -> Dict[str, Any]:

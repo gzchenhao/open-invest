@@ -1299,7 +1299,7 @@ TrustQueryResponse:
 python -m pytest tests/ -q --tb=no
 ```
 
-**Expected Result**: **465 passed, 0 failed**
+**Expected Result**: **494 passed, 0 failed**
 
 **Regression Protection**:
 - Test suite enforces all safety rules
@@ -1634,17 +1634,27 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-4.2 — Verification Event Log Runtime Wiring + Content Identity**
+**Current Quest**: **P1-4.3 — Human Verification Authority Gate**
 
 **Status**: ✅ **COMPLETE — VERDICT: PASS** (2026-08-31)
 
 **Completion Date**: 2026-08-31
 
-**Previous Quest**: P1-4.1 — Durable Verification Event Log + F-04 Trust Safety Containment ✅ COMPLETE (2026-08-31)
+**Previous Quest**: P1-4.2 — Verification Event Log Runtime Wiring + Content Identity ✅ COMPLETE (2026-08-31)
 
-**Quest Before**: P1-4.0 — Real Policy Verification Workflow Audit & Design ✅ COMPLETE (2026-08-31)
+**Quest Before**: P1-4.1 — Durable Verification Event Log + F-04 Trust Safety Containment ✅ COMPLETE (2026-08-31)
 
 ### 23.2 Quest Achievement Summary
+
+**P1-4.3 Human Verification Authority Gate Results (IMPLEMENTED + VERIFIED)**:
+- ✅ NEW `HumanVerificationGate` class in `verification_event_log.py`: checks ALL conditions (human event exists, decision=verified, actor_role in HUMAN_AUTHORITY_ROLES, content_identity match, not MOCK, evidence_refs non-empty, evidence_id match) before allowing VERIFIED
+- ✅ NEW `record_human_verification()` on `TrustEvidenceService` — the ONLY method that can result in VERIFIED; records durable decision event + gate check + conditional grant
+- ✅ `HUMAN_AUTHORITY_ROLES = {"human_verifier", "authorized_reviewer"}` — application-level authority boundary (NOT identity authentication)
+- ✅ `append()` safety gate updated: `verified` requires `actor_role in HUMAN_AUTHORITY_ROLES` (was `== "human"`)
+- ✅ VERIFIED is now REACHABLE but ONLY through the Human Gate — Agent/System/MOCK/labels cannot produce VERIFIED
+- ✅ Backward compatible: TrustEvidenceService() without event_log works; verify_evidence(mock) unchanged; 2 P1-4.1 tests updated for role vocabulary alignment (no weakening)
+- ✅ Test count: 465 → 494 (+29 new, 0 failed, 1 pre-existing warning)
+- Report: `docs/Human_Verification_Authority_Gate_20260831.md`
 
 **P1-4.2 Verification Event Log Runtime Wiring + Content Identity Results (IMPLEMENTED + VERIFIED)**:
 - ✅ RUNTIME WIRING: `TrustEvidenceService.__init__` gains optional `event_log_path`; `verify_evidence(mock)` now appends `VerificationDecision` (decision="mock", actor_role="system", content_identity) to durable JSONL log; new `get_verification_history()` read-only API
@@ -1663,7 +1673,7 @@ git rev-parse origin/master
 - ✅ Test count: 406 → 434 (+28 new, 0 failed, 1 pre-existing warning)
 - Report: `docs/Real_Policy_Verification_Durable_Event_Log_20260831.md`
 
-**Testing Status**: **465 passed, 0 failed** (as of 2026-08-31)
+**Testing Status**: **494 passed, 0 failed** (as of 2026-08-31)
 
 **P1-4.0 Real Policy Verification Workflow Audit & Design Results (AUDIT / DESIGN)**:
 - ✅ AUDIT: **VERIFIED production path: NOT FOUND** — repo-wide, no code grants VERIFIED; `provenance_validator.py` only validates pre-existing labels; `verify_evidence()` is mock-only and sets MOCK ("not authoritative"); all 21 seed records are `is_mock:true / "mock"`; zero verified policies
@@ -1752,6 +1762,7 @@ git rev-parse origin/master
 - Independent verification: 37/37 parser runtime checks PASS (P1-3.3.1, see Section 23.2)
 
 **Documentation Evidence**:
+- Complete Human_Verification_Authority_Gate_20260831.md (P1-4.3 implementation + VERIFIED gate)
 - Complete Real_Policy_Verification_Runtime_Wiring_20260831.md (P1-4.2 runtime wiring + content identity)
 - Complete Real_Policy_Verification_Durable_Event_Log_20260831.md (P1-4.1 implementation + F-04 containment)
 - Complete Real_Policy_Verification_Workflow_Design_20260831.md (P1-4.0 audit + design)
@@ -1775,13 +1786,15 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**NEXT QUEST — P1-4.3: Human Verification Authority Gate**
+**NEXT QUEST — P1-4.4: Source Change Detection & VERIFIED Revocation**
 - **Priority**: MEDIUM-HIGH
-- **Purpose**: Design and implement the minimal interface for a registered human verifier to record a "verified" decision; extend provenance validator to enforce that a "verified" label without a matching human decision event is a governance violation
-- **Scope**: human verifier identity interface + validator extension; NO automatic VERIFIED, NO crawler, NO real data
-- **Guardrails**: VERIFIED grantable ONLY via human authority + recorded decision event; agent remains blocked; MOCK excluded
-- **Dependencies**: P1-4.2 complete (event log wired + content identity)
+- **Purpose**: When a verified source's content_identity changes, automatically downgrade VERIFIED back to CANDIDATE_REVIEW_REQUIRED and flag for re-verification
+- **Scope**: content_identity change detection on evidence update; automatic VERIFIED revocation; re-verification flag; NO crawler, NO real data
+- **Guardrails**: VERIFIED revocation must be automatic on content change; re-verification requires Human Gate again; MOCK excluded
+- **Dependencies**: P1-4.3 complete (Human Gate + content_identity)
 - **Estimated Effort**: Medium
+
+**~~P1-4.3: Human Verification Authority Gate~~ → ✅ COMPLETE (2026-08-31)** — VERIFIED now grantable ONLY through Human Gate, 494 tests, 0 failed
 
 **~~P1-4.2: Verification Event Log Runtime Wiring~~ → ✅ COMPLETE (2026-08-31)** — EventLog wired into verify_evidence, content_identity implemented, 465 tests, 0 failed
 
@@ -1845,7 +1858,7 @@ git log -3 --oneline
 git ls-remote origin master
 python -m pytest tests/ -q
 ```
-- **Expected Output**: Worktree clean, LOCAL HEAD == REMOTE HEAD, 465 passed
+- **Expected Output**: Worktree clean, LOCAL HEAD == REMOTE HEAD, 494 passed
 - **Action Required**: If discrepancies found, record before proceeding
 
 **STEP 3**: Check Project Reality
@@ -1971,7 +1984,7 @@ python -m pytest tests/ -q
 
 **Command**: `python -m pytest tests/ -q --tb=no`
 
-**Result**: `465 passed, 0 failed, 1 warning` (as of 2026-08-31, includes P1-4.2 runtime wiring + content identity + F-04 second-layer safety)
+**Result**: `494 passed, 0 failed, 1 warning` (as of 2026-08-31, includes P1-4.3 Human Verification Authority Gate + P1-4.2 runtime wiring + content identity + P1-4.1 F-04 containment)
 
 **Warning**: StarletteDeprecationWarning (third-party library, not project issue)
 

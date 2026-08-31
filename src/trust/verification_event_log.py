@@ -161,10 +161,11 @@ class VerificationEventLog:
             raise ValueError(
                 "Agent cannot record a 'verified' decision — "
                 "only a human verification authority may do so.")
-        # Safety gate: "verified" requires actor_role == "human"
-        if decision.decision == "verified" and decision.actor_role != "human":
+        # Safety gate: "verified" requires a human authority role
+        if decision.decision == "verified" and decision.actor_role not in HUMAN_AUTHORITY_ROLES:
             raise ValueError(
-                "'verified' decision requires actor_role='human'.")
+                f"'verified' decision requires a human authority role "
+                f"(one of {sorted(HUMAN_AUTHORITY_ROLES)}), got '{decision.actor_role}'.")
 
         # Duplicate event_id check (deterministic replay).
         existing_ids = self._read_event_ids()
@@ -285,3 +286,95 @@ class VerificationStatusAdapter:
     def is_mock(cls, raw_status: Any) -> bool:
         """Check if a raw status normalises to 'mock'. Read-only."""
         return cls.normalise(raw_status) == "mock"
+
+
+# ---------------------------------------------------------------------------
+# Human Verification Authority Gate
+# ---------------------------------------------------------------------------
+
+# Allowlisted human authority roles. Only these roles can record a "verified"
+# decision.  This is an application-level authority boundary, NOT an identity
+# authentication platform.  See P1-4.3 design doc for rationale.
+HUMAN_AUTHORITY_ROLES = frozenset({"human_verifier", "authorized_reviewer"})
+
+
+class HumanVerificationGate:
+    """Minimal, unbypassable gate for granting VERIFIED status.
+
+    VERIFIED can only be granted when ALL of the following are true:
+      1. A human decision event exists in the durable EventLog
+      2. The event's decision == "verified"
+      3. The event's actor_role is in HUMAN_AUTHORITY_ROLES
+      4. The event's content_identity matches the evidence's current identity
+      5. The evidence is NOT MOCK (is_mock orthogonal — Rule E)
+      6. The event has non-empty evidence_refs (verification evidence — Rule B)
+      7. The event's evidence_id matches the target evidence
+
+    If ANY condition fails, VERIFIED is refused.  The gate is read-only
+    with respect to the EventLog — it never mutates events.
+
+    This gate does NOT implement:
+      - user accounts / OAuth / JWT / RBAC backend
+      - email verification
+      - government identity verification
+      - real human login
+    """
+
+    def __init__(self, event_log: VerificationEventLog):
+        self.event_log = event_log
+
+    def can_grant_verified(
+        self,
+        evidence_id: str,
+        expected_content_identity: Optional[str],
+        evidence_is_mock: bool = False,
+    ) -> Dict[str, Any]:
+        """Check whether VERIFIED can be granted for the given evidence.
+
+        Returns {"granted": bool, "reasons": [str], "matching_event": Optional[VerificationDecision]}.
+        Never mutates the evidence, the log, or any event.
+        """
+        reasons: List[str] = []
+        matching_event: Optional[VerificationDecision] = None
+
+        # Rule E: MOCK is orthogonal — can never be VERIFIED
+        if evidence_is_mock:
+            reasons.append("Evidence is MOCK — MOCK can never become VERIFIED (Rule E)")
+
+        # Read events from durable log
+        events = self.event_log.get_events_for_evidence(evidence_id)
+
+        if not events:
+            reasons.append("No verification decision event exists in the durable log (Rule C)")
+        else:
+            # Find a matching "verified" decision by a human authority
+            for evt in events:
+                if evt.decision == "verified" and evt.actor_role in HUMAN_AUTHORITY_ROLES:
+                    matching_event = evt
+                    break
+
+            if matching_event is None:
+                reasons.append(
+                    "No 'verified' decision from a human authority role found "
+                    f"(events exist but none match: roles={[e.actor_role for e in events]}, "
+                    f"decisions={[e.decision for e in events]})")
+
+        # Rule D: content_identity must match
+        if matching_event is not None:
+            if matching_event.content_identity is None:
+                reasons.append("Matching event has no content_identity (Rule B)")
+            elif expected_content_identity is not None:
+                if matching_event.content_identity != expected_content_identity:
+                    reasons.append(
+                        f"Content identity mismatch: event={matching_event.content_identity[:16]}... "
+                        f"vs evidence={expected_content_identity[:16]}... (Rule D)")
+            # Rule B: evidence_refs must be non-empty
+            if not matching_event.evidence_refs:
+                reasons.append("Matching event has no verification evidence references (Rule B)")
+
+        granted = len(reasons) == 0 and matching_event is not None and not evidence_is_mock
+        return {
+            "granted": granted,
+            "reasons": reasons,
+            "matching_event": matching_event,
+        }
