@@ -1859,13 +1859,49 @@ python -m pytest tests/ -q
 
 ---
 
+## 26. Agent Reporting Protocol (Feedback Protocol)
+
+> Established by project lead on 2026-08-31 after P1-3.5 acceptance. MANDATORY for all future quests.
+
+### 26.1 执行过程输出规则
+
+- 不得向用户输出连续的工具调用流水账、内部推理过程、重复的"现在进入 PART X"过程叙述。
+- 不得反复报告已经确认过的中间状态。
+- 用户需要的是"可供验收的证据"，而不是完整执行日志。
+- 除 STOP CONDITION、SCOPE VIOLATION、重大安全问题或与 Quest 目标直接相关的重大异常外，执行过程保持简洁。
+
+### 26.2 Final Acceptance Report 固定结构（Quest 完成后唯一输出）
+
+1. **STATUS** — PASS / PASS WITH FINDINGS / FAIL；Quest 是否完成
+2. **BASELINE** — branch、LOCAL HEAD、REMOTE HEAD、worktree、tests before
+3. **AUDIT FINDINGS** — 实际发现；原设计与 repository reality 的差异；明确区分 AUDIT / DESIGN / IMPLEMENTED / VERIFIED
+4. **IMPLEMENTATION** — 修改文件及各自作用；未修改的受保护区域
+5. **TEST / VERIFICATION** — 新增测试数量；全量测试结果；runtime verification（如适用）；warnings / failures
+6. **SAFETY / GOVERNANCE** — Trust/Provenance 是否修改；MOCK/UNVERIFIED/VERIFIED 是否改变；是否存在 fake claims、silent guessing、hidden fallback、MCP/A2A false claims
+7. **BACKWARD COMPATIBILITY** — legacy behavior 是否保持；API/schema 是否 breaking
+8. **KNOWN FINDINGS / LIMITATIONS** — 已解决 / 未解决 / 不属于本 Quest scope 的问题；严禁为 PASS 隐藏 limitation
+9. **DOCUMENTATION / HANDOVER** — 新增/修改文档；Master Handover 是否更新；是否保持唯一
+10. **GIT** — commit hash；LOCAL == REMOTE；worktree clean；push 是否成功
+11. **NEXT QUEST** — 只提出建议，不自动开始
+
+### 26.3 报告规则
+
+- 不重新叙述执行过程；不输出工具调用日志；不输出内部推理。
+- 不得因测试通过就宣称 VERIFIED；必须依据实际证据区分 AUDIT / DESIGN / IMPLEMENTED / VERIFIED。
+- 不隐藏 Known Findings。
+- 问题已修复：写明"发现 → 修复 → 验证"；问题未修复：写明"发现 → 未修复 → 原因/后续 Quest"。
+- 报告控制在 1000–1500 字；仅存在重大 Findings 时允许更长。
+- 报告会被独立审查者验收：必须事实准确、可核查、避免营销式表述。
+
+---
+
 ## Appendix A: Verification Evidence
 
 ### A.1 Test Evidence
 
 **Command**: `python -m pytest tests/ -q --tb=no`
 
-**Result**: `377 passed, 1 warning` (as of 2026-08-29, includes P1-3.4 runtime integration tests)
+**Result**: `406 passed, 0 failed, 1 warning` (as of 2026-08-30, includes P1-3.4 runtime integration tests + 29 P1-3.5 Evidence Graph taxonomy tests)
 
 **Warning**: StarletteDeprecationWarning (third-party library, not project issue)
 
