@@ -1639,17 +1639,31 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-4.6 — Persistent / Config-Driven Human Authority Registry**
+**Current Quest**: **P1-5.1 — README Public Product Reset**
 
 **Status**: ✅ **COMPLETE — VERDICT: PASS** (2026-09-01)
 
 **Completion Date**: 2026-09-01
 
-**Previous Quest**: P1-4.5 — Human Verification Authority Registry & Identity Binding ✅ COMPLETE (2026-09-01)
+**Previous Quest**: P1-5 Phase 0 — Public Product DX Audit ✅ COMPLETE (2026-09-01)
 
-**Quest Before**: P1-4.4 — Source Change Detection & VERIFIED Revocation ✅ COMPLETE (2026-09-01)
+**Quest Before**: P1-4.6 — Persistent / Config-Driven Human Authority Registry ✅ COMPLETE (2026-09-01)
 
 ### 23.2 Quest Achievement Summary
+
+**P1-5.1 README Public Product Reset Results (DOCUMENTATION ONLY — No production code changed)**:
+- ✅ README rewritten from 557 lines (internally-focused, old protocol layer marketing) to ~325 lines (public-product-grade)
+- ✅ One-sentence product definition on first screen: "An open protocol and evidence infrastructure for trustworthy hard-tech investment intelligence."
+- ✅ P1-4.x verification chain (611 tests, fail-closed gate, authority registry, revocation) surfaced in README for the first time
+- ✅ Architecture diagram showing Evidence → Graph → Verification → Human Gate → VERIFIED → Change Detection → Revocation
+- ✅ Status matrix (22 capabilities: Implemented / Prototype / Not Implemented) — honest boundaries
+- ✅ Quick Start pivoted to `trust_pipeline_demo.py` as primary demo entry (demo bug documented, not fixed — out of scope)
+- ✅ Test count updated: 68 → 611 (stale by 543 tests before)
+- ✅ Documentation navigation: Start Here / Architecture / Verification / Governance / Development / Audit
+- ✅ "The USB-C for DeepTech" preserved as strategic vision (not current capability) — vision test compliance
+- ✅ "OpenInvest is currently an experimental framework" preserved — vision test compliance
+- ✅ No fake claims: no production-grade, no government data, no MCP/A2A, no authentication
+- ✅ Test count: 611 passed, 0 failed (unchanged — README-only change)
 
 **P1-4.6 Persistent / Config-Driven Human Authority Registry Results (IMPLEMENTED + VERIFIED)**:
 - ✅ NEW `HumanVerificationAuthorityRegistry.from_config()` classmethod — loads registry from JSON config file; fail-closed on missing file, malformed JSON, missing keys, invalid entries, duplicate verifier_ids
@@ -1831,13 +1845,14 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**NEXT QUEST — P1-4.7: TBD** (awaiting user directive)
+**NEXT QUEST — P1-5.2: Quick Start Rewrite** (awaiting user directive)
 - **Priority**: TBD
-- **Purpose**: TBD
-- **Dependencies**: P1-4.6 complete (Persistent / Config-Driven Human Authority Registry)
-- **Known deferred items from P1-4.6**: Config read once (no hot-reload); no config file watching; no multi-file config merge; verifier_id still application-level string (no cryptographic identity binding)
-- **Known deferred items from P1-4.5**: No registry admin UI; no role hierarchy (flat allowlist)
-- **Known deferred items from P1-4.4**: EventLog still optional; content_identity covers EvidenceObject fields only (no deep content hashing); no automatic change polling/scheduler
+- **Purpose**: P1-5 audit recommended pivoting Quick Start to show verification gate in action (create evidence → human verification → gate decision → content change → revocation)
+- **Dependencies**: P1-5.1 complete (README Public Product Reset)
+- **Known deferred items from P1-5.1**: `trust_pipeline_demo.py` has a NameError bug (step1_create_evidence_objects vs step1_create_evidence_object) — needs fix before P1-5.2 can make demo the primary Quick Start
+- **Known deferred items from P1-4.6**: Config read once (no hot-reload); no config file watching; verifier_id still application-level string
+
+**~~P1-5.1: README Public Product Reset~~ → ✅ COMPLETE (2026-09-01)** — README rewritten public-product-grade; verification chain surfaced; test count 68→611; status matrix; architecture diagram; docs nav, 611 tests, 0 failed
 
 **~~P1-4.6: Persistent / Config-Driven Human Authority Registry~~ → ✅ COMPLETE (2026-09-01)** — Registry now loadable from JSON config; fail-closed on all error paths; no silent fallback, 611 tests, 0 failed
 

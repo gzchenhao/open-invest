@@ -1,558 +1,324 @@
-# Open Invest Protocol
+# OpenInvest
 
-<div align="center">
+**An open protocol and evidence infrastructure for trustworthy hard-tech investment intelligence.**
 
-![Open Invest Protocol](https://img.shields.io/badge/Open-Invest-Protocol-blue?style=for-the-badge&logo=github)
-![Version](https://img.shields.io/badge/version-3.1.0-gold?style=for-the-badge)
-![License](https://img.shields.io/badge/license-MIT-orange?style=for-the-badge)
-![Build](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)
-![Contributors](https://img.shields.io/badge/contributors-wanted-red?style=for-the-badge)
+OpenInvest provides a deterministic evidence layer, provenance tracking, and a fail-closed verification boundary for policy and investment intelligence. OpenInvest is currently an experimental framework — not a production system, not a government data source, and not an identity authentication platform.
 
-**The Open Framework for Borderless High-Tech Investment & Cross-Border Compliance**  
-*Experimental Framework • Zero Data Leakage Prototype • Agent-to-Agent (A2A) Planned*
+**Strategic vision:** "The USB-C for DeepTech" — a future trust layer for DeepTech agent interoperability. This is a vision, not a current capability.
 
-[📖 Docs](docs/API.md) • [🚀 Quick Start](#-quick-start) • [🧪 Tests](#-testing) • [📡 API](docs/API.md) • [🤝 Contribute](CONTRIBUTING.md) • [🌍 Join Us](#-join-the-revolution)
-
-</div>
+[Quick Start](#quick-start) · [Architecture](#architecture) · [Status Matrix](#status-matrix) · [Tests](#testing) · [Docs](#documentation)
 
 ---
 
-## 🚀 The Open Protocol for Borderless DeepTech Investment
+## Why OpenInvest?
 
-**Open Invest Protocol** is the open-source protocol for borderless DeepTech investment and alignment, connecting High-Tech Innovators (Server) with Global Capital & Government Ecosystems (Client).
+Hard-tech investment intelligence suffers from four problems:
 
-Like USB-C unified device connectivity and TCP/IP unified network communication, **Open Invest Protocol is an experimental data exchange framework** between DeepTech projects and global governments, aiming to make cross-border investment promotion more transparent, efficient, and secure.
+1. **Scattered sources** — policies, incentives, and compliance requirements live in isolated, heterogeneous systems.
+2. **Untraceable evidence** — investment claims rarely carry verifiable provenance.
+3. **Label-vs-status confusion** — a "government" source label is often mistaken for "verified," inflating trust.
+4. **No machine-readable trust boundary** — AI agents cannot distinguish evidence that a human has verified from evidence that merely exists.
 
-### 🎯 Strategic Vision
+OpenInvest addresses this with an **evidence + provenance + verification** architecture where:
 
-**OpenInvest aims to become:**
-
-"The USB-C for DeepTech"
-
-## 🎯 Strategic Direction
-
-OpenInvest aims to become:
-"The USB-C for DeepTech"
-by providing a future trust layer
-for DeepTech agent interoperability.
-Current status:
-OpenInvest is currently an experimental framework.
-
-### 🏗️ Current Status
-
-**OpenInvest is currently an experimental framework.**
-
-This sentence must exist exactly.
+- An **agent** may propose evidence.
+- A **human authority** may verify evidence.
+- The **system** may revoke verification when content changes.
+- **No automated path** may restore VERIFIED status.
 
 ---
 
-### 🎯 Core Value Proposition
-
-- **🔌 Experimental Framework**: Experimental framework connecting AI, robotics, quantum computing, and biotech projects with global governments
-- **🔒 Zero Data Leakage** *(PROTOTYPE)*: Built-in data anonymization utilities (`client/hooks/ai_agent_direct_apply.py::SecurityGateway`) — functional demo, not audited for production
-- **🤖 Agent-to-Agent (A2A)** *(PLANNED)*: Multi-agent protocols (MCP/A2A) are a roadmap item; no MCP/A2A implementation exists in this repository yet
-- **🌐 Borderless Compliance** *(PROTOTYPE)*: Structured policy intelligence — current seed coverage: 12 policy records across 10 regions (China-focused); global expansion is a target, not a verified fact
-- **⚡ FastAPI-Powered** *(UNVERIFIED)*: Built on FastAPI. Performance targets (10,000+ concurrent queries, sub-100ms response) are benchmark goals; no load-test evidence exists yet
-- **🎯 Data-Led Growth**: Global policy intelligence engine serving as bait pool to attract global DeepTech projects
-
-> **Reality Status Legend** (used throughout this README):  
-> **IMPLEMENTED** = code exists with runnable tests/verification • **PARTIALLY IMPLEMENTED** = code exists with notable gaps • **SCAFFOLDED** = structure/interfaces only • **PROTOTYPE** = runnable demo, not production-grade • **PLANNED** = design/roadmap only • **UNVERIFIED** = code may exist but correctness/performance lacks evidence
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Python 3.8+
-- pip or conda
-- Docker (optional for production)
-
-### 1. Clone & Install
+## What Can I Run Today?
 
 ```bash
 git clone https://github.com/gzchenhao/open-invest.git
-cd open-invest
+cd open-invest/open-invest-protocol
+pip install -r requirements.txt
+python -m pytest tests/ -q          # 611 tests, 0 failed
+python examples/trust_pipeline_demo.py   # see the evidence pipeline (note: demo has a known bug, see below)
+```
+
+The demo walks through: Evidence Object → Provenance Chain → Trust Score → Evidence Graph. All demo data is **MOCK** — no real government data is included.
+
+> **Known demo bug:** `trust_pipeline_demo.py` currently fails with `NameError: name 'step1_create_evidence_objects' is not defined` (function defined as `step1_create_evidence_object`). This is a demo-only bug; production code and tests are unaffected. Fixing it is out of scope for this README-only Quest.
+
+---
+
+## Quick Start
+
+### 1. Install
+
+```bash
+git clone https://github.com/gzchenhao/open-invest.git
+cd open-invest/open-invest-protocol
 pip install -r requirements.txt
 ```
 
-### 2. Start Server
+### 2. Run the Test Suite
+
+```bash
+python -m pytest tests/ -q
+```
+
+**Expected:** `611 passed, 0 failed` — the test suite covers the JSON-RPC server, client, integration, canonical taxonomy, evidence graph, provenance, trust score, verification event log, human verification gate, content identity, revocation, and authority registry.
+
+### 3. Run the Trust Pipeline Demo
+
+```bash
+python examples/trust_pipeline_demo.py
+```
+
+**What it shows:**
+- Creates Evidence Objects from MOCK policy/company/evidence data
+- Builds Provenance Chains for each evidence
+- Calculates Trust Scores
+- Builds an Evidence Graph with typed relations
+
+**What is MOCK:** All data in `examples/trust_demo/` is mock. No real government data exists in this repository. The demo does **not** demonstrate the VERIFIED gate (see [Verification System](#verification-system) below).
+
+### 4. Start the JSON-RPC Protocol Server (Advanced)
 
 ```bash
 cd server
 python main.py
 ```
 
-Server starts at `http://localhost:8000` with comprehensive API documentation.
+Server starts at `http://localhost:8000` with a JSON-RPC 2.0 `/rpc` endpoint. Returns mock policy data — this is the original protocol layer, not the trust/verification system.
 
-### 3. Run Client
+---
 
-```bash
-cd client
-python main.py
+## Architecture
+
+```
+  Policy / Evidence Sources (mock/sample data)
+              │
+              ▼
+     ┌────────────────────┐
+     │   Evidence Layer    │   EvidenceObject · ProvenanceChain · TrustScore
+     └────────┬───────────┘
+              │
+              ▼
+     ┌────────────────────┐
+     │   Evidence Graph    │   Typed nodes + relations (Policy, Company, Evidence)
+     └────────┬───────────┘
+              │
+              ▼
+     ┌────────────────────┐
+     │ Verification Layer  │   Durable Event Log (append-only JSONL)
+     │                      │   Content Identity (SHA-256 of canonical content)
+     └────────┬───────────┘
+              │
+              ▼
+     ┌────────────────────┐
+     │ Human Authority Gate│   10 conditions — fail-closed
+     │                      │   Authority Registry (config-driven, allowlist)
+     └────────┬───────────┘
+              │
+         VERIFIED (or UNVERIFIED)
+              │
+              ▼
+     ┌────────────────────┐
+     │  Change Detection   │   Content change → automatic revocation
+     │                      │   Re-verification requires new human decision
+     └────────────────────┘
 ```
 
-Client connects to server and generates global investment matching reports.
+### Key Design Principle: Fail-Closed
 
-### 4. Test Everything
+```
+Unknown verifier    → denied (never assumed human)
+No registry         → VERIFIED never granted
+Inactive verifier   → denied
+Role mismatch       → denied
+MOCK evidence       → can never become VERIFIED
+Content changed     → VERIFIED revoked, no auto-restore
+```
+
+The Authority Registry is **application-level authorization**, not real-world identity authentication. No login, OAuth, SSO, or cryptographic identity proof exists in this repository.
+
+---
+
+## Verification System
+
+The verification system (P1-4.1 → P1-4.6) is the core technical asset of OpenInvest. It is **implemented and tested** (611 tests), but operates on mock/sample data only.
+
+| Component | What It Does |
+|-----------|-------------|
+| **Durable Event Log** | Append-only JSONL log of all verification decisions. Never mutated, never deleted. |
+| **Content Identity** | SHA-256 of canonical evidence fields. Detects when verified content has changed. |
+| **Human Verification Gate** | 10-condition gate. VERIFIED requires a registered, active human authority + matching content identity + non-MOCK evidence + non-empty evidence refs. |
+| **Authority Registry** | Config-driven allowlist of authorized verifiers. Loaded from JSON, fail-closed on all errors. |
+| **Automatic Revocation** | When content identity changes, VERIFIED is automatically revoked. A new human decision is required to re-verify. |
+| **MOCK / UNVERIFIED / VERIFIED** | Three explicit statuses. MOCK can never become VERIFIED. VERIFIED requires human authority. UNVERIFIED is the default. |
+
+### VERIFIED Gate Conditions (10)
+
+VERIFIED is granted only when ALL of the following are true:
+
+1. A human decision event exists in the durable log
+2. The event's decision is `"verified"`
+3. The event's `actor_role` is in `{human_verifier, authorized_reviewer}`
+4. The event's `content_identity` matches the evidence's current identity
+5. The evidence is **not** MOCK
+6. The event has non-empty `evidence_refs`
+7. The event's `evidence_id` matches the target
+8. An Authority Registry is configured
+9. The verifier_id is registered **and** active
+10. The registered role matches the event's `actor_role`
+
+If any condition fails, VERIFIED is refused.
+
+---
+
+## Status Matrix
+
+| Capability | Status |
+|------------|--------|
+| JSON-RPC 2.0 Protocol Server | Implemented |
+| Client CLI | Implemented |
+| Canonical Taxonomy | Implemented |
+| Evidence Object + Evidence Graph | Implemented |
+| Provenance Chain | Implemented |
+| Trust Score Calculator | Implemented |
+| Durable Verification Event Log | Implemented |
+| Content Identity (SHA-256) | Implemented |
+| Human Verification Authority Gate | Implemented |
+| Human Authority Registry | Implemented |
+| Config-driven Registry Loading | Implemented |
+| Content-change Revocation | Implemented |
+| Trust Pipeline Demo | Prototype (has known bug) |
+| Policy Crawlers | Prototype (mock/sample data) |
+| Web Portal (port 8017) | Prototype (mock policy search) |
+| Real-world Identity Authentication | Not Implemented |
+| Real Government Data | Not Implemented |
+| MCP (Model Context Protocol) | Not Implemented |
+| A2A (Agent-to-Agent) | Not Implemented |
+| Database Persistence | Not Implemented |
+| OAuth / SSO / MFA | Not Implemented |
+| Production Deployment | Not Implemented |
+
+**Honest boundaries are part of OpenInvest's credibility.** This matrix reflects the repository's actual state, not aspirations.
+
+---
+
+## Testing
 
 ```bash
-# Run all tests (regression gate — minimum verification command)
+# Full regression suite
 python -m pytest tests/ -q
 
-# Run specific test suites
-python -m pytest tests/server/test_server.py -q
-python -m pytest tests/client/test_client.py -q
-python -m pytest tests/integration/test_integration.py -q
+# Specific subsystems
+python -m pytest tests/test_verification_infrastructure.py -q   # event log
+python -m pytest tests/test_human_verification_gate.py -q       # human gate
+python -m pytest tests/test_authority_registry.py -q            # authority registry
+python -m pytest tests/test_authority_registry_config.py -q     # config loading
+python -m pytest tests/test_source_change_revocation.py -q      # revocation
+python -m pytest tests/server/test_server.py -q                 # JSON-RPC server
+python -m pytest tests/client/test_client.py -q                 # client
+python -m pytest tests/integration/test_integration.py -q       # integration
 ```
+
+**Current result:** 611 passed, 0 failed.
+
+Test coverage spans: JSON-RPC server endpoints, client logic, end-to-end integration, canonical taxonomy, evidence graph, provenance, trust score, verification event log, human verification gate, authority registry, config-driven registry loading, content-change revocation, architecture invariants, and UI mock disclosure.
 
 ---
 
-## 🛠️ Core Protocol Features
+## Documentation
 
-### 🔧 JSON-RPC 2.0 Interface
+### Start Here
+- [OpenInvest Core Thesis](docs/OpenInvest_Core_Thesis.md) — why this project exists
+- [OpenInvest Trust Architecture](docs/OpenInvest_Trust_Architecture.md) — how the trust layer works
+- [OpenInvest Trust Object Model](docs/OpenInvest_Trust_Object_Model.md) — evidence/provenance/verification model
 
-Experimental framework defining three core tools:
+### Architecture
+- [Evidence Graph Prototype](docs/Evidence_Graph_Prototype.md) — graph design
+- [Evidence Graph + Taxonomy Integration](docs/Evidence_Graph_Taxonomy_Integration_20260830.md) — graph + taxonomy
+- [Trust Score Framework](docs/Trust_Score_Framework.md) — scoring model
+- [Trust Evidence API](docs/Trust_Evidence_API.md) — API reference
 
-#### 1. get_tech_readiness
-Retrieve project technology readiness level
+### Verification & Trust
+- [Human Verification Authority Gate](docs/Human_Verification_Authority_Gate_20260831.md) — P1-4.3 gate design
+- [Human Verification Authority Registry](docs/Human_Verification_Authority_Registry_20260901.md) — P1-4.5 registry
+- [Config-driven Registry](docs/Human_Verification_Authority_Registry_Config_20260901.md) — P1-4.6 config loading
+- [Source Change Detection & Revocation](docs/Source_Change_Detection_VERIFIED_Revocation_20260901.md) — P1-4.4 revocation
+- [Durable Event Log](docs/Real_Policy_Verification_Durable_Event_Log_20260831.md) — P1-4.1 event log
+- [Runtime Wiring](docs/Real_Policy_Verification_Runtime_Wiring_20260831.md) — P1-4.2 wiring
 
-```json
-{
-  "jsonrpc": "2.0",
-  "method": "get_tech_readiness",
-  "params": {
-    "project_id": "ai-auto-pilot-2024",
-    "industry": "autonomous_driving",
-    "trl_level": "prototype"
-  },
-  "id": "req-001"
-}
-```
+### Governance / Security
+- [Policy Data Governance](docs/Policy_Data_Governance.md) — data governance rules
+- [Public Repository Safety Status](docs/Public_Repository_Final_Safety_Status.md) — safety audit
+- [MCP / A2A Future Architecture](docs/MCP_A2A_Future_Architecture.md) — future (not implemented)
 
-#### 2. get_landing_requirements
-Get global landing requirements and incentives
+### Development
+- [API Specification](docs/API.md) — endpoint reference
+- [Contributing Guide](CONTRIBUTING.md) — how to contribute
 
-```json
-{
-  "jsonrpc": "2.0",
-  "method": "get_landing_requirements",
-  "params": {
-    "location": "Shanghai",
-    "industry": "quantum_computing",
-    "project_scale": "large",
-    "incentive_types": ["tax_break", "subsidy", "land_grant"]
-  },
-  "id": "req-002"
-}
-```
-
-#### 3. get_economic_and_compliance
-Access economic compliance and risk assessment
-
-```json
-{
-  "jsonrpc": "2.0",
-  "method": "get_economic_and_compliance",
-  "params": {
-    "project_id": "ai-auto-pilot-2024",
-    "region": "Shanghai",
-    "compliance_level": "enhanced",
-    "export_controls": true
-  },
-  "id": "req-003"
-}
-```
-
-### 🔒 Multi-Tier Data Protection *(PARTIALLY IMPLEMENTED)*
-
-Tiered CORS access control is implemented in `server/main.py` (public/gov/partner/internal tiers). Full authentication and authorization enforcement is **not yet implemented**:
-
-- **public_client**: Public policy data only
-- **gov_client**: Internal government data access
-- **partner_client**: Confidential project data access
-- **internal_client**: Full system access
-
-### 🌍 Global Policy Intelligence
-
-Structured policy intelligence — current seed coverage: **12 policy records across 10 regions** (China high-tech zones; global expansion is PLANNED):
-
-- **Tax Incentives**: R&D tax credits, corporate tax breaks
-- **Subsidies**: Computing power subsidies, factory rent reductions
-- **Landing Requirements**: R&D staff ratios, patent requirements
-- **Compliance Standards**: Export controls, data localization laws
+### Audit & Historical
+- [Public Product DX Audit](docs/Public_Product_DX_Audit_20260901.md) — P1-5 audit
+- [Canonical Taxonomy Registry](docs/Canonical_Taxonomy_Registry_Implementation_20260826.md) — taxonomy implementation
+- [Canonical Taxonomy Integration](docs/Canonical_Taxonomy_Integration_20260827.md) — taxonomy integration
 
 ---
 
-## 🏗️ Architecture Overview
+## Project Structure
 
 ```
-┌─────────────────────────┐    ┌─────────────────────────┐    ┌─────────────────────────┐
-│   DeepTech Innovators  │    │   Open Invest Protocol   │    │   Global Capital &     │
-│       (Server)         │◄──►│     (Protocol Layer)    │◄──►│   Government Ecosystems │
-│                       │    │                       │    │       (Client)          │
-│ • AI/ML Startups       │    │                       │    │                       │
-│ • Robotics Companies   │    │ • Protocol Specification│    │ • Investment Agencies  │
-│ • Quantum Computing    │    │ • Data Protection      │    │ • Government Bodies    │
-│ • Biotech Firms       │    │ • Policy Intelligence  │    │ • Special Economic     │
-└─────────────────────────┘    │ • A2A Agent Interface   │    │   Zones               │
-                                │        (PLANNED)        │    └─────────────────────────┘
-                                └─────────────────────────┘
-                                       ▲       ▲       ▲
-                                       │       │       │
-                               ┌───────┴───────┴───────┴───────┐
-                               │   Policy Crawler Engine        │
-                               │   (Data-Led Growth Bait Pool)  │
-                               └─────────────────────────────────┘
-```
-
----
-
-## 📁 Project Structure
-
-```
-open-invest/
-├── schema/                       # Protocol Specification Layer
-│   ├── api-spec.json             # OpenAPI 3.0 Specification
-│   └── types.py                  # Pydantic Protocol Types (JSON-RPC models)
-├── server/                       # Server Implementation (IMPLEMENTED, 25 endpoint tests)
-│   ├── main.py                   # FastAPI entry, JSON-RPC 2.0 `/rpc` endpoint, tiered CORS
-│   ├── config/
-│   │   └── config.py
-│   └── services/                 # Business Logic
-│       ├── tech_readiness_service.py
-│       ├── landing_requirements_service.py
-│       ├── economic_compliance_service.py
-│       ├── data_protection.py
-│       └── data_storage.py
-├── client/                       # Client Implementation (IMPLEMENTED, 17 tests)
-│   ├── main.py                   # CLI client: investment matching report
-│   ├── api/
-│   │   └── protocol_client.py
-│   ├── utils/
-│   │   └── project_evaluator.py
-│   └── hooks/
-│       └── ai_agent_direct_apply.py  # SecurityGateway anonymization prototype
-├── policy_crawler/               # Original Policy Crawler Engine (PROTOTYPE)
-│   ├── crawlers/                 # china / eu / silicon_valley / singapore
-│   ├── processors/               # policy_cleaner / data_structurer / intelligence_aggregator
-│   ├── schemas/                  # policy_schema.json + domain schemas
-│   └── data/                     # raw_policies/ + structured_policies/ (mock/sample data)
-├── global_policy_aggregator/     # China Policy Intelligence Engine (PROTOTYPE)
-│   ├── crawlers/                 # 5 China-focused crawlers + crawler engine
-│   ├── processors/
-│   │   └── policy_cleaner.py
-│   ├── schemas/                  # incl. deeptech_policy_schema.json
-│   ├── web/
-│   │   └── interactive_ai_server.py  # FastAPI Web Portal + PDF generation
-│   ├── data/                     # raw_policies/ + seed_data/ + structured_policies/
-│   ├── services/  agents/  scripts/  cleaned_data/
-│   └── test_api.ps1              # PowerShell API test script
-├── tests/                        # Test Suite (68 tests, regression gate)
-│   ├── server/                   # Server endpoint tests
-│   ├── client/                   # Client logic tests
-│   └── integration/              # End-to-end server+client tests
+open-invest-protocol/
+├── src/trust/                    # Trust & Verification System (Implemented)
+│   ├── verification_event_log.py #   Event log + Human gate + Authority registry
+│   ├── trust_service.py          #   Service boundary
+│   ├── evidence_object.py        #   Evidence model
+│   ├── evidence_graph.py         #   Evidence graph
+│   ├── provenance.py             #   Provenance chain
+│   ├── trust_score.py            #   Trust score calculator
+│   └── graph_query_engine.py     #   Graph queries
+├── server/                       # JSON-RPC Protocol Server (Implemented)
+│   ├── main.py                   #   FastAPI + JSON-RPC 2.0 /rpc endpoint
+│   └── services/                 #   Business logic
+├── client/                       # Client CLI (Implemented)
+├── schema/                       # Protocol types + canonical taxonomy
+├── examples/                     # Demos
+│   ├── trust_pipeline_demo.py    #   Trust pipeline demo (prototype, has bug)
+│   └── trust_demo/               #   Mock demo data
+├── tests/                        # 611 tests, 0 failed
 ├── docs/                         # Documentation
-│   ├── API.md                    # API Documentation
-│   └── examples/                 # Example scripts (basic_usage, ai_agent_direct_apply, ...)
-├── marketing/                    # Marketing & Launch Kit
-├── requirements.txt              # Python Dependencies
-├── pytest.ini                    # Test Configuration (regression gate)
-├── Qoder_Technical_Handover_20260824.md  # AI Handover Constitution (read this first)
-└── README.md                     # Project Documentation
-```
-
-**Planned (not yet in repository)**: `a2a_protocol_handler.py` (MCP/A2A), `policy_intelligence_service.py`, `policy_matcher.py`, `tests/policy/`, `tests/performance/`, `docker-compose.yml` — see the Roadmap in the Handover Constitution.
-
----
-
-## 🧪 Testing
-
-Regression gate for every change (minimum verification command):
-
-```bash
-# Regression gate — must pass before any further development
-python -m pytest tests/ -q
-
-# Collection check only
-python -m pytest tests/ --collect-only -q
-
-# Coverage report (requires pytest-cov)
-python -m pytest tests/ --cov=. --cov-report=term -q
-```
-
-### Current Test Reality (verified 2026-08-24)
-
-- ✅ Server API endpoints — 25 tests
-- ✅ Client functionality — 17 tests
-- ✅ End-to-end integration (real server + client) — 26 tests
-- ✅ Data anonymization (`SecurityGateway`) — covered by client tests
-- ⬜ A2A protocol interfaces — PLANNED (no implementation, no tests)
-- ⬜ Performance benchmarks — PLANNED (no load tests)
-- ⬜ Security penetration tests — PLANNED (no security test suite)
-
-**Current result**: 68 passed, 0 failed • **Coverage**: 67% TOTAL (2114 statements)
-
----
-
-## 🌍 Global Policy Intelligence Engine
-
-### Policy Data Schema Design
-
-```json
-{
-  "policy_schema": {
-    "incentives": {
-      "tax_breaks": {
-        "description": "Corporate tax incentives for R&D",
-        "schema": {
-          "rate_reduction": "float",
-          "duration_years": "int",
-          "eligibility_criteria": "string[]"
-        }
-      },
-      "subsidies": {
-        "description": "Direct financial subsidies",
-        "schema": {
-          "amount_usd": "float",
-          "purpose": "string",
-          "application_deadline": "date"
-        }
-      }
-    },
-    "requirements": {
-      "staffing": {
-        "min_researchers": "int",
-        "phd_percentage": "float",
-        "experience_years": "int"
-      },
-      "intellectual_property": {
-        "patent_count": "int",
-        "trademarks": "int",
-        "copyrights": "int"
-      }
-    },
-    "compliance": {
-      "data_localization": "boolean",
-      "export_controls": "boolean",
-      "security_clearance": "string"
-    }
-  }
-}
-```
-
-### Mock Policy Database & Cleaning Service
-
-```python
-# global_policy_aggregator/processors/policy_cleaner.py
-class PolicyCleaner:
-    """Clean and structure global policy data"""
-    
-    def clean_policy_text(self, raw_policy_text: str) -> StructuredPolicy:
-        """Convert raw policy text to structured format"""
-        # 1. Extract key information using NLP
-        incentives = self._extract_incentives(raw_policy_text)
-        requirements = self._extract_requirements(raw_policy_text)
-        compliance = self._extract_compliance(raw_policy_text)
-        
-        # 2. Validate against schema
-        validated_policy = self._validate_policy_schema({
-            "incentives": incentives,
-            "requirements": requirements,
-            "compliance": compliance
-        })
-        
-        # 3. Enrich with metadata
-        enriched_policy = self._enrich_policy_metadata(validated_policy)
-        
-        return enriched_policy
+├── policy_crawler/               # Policy crawlers (prototype, mock data)
+├── global_policy_aggregator/     # China policy intelligence (prototype)
+└── requirements.txt
 ```
 
 ---
 
-## 🤖 AI Agent Direct Apply Integration
+## Contributing
 
-### Integration Hook Example
+We welcome contributions. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
-```python
-# client/hooks/ai_agent_direct_apply.py
-class AIAgentDirectApply:
-    """AI Agent Direct Apply integration hook"""
-    
-    def __init__(self, protocol_client: ProtocolClient):
-        self.client = protocol_client
-        self.security_gateway = SecurityGateway()
-    
-    async def direct_apply(self, project_id: str, policy_id: str) -> ApplyResult:
-        """
-        Trigger direct application through secure gateway
-        """
-        # 1. Retrieve project data (anonymized)
-        project_data = await self.client.get_tech_readiness(project_id)
-        
-        # 2. Retrieve target policy
-        policy_data = await self.client.get_landing_requirements(
-            location=policy_id,
-            industry=project_data["industry"]
-        )
-        
-        # 3. Apply data anonymization
-        anonymized_data = self.security_gateway.anonymize(project_data)
-        
-        # 4. Secure transmission to target client
-        apply_result = await self.security_gateway.transmit(
-            source_data=anonymized_data,
-            target_policy=policy_data,
-            encryption_level="enhanced"
-        )
-        
-        return apply_result
-```
+**Good first contributions:**
+- Documentation improvements
+- Test coverage expansion
+- Demo fixes (e.g., the `trust_pipeline_demo.py` bug)
+- Example scripts
 
-### Usage Example
-
-```python
-# docs/examples/ai_agent_direct_apply.py
-from client.api.protocol_client import ProtocolClient
-from client.hooks.ai_agent_direct_apply import AIAgentDirectApply
-
-# Initialize client
-client = ProtocolClient("https://api.open-invest.org")
-direct_apply = AIAgentDirectApply(client)
-
-# Browse policies and trigger direct apply
-policy_id = "shanghai-quantum-hub-2024"
-project_id = "quantum-encryption-startup-2024"
-
-result = await direct_apply.direct_apply(project_id, policy_id)
-
-print(f"Application Status: {result.status}")
-print(f"Match Score: {result.match_score}")
-print(f"Next Steps: {result.next_steps}")
-```
+**Do not contribute:**
+- Changes to verification semantics without discussion
+- Fake government data or fake verification claims
+- Production deployment claims without evidence
 
 ---
 
-## 🌐 Web Interface & Policy Intelligence Portal
+## License
 
-### Interactive Policy Query System
-
-Access the web-based policy intelligence portal at `http://localhost:8017` (after starting the server):
-
-```bash
-cd global_policy_aggregator/web
-python interactive_ai_server.py
-```
-
-**Features**:
-- 🔍 **Smart Search**: Full-text search across policy titles, regions, industries, and descriptions
-- 🏷️ **Region Filter**: Filter policies by high-tech zones (Beijing Zhongguancun, Shanghai Zhangjiang, Shenzhen High-Tech Park, etc.)
-- 📄 **PDF Download**: Download structured policy documents with official contact information
-- 📞 **Contact Information**: Every policy card displays sample contact details (department, phone, email, address) - *Note: All contact information is for demonstration purposes only*
-- 🎯 **Policy Claim System**: Government bodies can claim and maintain their policy listings
-- 📊 **12 Pre-loaded Policy Records**: Seed data from 10 major Chinese high-tech zones (mock/seed data, marked in code)
-
-### API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/stats` | GET | Get system statistics (total policies, regions, industries) |
-| `/api/search` | POST | Search policies with JSON body `{"keywords": "AI", "limit": 10}` |
-| `/api/policy/{id}/pdf` | GET | Download policy document as PDF |
-
-### Testing the API
-
-```powershell
-# Run the test suite
-cd global_policy_aggregator
-powershell -ExecutionPolicy Bypass -File test_api.ps1
-
-# Or test manually
-Invoke-RestMethod -Uri 'http://localhost:8017/api/stats' -Method GET
-```
-
----
-
-## 🚀 Join the Revolution
-
-🔧 **Explore the Open Invest Protocol Framework** 🔧
-
-**Version 3.1.0 Prototype with Web Portal & PDF Generation** (built on Python/FastAPI with experimental CORS gateway + Global Policy Intelligence Engine + Interactive Web Interface) - **We welcome developers, AI researchers, and policy technologists!** 
-
-This project has released its 3.1 **experimental prototype** (built on Python/FastAPI with experimental CORS gateway, interactive web portal, and PDF policy document generation; complete security/auth layer and MCP/A2A features remain PLANNED). We welcome collaboration from developers working on embodied AI, government-facing large models, and multi-agent protocols (MCP/A2A) to explore open frameworks for high-tech industrial investment!
-
-**Let's explore the future of intelligent cross-border collaboration through experimentation.** 🤖🌐🔧
-
----
-
-## 📡 API Documentation
-
-- [OpenAPI 3.0 Specification](schema/api-spec.json)
-- [Protocol Types](schema/types.py)
-- [Policy Intelligence Schema](global_policy_aggregator/schemas/deeptech_policy_schema.json)
-
-## 🤝 Contributing
-
-We welcome all forms of contribution! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-### Development Workflow
-
-1. Fork the project
-2. Create feature branch (`git checkout -b feature/global-compliance`)
-3. Commit changes (`git commit -m 'feat: add EU compliance standards'`)
-4. Push to branch (`git push origin feature/global-compliance`)
-5. Create Pull Request
-
-### Code Standards
-
-- Follow PEP 8 guidelines
-- Write comprehensive tests
-- Update documentation
-- Ensure all tests pass
-- Run security checks
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-Thank you to all contributors and organizations supporting the Open Invest Protocol initiative.
-
-## 👥 Contributors
-
-Thanks to all the amazing people who have contributed to this project:
-
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/gzchenhao">
-        <img src="https://github.com/gzchenhao.png?size=100" width="100px;" alt="gzchenhao"/>
-        <br />
-        <sub><b>gzchenhao</b></sub>
-      </a>
-      <br />
-      <sub>Project Lead & Core Developer</sub>
-    </td>
-  </tr>
-</table>
-
-*Want to contribute? Check out our [contributing guidelines](CONTRIBUTING.md) and join the revolution!*
-
-## 📞 Contact Us
-
-- Project Homepage: https://github.com/gzchenhao/open-invest
-- Issues: https://github.com/gzchenhao/open-invest/issues
-- Email: contact@open-invest.org
-- Discord: [Join our community](https://discord.gg/open-invest)
+MIT License — see [LICENSE](LICENSE).
 
 ---
 
 <div align="center">
 
-**Exploring Borderless DeepTech Investment Frameworks**  
-*Experimental Framework for High-Tech Innovation Research*
+**OpenInvest** — Evidence infrastructure for trustworthy hard-tech investment intelligence.
 
-⭐ If this project contributes to DeepTech innovation research, consider giving us a star!
+Experimental framework · 611 tests · No real government data · No identity authentication
+
+⭐ If this project's technical direction is interesting, consider giving it a star.
 
 </div>
