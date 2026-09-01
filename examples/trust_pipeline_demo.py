@@ -1,286 +1,368 @@
 """
-Trust Pipeline Demo
+OpenInvest Trust Verification Showcase Demo
 
-Demonstrates the complete trust pipeline:
-Mock Policy Evidence → Create Evidence Object → Create Provenance → Calculate Trust Score → Graph Query
+Demonstrates the complete verification lifecycle using REAL production APIs:
+  TrustEvidenceService · VerificationEventLog · HumanVerificationAuthorityRegistry
+  HumanVerificationGate · compute_content_identity · record_human_verification
+  detect_content_change · revoke_verified · check_verified_validity
 
-OpenInvest - Trust Evidence Prototype
+Lifecycle:
+  Create Evidence → UNVERIFIED
+    → Agent/System attempt → DENIED
+    → Human Authority verification → VERIFIED
+    → Content change → change detected
+    → Revocation → UNVERIFIED
+    → Human Re-verification → VERIFIED
+
+DEMO DATA — NOT REAL GOVERNMENT DATA.
+The demo authority is an application-level demo identifier, NOT real-world identity authentication.
+
+OpenInvest — Trust Evidence System
 """
 
-import json
 import os
 import sys
+import tempfile
+import traceback
 
 # Add src to path for imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from trust.evidence_object import EvidenceObject, VerificationStatus
-from trust.provenance import ProvenanceChain
-from trust.trust_score import TrustScoreCalculator
-from trust.evidence_graph import EvidenceGraph, NodeType, RelationType
+from trust.trust_service import TrustEvidenceService
+from trust.verification_event_log import (
+    VerificationEventLog,
+    HumanVerificationAuthority,
+    HumanVerificationAuthorityRegistry,
+    compute_content_identity,
+)
 
 
-def load_demo_data():
-    """Load demo data from JSON files."""
-    demo_dir = os.path.join(os.path.dirname(__file__), 'trust_demo')
-    
-    # Load policy data
-    with open(os.path.join(demo_dir, 'policy_example.json'), 'r', encoding='utf-8') as f:
-        policy_data = json.load(f)
-    
-    # Load company data  
-    with open(os.path.join(demo_dir, 'company_example.json'), 'r', encoding='utf-8') as f:
-        company_data = json.load(f)
-    
-    # Load evidence data
-    with open(os.path.join(demo_dir, 'evidence_example.json'), 'r', encoding='utf-8') as f:
-        evidence_data = json.load(f)
-    
-    return policy_data, company_data, evidence_data
+# ---------------------------------------------------------------------------
+# Demo configuration — deterministic, isolated, no real identity claims.
+# ---------------------------------------------------------------------------
+
+DEMO_AUTHORITY_REGISTRY = HumanVerificationAuthorityRegistry([
+    HumanVerificationAuthority(
+        verifier_id="demo-human-verifier",
+        role="human_verifier",
+        active=True,
+        metadata={"display_name": "Demo Human Verifier (application-level)"},
+    ),
+    HumanVerificationAuthority(
+        verifier_id="demo-reviewer",
+        role="authorized_reviewer",
+        active=True,
+        metadata={"display_name": "Demo Authorized Reviewer (application-level)"},
+    ),
+])
+
+DEMO_EVIDENCE_ID = "demo-policy-evidence-001"
+DEMO_EVIDENCE_SOURCE_REF = "demo://mock-policy-reference"
+
+# Evidence fields that determine content_identity
+EVIDENCE_INITIAL = {
+    "id": DEMO_EVIDENCE_ID,
+    "type": "policy",
+    "source": "demo-source",
+    "source_reference": DEMO_EVIDENCE_SOURCE_REF,
+    "verification_status": "UNVERIFIED",
+    "confidence_score": 0.5,
+}
+
+EVIDENCE_CHANGED = {
+    "id": DEMO_EVIDENCE_ID,
+    "type": "policy",
+    "source": "demo-source",
+    "source_reference": DEMO_EVIDENCE_SOURCE_REF,
+    "verification_status": "UNVERIFIED",
+    "confidence_score": 0.9,  # changed → different content_identity
+}
 
 
-def step1_create_evidence_object(policy_data, company_data, evidence_data):
-    """Step 1: Create Evidence Objects from demo data."""
-    print("=== Step 1: Create Evidence Objects ===")
-    
-    # Create policy evidence object
-    policy_evidence = EvidenceObject(
-        id=policy_data["id"],
-        type=policy_data["type"],
-        source=policy_data["source"],
-        source_reference=policy_data["source_reference"],
-        verification_status=VerificationStatus.MOCK,
-        confidence_score=0.8,
-        metadata=policy_data
+def _short_hash(h):
+    """Truncate a hash for display."""
+    if not h:
+        return "N/A"
+    return h[:16] + "..."
+
+
+def _get_content_identity(service, evidence_id):
+    """Get current content_identity of an evidence via production API."""
+    result = service.get_evidence(evidence_id)
+    if result["success"]:
+        return compute_content_identity(result["evidence"])
+    return None
+
+
+def _get_status(service, evidence_id):
+    """Get current verification_status of an evidence."""
+    result = service.get_evidence(evidence_id)
+    if result["success"]:
+        return result["evidence"].get("verification_status", "UNKNOWN")
+    return "NOT_FOUND"
+
+
+def _print_header(title):
+    print(f"\n{'=' * 60}")
+    print(f"  {title}")
+    print(f"{'=' * 60}")
+
+
+def _print_step(num, title):
+    print(f"\n[{num}] {title}")
+
+
+def _print_result(label, value, indent=4):
+    print(f"{' ' * indent}{label}: {value}")
+
+
+# ---------------------------------------------------------------------------
+# Demo steps — each calls REAL production APIs.
+# ---------------------------------------------------------------------------
+
+def step_create_evidence(service):
+    """Step 1: Create evidence → UNVERIFIED."""
+    _print_step(1, "CREATE EVIDENCE")
+    result = service.create_evidence(dict(EVIDENCE_INITIAL))
+    if not result["success"]:
+        print(f"    FAILED: {result.get('message', result)}")
+        return None
+    status = _get_status(service, DEMO_EVIDENCE_ID)
+    ci = _get_content_identity(service, DEMO_EVIDENCE_ID)
+    _print_result("Evidence ID", DEMO_EVIDENCE_ID)
+    _print_result("Status", status)
+    _print_result("Content Identity", _short_hash(ci))
+    return ci
+
+
+def step_agent_attempt(service):
+    """Step 2: Agent attempts to grant VERIFIED → DENIED."""
+    _print_step(2, "AGENT ATTEMPT (automated path)")
+    result = service.record_human_verification(
+        evidence_id=DEMO_EVIDENCE_ID,
+        verifier_id="demo-agent-001",
+        verifier_role="agent",
+        verification_evidence=[DEMO_EVIDENCE_SOURCE_REF],
     )
-    
-    # Create company evidence object
-    company_evidence = EvidenceObject(
-        id=company_data["id"],
-        type=company_data["type"],
-        source=company_data["source"],
-        source_reference=company_data.get("registration_number", ""),
-        verification_status=VerificationStatus.MOCK,
-        confidence_score=0.7,
-        metadata=company_data
+    _print_result("Verifier", "demo-agent-001 (role=agent)")
+    _print_result("Result", "DENIED" if not result["success"] else "UNEXPECTED SUCCESS")
+    _print_result("Reason", result.get("message", "")[:80])
+
+
+def step_system_attempt(service):
+    """Step 3: System attempts to grant VERIFIED → DENIED."""
+    _print_step(3, "SYSTEM ATTEMPT (automated path)")
+    result = service.record_human_verification(
+        evidence_id=DEMO_EVIDENCE_ID,
+        verifier_id="demo-system-001",
+        verifier_role="system",
+        verification_evidence=[DEMO_EVIDENCE_SOURCE_REF],
     )
-    
-    # Create evidence evidence object
-    evidence_evidence = EvidenceObject(
-        id=evidence_data["id"],
-        type=evidence_data["type"],
-        source=evidence_data["source"],
-        source_reference=evidence_data["source_reference"],
-        verification_status=VerificationStatus.MOCK,
-        confidence_score=evidence_data["confidence_score"],
-        metadata=evidence_data
+    _print_result("Verifier", "demo-system-001 (role=system)")
+    _print_result("Result", "DENIED" if not result["success"] else "UNEXPECTED SUCCESS")
+    _print_result("Reason", result.get("message", "")[:80])
+
+
+def step_human_verification(service):
+    """Step 4: Registered human authority verifies → VERIFIED."""
+    _print_step(4, "HUMAN AUTHORITY VERIFICATION")
+    result = service.record_human_verification(
+        evidence_id=DEMO_EVIDENCE_ID,
+        verifier_id="demo-human-verifier",
+        verifier_role="human_verifier",
+        verification_evidence=[DEMO_EVIDENCE_SOURCE_REF],
+        notes="Demo verification — application-level authority, not real identity",
     )
-    
-    print(f"Policy Evidence Created: {policy_evidence}")
-    print(f"Company Evidence Created: {company_evidence}")
-    print(f"Evidence Evidence Created: {evidence_evidence}")
-    
-    return policy_evidence, company_evidence, evidence_evidence
+    status = _get_status(service, DEMO_EVIDENCE_ID)
+    _print_result("Verifier", "demo-human-verifier (registered, active, human_verifier)")
+    _print_result("Result", "VERIFIED" if result["success"] else "DENIED")
+    _print_result("Status", status)
+    if result["success"]:
+        _print_result("Verification Status", result.get("verification_status", ""))
+    else:
+        _print_result("Reason", result.get("message", "")[:80])
+    return result["success"]
 
 
-def step2_create_provenance_chains(evidence_objects):
-    """Step 2: Create provenance chains for each evidence."""
-    print("\n=== Step 2: Create Provenance Chains ===")
-    
-    provenance_chains = {}
-    
-    for evidence in evidence_objects:
-        chain = ProvenanceChain(evidence.id)
-        
-        # Add mock verification events
-        if "policy" in evidence.id.lower():
-            chain.add_verification_event(
-                verifier="mock_policy_analyst",
-                method="policy_document_review",
-                result="approved"
-            )
-        elif "company" in evidence.id.lower():
-            chain.add_verification_event(
-                verifier="mock_business_analyst", 
-                method="company_document_review",
-                result="verified"
-            )
-        else:
-            chain.add_verification_event(
-                verifier="mock_trust_analyst",
-                method="evidence_cross_reference",
-                result="confirmed"
-            )
-        
-        # Add mock trust assessments
-        chain.add_trust_assessment(
-            assessor="mock_trust_system",
-            score=evidence.confidence_score,
-            reason="mock_assessment"
-        )
-        
-        provenance_chains[evidence.id] = chain
-        print(f"Provenance Chain Created for {evidence.id}")
-    
-    return provenance_chains
+def step_mock_evidence(service):
+    """Step 5: Show MOCK evidence can never become VERIFIED."""
+    _print_step(5, "MOCK EVIDENCE (can never become VERIFIED)")
+    mock_id = "demo-mock-evidence-001"
+    service.create_evidence({
+        "id": mock_id, "type": "policy", "source": "mock",
+        "source_reference": "mock://test", "verification_status": "MOCK",
+        "confidence_score": 0.0,
+    })
+    result = service.record_human_verification(
+        evidence_id=mock_id,
+        verifier_id="demo-human-verifier",
+        verifier_role="human_verifier",
+        verification_evidence=["mock://test"],
+    )
+    status = _get_status(service, mock_id)
+    _print_result("Evidence ID", mock_id)
+    _print_result("Initial Status", "MOCK")
+    _print_result("Verification Result", "DENIED" if not result["success"] else "UNEXPECTED SUCCESS")
+    _print_result("Status After Attempt", status)
+    _print_result("Reason", result.get("message", "")[:80])
 
 
-def step3_calculate_trust_scores(evidence_objects):
-    """Step 3: Calculate trust scores for evidence objects."""
-    print("\n=== Step 3: Calculate Trust Scores ===")
-    
-    calculator = TrustScoreCalculator()
-    trust_scores = {}
-    
-    for evidence in evidence_objects:
-        # Convert evidence to dict for score calculation
-        evidence_dict = evidence.to_dict()
-        
-        # Calculate trust score
-        score_result = calculator.calculate_for_evidence_object(evidence_dict)
-        trust_scores[evidence.id] = score_result
-        
-        print(f"Trust Score for {evidence.id}: {score_result['score']} ({score_result['confidence']})")
-        print(f"  Reasons: {', '.join(score_result['reason'])}")
-    
-    return trust_scores
+def step_content_change(service, original_ci):
+    """Step 6: Change content → content_identity changes."""
+    _print_step(6, "CONTENT CHANGE")
+    # Mutate the evidence content in the graph (same pattern as production tests)
+    node = service.evidence_graph.nodes[DEMO_EVIDENCE_ID]
+    node.data["confidence_score"] = EVIDENCE_CHANGED["confidence_score"]
+    new_ci = _get_content_identity(service, DEMO_EVIDENCE_ID)
+    _print_result("Old Identity", _short_hash(original_ci))
+    _print_result("New Identity", _short_hash(new_ci))
+    _print_result("Changed", original_ci != new_ci)
+    return new_ci
 
 
-def step4_build_evidence_graph(evidence_objects):
-    """Step 4: Build evidence graph with relations."""
-    print("\n=== Step 4: Build Evidence Graph ===")
-    
-    graph = EvidenceGraph()
-    
-    # Add nodes for each evidence
-    for evidence in evidence_objects:
-        data = evidence.metadata.copy()
-        data["evidence_object"] = evidence.to_dict()
-        
-        node_type = None
-        if evidence.type == "policy":
-            node_type = NodeType.POLICY
-        elif evidence.type == "company":
-            node_type = NodeType.COMPANY
-        elif evidence.type == "evidence":
-            node_type = NodeType.EVIDENCE
-        
-        if node_type:
-            graph.add_node(evidence.id, node_type, data)
-            print(f"Added Node: {evidence.id} ({node_type.value})")
-    
-    # Add relations (demonstrating the example: Company A SUPPORTED_BY Policy Evidence X)
-    if "company_ai_tech_corp" in graph.nodes and "policy_ai_national_framework_2024" in graph.nodes:
-        graph.add_relation(
-            source_id="company_ai_tech_corp",
-            target_id="policy_ai_national_framework_2024", 
-            relation_type=RelationType.BENEFITS_FROM,
-            metadata={"strength": "strategic", "is_mock": True}
-        )
-        print("Added Relation: company_ai_tech_corp BENEFITS_FROM policy_ai_national_framework_2024")
-    
-    if "evidence_policy_support_ai" in graph.nodes:
-        # Connect evidence to policy
-        graph.add_relation(
-            source_id="evidence_policy_support_ai",
-            target_id="policy_ai_national_framework_2024",
-            relation_type=RelationType.DERIVED_FROM,
-            metadata={"confidence": "high", "is_mock": True}
-        )
-        print("Added Relation: evidence_policy_support_ai DERIVED_FROM policy_ai_national_framework_2024")
-        
-        # Connect evidence to company
-        graph.add_relation(
-            source_id="company_ai_tech_corp", 
-            target_id="evidence_policy_support_ai",
-            relation_type=RelationType.SUPPORTED_BY,
-            metadata={"type": "policy_support", "is_mock": True}
-        )
-        print("Added Relation: company_ai_tech_corp SUPPORTED_BY evidence_policy_support_ai")
-    
-    return graph
+def step_change_detection(service):
+    """Step 7: Detect content change → VERIFIED invalid."""
+    _print_step(7, "CHANGE DETECTION")
+    result = service.detect_content_change(DEMO_EVIDENCE_ID)
+    _print_result("Changed", result.get("changed", False))
+    _print_result("Verified Identity", _short_hash(result.get("verified_content_identity")))
+    _print_result("Current Identity", _short_hash(result.get("current_content_identity")))
+    _print_result("Reason", result.get("reason", "")[:80])
+
+    # Check validity — should be invalid
+    validity = service.check_verified_validity(DEMO_EVIDENCE_ID)
+    _print_result("VERIFIED Valid", validity.get("is_valid", True))
 
 
-def step5_query_trust_pipeline(graph, trust_scores, provenance_chains):
-    """Step 5: Query the trust pipeline results."""
-    print("\n=== Step 5: Query Trust Pipeline Results ===")
-    
-    # Query company evidence and its relations
-    company_query = graph.query_evidence("company_ai_tech_corp")
-    if company_query:
-        print(f"Company Query Results:")
-        print(f"  Node: {company_query['node']['id']} ({company_query['node']['type']})")
-        print(f"  Incoming Relations: {len(company_query['incoming_relations'])}")
-        print(f"  Outgoing Relations: {len(company_query['outgoing_relations'])}")
-        print(f"  Related Nodes: {company_query['related_nodes']}")
-    
-    # Show trust score
-    company_score = trust_scores.get("company_ai_tech_corp", {})
-    print(f"\nCompany Trust Score: {company_score.get('score', 'N/A')}")
-    print(f"  Confidence: {company_score.get('confidence', 'N/A')}")
-    print(f"  Reasons: {', '.join(company_score.get('reason', []))}")
-    
-    # Show provenance chain
-    company_chain = provenance_chains.get("company_ai_tech_corp")
-    if company_chain:
-        print(f"\nCompany Provenance Chain:")
-        print(company_chain.get_trust_chain())
-    
-    return company_query
+def step_revocation(service):
+    """Step 8: Revoke VERIFIED → UNVERIFIED."""
+    _print_step(8, "REVOCATION")
+    result = service.revoke_verified(DEMO_EVIDENCE_ID, reason="content_changed")
+    status = _get_status(service, DEMO_EVIDENCE_ID)
+    _print_result("Revoked", result.get("revoked", False))
+    _print_result("Status After Revocation", status)
 
+    # Verify revocation event exists in history
+    history = service.get_verification_history(DEMO_EVIDENCE_ID)
+    revoked_events = [e for e in history.get("events", []) if e.get("decision") == "revoked"]
+    verified_events = [e for e in history.get("events", []) if e.get("decision") == "verified"]
+    _print_result("Verified Events in Log", len(verified_events))
+    _print_result("Revoked Events in Log", len(revoked_events))
+    _print_result("Total Events in Log", history.get("event_count", 0))
+
+
+def step_reverification(service):
+    """Step 9: Human re-verification with new content_identity → VERIFIED."""
+    _print_step(9, "HUMAN RE-VERIFICATION")
+    result = service.record_human_verification(
+        evidence_id=DEMO_EVIDENCE_ID,
+        verifier_id="demo-human-verifier",
+        verifier_role="human_verifier",
+        verification_evidence=[DEMO_EVIDENCE_SOURCE_REF],
+        notes="Re-verification after content change — new content_identity",
+    )
+    status = _get_status(service, DEMO_EVIDENCE_ID)
+    _print_result("Verifier", "demo-human-verifier (registered, active, human_verifier)")
+    _print_result("Result", "VERIFIED" if result["success"] else "DENIED")
+    _print_result("Status", status)
+    if not result["success"]:
+        _print_result("Reason", result.get("message", "")[:80])
+
+    # Final validity check
+    validity = service.check_verified_validity(DEMO_EVIDENCE_ID)
+    _print_result("VERIFIED Valid", validity.get("is_valid", False))
+    return result["success"]
+
+
+def step_verification_history(service):
+    """Step 10: Show full verification event history (append-only)."""
+    _print_step(10, "VERIFICATION EVENT HISTORY (append-only)")
+    history = service.get_verification_history(DEMO_EVIDENCE_ID)
+    events = history.get("events", [])
+    _print_result("Total Events", len(events))
+    for i, evt in enumerate(events):
+        print(f"        [{i+1}] decision={evt.get('decision')}, "
+              f"actor={evt.get('actor')}, role={evt.get('actor_role')}, "
+              f"timestamp={evt.get('timestamp', 'N/A')[:19]}")
+
+
+def step_safety_principle():
+    """Final: Print the safety principle."""
+    print(f"\n{'=' * 60}")
+    print("  SAFETY PRINCIPLE")
+    print(f"{'=' * 60}")
+    print("  Agent may recommend.")
+    print("  Human authority may verify.")
+    print("  System may revoke.")
+    print("  No automated path may restore VERIFIED.")
+    print(f"\n  MOCK can never become VERIFIED.")
+    print("  Content change revokes VERIFIED automatically.")
+    print("  Re-verification requires a new human decision.")
+    print(f"\n  Authority Registry = application-level authorization,")
+    print("  NOT real-world identity authentication.")
+    print(f"{'=' * 60}")
+
+
+# ---------------------------------------------------------------------------
+# Main entry point
+# ---------------------------------------------------------------------------
 
 def main():
-    """Main trust pipeline demo."""
-    print("OpenInvest Trust Pipeline Demo")
-    print("=" * 50)
-    
+    """Run the complete verification lifecycle demo."""
+    print("=" * 60)
+    print("  OpenInvest Trust Verification Showcase Demo")
+    print("=" * 60)
+    print("  DEMO DATA — NOT REAL GOVERNMENT DATA")
+    print("  Demo authority = application-level, NOT real identity authentication")
+
+    tmpdir = None
     try:
-        # Step 1: Load demo data
-        print("\nLoading demo data...")
-        policy_data, company_data, evidence_data = load_demo_data()
-        print("Demo data loaded successfully")
-        
-        # Step 2: Create evidence objects
-        policy_evidence, company_evidence, evidence_evidence = step1_create_evidence_objects(
-            policy_data, company_data, evidence_data
+        # Use a temporary directory for the event log — isolated, no pollution.
+        tmpdir = tempfile.mkdtemp(prefix="openinvest_demo_")
+        log_path = os.path.join(tmpdir, "demo_events.jsonl")
+
+        service = TrustEvidenceService(
+            event_log_path=log_path,
+            authority_registry=DEMO_AUTHORITY_REGISTRY,
         )
-        
-        # Step 3: Create provenance chains
-        evidence_objects = [policy_evidence, company_evidence, evidence_evidence]
-        provenance_chains = step2_create_provenance_chains(evidence_objects)
-        
-        # Step 4: Calculate trust scores
-        trust_scores = step3_calculate_trust_scores(evidence_objects)
-        
-        # Step 5: Build evidence graph
-        graph = step4_build_evidence_graph(evidence_objects)
-        
-        # Step 6: Query pipeline results
-        query_results = step5_query_trust_pipeline(graph, trust_scores, provenance_chains)
-        
-        # Final summary
-        print("\n" + "=" * 50)
-        print("TRUST PIPELINE DEMO SUMMARY")
-        print("=" * 50)
-        
-        print(f"✅ Evidence Objects Created: {len(evidence_objects)}")
-        print(f"✅ Provenance Chains Built: {len(provenance_chains)}")
-        print(f"✅ Trust Scores Calculated: {len(trust_scores)}")
-        print(f"✅ Graph Nodes Added: {len(graph.nodes)}")
-        print(f"✅ Graph Relations Added: {len(graph.edges)}")
-        
-        print(f"\n🎯 Key Results:")
-        print(f"   Company Trust Score: {trust_scores.get('company_ai_tech_corp', {}).get('score', 'N/A')}")
-        print(f"   Graph Relations: {len(graph.edges)} connections")
-        print(f"   All Data Marked as MOCK: {all(data.get('is_mock', False) for data in [policy_data, company_data, evidence_data])}")
-        
+
+        # Run the full lifecycle
+        original_ci = step_create_evidence(service)
+        if original_ci is None:
+            print("\nFATAL: Evidence creation failed — cannot continue demo.")
+            return False
+
+        step_agent_attempt(service)
+        step_system_attempt(service)
+        verified = step_human_verification(service)
+        step_mock_evidence(service)
+
+        if not verified:
+            print("\nWARNING: Human verification did not succeed — "
+                  "subsequent steps may not demonstrate revocation correctly.")
+
+        step_content_change(service, original_ci)
+        step_change_detection(service)
+        step_revocation(service)
+        step_reverification(service)
+        step_verification_history(service)
+        step_safety_principle()
+
+        print(f"\n{'=' * 60}")
+        print("  DEMO COMPLETE — All steps executed via real production APIs.")
+        print(f"{'=' * 60}")
         return True
-        
+
     except Exception as e:
-        print(f"❌ Demo failed: {str(e)}")
-        import traceback
+        print(f"\nFATAL: Demo failed with exception: {e}")
         traceback.print_exc()
         return False
+
+    finally:
+        # Cleanup temporary directory
+        if tmpdir and os.path.exists(tmpdir):
+            import shutil
+            shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 if __name__ == "__main__":
