@@ -245,6 +245,8 @@ Test coverage spans: JSON-RPC server endpoints, client logic, end-to-end integra
 
 ## Documentation
 
+> **Full index:** [`docs/README.md`](docs/README.md) — categorized navigation for all documentation.
+
 ### Start Here
 - [OpenInvest Core Thesis](docs/OpenInvest_Core_Thesis.md) — why this project exists
 - [OpenInvest Trust Architecture](docs/OpenInvest_Trust_Architecture.md) — how the trust layer works
