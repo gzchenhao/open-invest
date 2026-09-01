@@ -11,7 +11,7 @@ OpenInvest provides a deterministic evidence layer, provenance tracking, and a f
 
 [Quick Start](QUICKSTART.md) · [Architecture](#architecture) · [Status Matrix](#status-matrix) · [Tests](#testing) · [Docs](#documentation)
 
----
+***
 
 ## Why OpenInvest?
 
@@ -25,11 +25,30 @@ Hard-tech investment intelligence suffers from four problems:
 OpenInvest addresses this with an **evidence + provenance + verification** architecture where:
 
 - An **agent** may propose evidence.
+
 - A **human authority** may verify evidence.
+
 - The **system** may revoke verification when content changes.
+
 - **No automated path** may restore VERIFIED status.
 
----
+***
+
+### Who is this for? Why star?
+
+**OpenInvest is interesting if you care about:**
+
+- 🔬 Agent systems that need explicit trust boundaries — not implicit "government source" labels
+
+- 🛡️ Fail-closed security: no automated path can fabricate VERIFIED status
+
+- 🧩 Evidence-graph models where provenance, status, and content identity are separated
+
+- ⭐ Open, auditable infrastructure for DeepTech investment intelligence — not closed SaaS
+
+**Why this matters now:** 628+ tests lock in the safety model. Even if you don't use DeepTech directly, this is a reference implementation for "agent proposes, human verifies, system revokes."
+
+***
 
 ## What Can I Run Today?
 
@@ -43,11 +62,11 @@ python examples/trust_pipeline_demo.py   # see the verification lifecycle (10 st
 
 The demo shows the complete verification lifecycle: Create Evidence → Agent/System Denied → Human Verification → VERIFIED → Content Change → Revocation → Re-verification. All demo data is **MOCK** — no real government data is included.
 
----
+***
 
 ## Quick Start
 
-> **New here?** See [**QUICKSTART.md**](QUICKSTART.md) — from zero to verification lifecycle in 2 minutes.
+> **New here?** See **[QUICKSTART.md](QUICKSTART.md)** — from zero to verification lifecycle in 2 minutes.
 
 ### 1. Install
 
@@ -72,18 +91,20 @@ python examples/trust_pipeline_demo.py
 ```
 
 **What it shows (10 steps, all via real production APIs):**
+
 1. Create Evidence → UNVERIFIED
 2. Agent attempt → DENIED (not human authority)
 3. System attempt → DENIED (not human authority)
 4. Human Authority verification → VERIFIED
 5. MOCK evidence → remains MOCK (can never be VERIFIED)
-6. Content change → content_identity changes
+6. Content change → content\_identity changes
 7. Change detection → VERIFIED invalid
 8. Revocation → UNVERIFIED (revocation event recorded)
-9. Human Re-verification → VERIFIED (new content_identity)
+9. Human Re-verification → VERIFIED (new content\_identity)
 10. Event history → append-only log (verified + revoked + verified)
 
 **Sample output:**
+
 ```
 [4] HUMAN AUTHORITY VERIFICATION
     Verifier: demo-human-verifier (registered, active, human_verifier)
@@ -109,7 +130,7 @@ python main.py
 
 Server starts at `http://localhost:8000` with a JSON-RPC 2.0 `/rpc` endpoint. Returns mock policy data — this is the original protocol layer, not the trust/verification system.
 
----
+***
 
 ## Architecture
 
@@ -160,20 +181,20 @@ Content changed     → VERIFIED revoked, no auto-restore
 
 The Authority Registry is **application-level authorization**, not real-world identity authentication. No login, OAuth, SSO, or cryptographic identity proof exists in this repository.
 
----
+***
 
 ## Verification System
 
 The verification system (P1-4.1 → P1-4.6) is the core technical asset of OpenInvest. It is **implemented and tested** (611 tests), but operates on mock/sample data only.
 
-| Component | What It Does |
-|-----------|-------------|
-| **Durable Event Log** | Append-only JSONL log of all verification decisions. Never mutated, never deleted. |
-| **Content Identity** | SHA-256 of canonical evidence fields. Detects when verified content has changed. |
-| **Human Verification Gate** | 10-condition gate. VERIFIED requires a registered, active human authority + matching content identity + non-MOCK evidence + non-empty evidence refs. |
-| **Authority Registry** | Config-driven allowlist of authorized verifiers. Loaded from JSON, fail-closed on all errors. |
-| **Automatic Revocation** | When content identity changes, VERIFIED is automatically revoked. A new human decision is required to re-verify. |
-| **MOCK / UNVERIFIED / VERIFIED** | Three explicit statuses. MOCK can never become VERIFIED. VERIFIED requires human authority. UNVERIFIED is the default. |
+| Component                        | What It Does                                                                                                                                         |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Durable Event Log**            | Append-only JSONL log of all verification decisions. Never mutated, never deleted.                                                                   |
+| **Content Identity**             | SHA-256 of canonical evidence fields. Detects when verified content has changed.                                                                     |
+| **Human Verification Gate**      | 10-condition gate. VERIFIED requires a registered, active human authority + matching content identity + non-MOCK evidence + non-empty evidence refs. |
+| **Authority Registry**           | Config-driven allowlist of authorized verifiers. Loaded from JSON, fail-closed on all errors.                                                        |
+| **Automatic Revocation**         | When content identity changes, VERIFIED is automatically revoked. A new human decision is required to re-verify.                                     |
+| **MOCK / UNVERIFIED / VERIFIED** | Three explicit statuses. MOCK can never become VERIFIED. VERIFIED requires human authority. UNVERIFIED is the default.                               |
 
 ### VERIFIED Gate Conditions (10)
 
@@ -187,49 +208,52 @@ VERIFIED is granted only when ALL of the following are true:
 6. The event has non-empty `evidence_refs`
 7. The event's `evidence_id` matches the target
 8. An Authority Registry is configured
-9. The verifier_id is registered **and** active
+9. The verifier\_id is registered **and** active
 10. The registered role matches the event's `actor_role`
 
 If any condition fails, VERIFIED is refused.
 
----
+***
 
 ## Status Matrix
 
-| Capability | Status |
-|------------|--------|
-| JSON-RPC 2.0 Protocol Server | Implemented |
-| Client CLI | Implemented |
-| Canonical Taxonomy | Implemented |
-| Evidence Object + Evidence Graph | Implemented |
-| Provenance Chain | Implemented |
-| Trust Score Calculator | Implemented |
-| Durable Verification Event Log | Implemented |
-| Content Identity (SHA-256) | Implemented |
-| Human Verification Authority Gate | Implemented |
-| Human Authority Registry | Implemented |
-| Config-driven Registry Loading | Implemented |
-| Content-change Revocation | Implemented |
-| Trust Pipeline Demo | Implemented (verification lifecycle showcase) |
-| Policy Crawlers | Prototype (mock/sample data) |
-| Web Portal (port 8017) | Prototype (mock policy search) |
-| Real-world Identity Authentication | Not Implemented |
-| Real Government Data | Not Implemented |
-| MCP (Model Context Protocol) | Not Implemented |
-| A2A (Agent-to-Agent) | Not Implemented |
-| Database Persistence | Not Implemented |
-| OAuth / SSO / MFA | Not Implemented |
-| Production Deployment | Not Implemented |
+| Capability                         | Status                                        |
+| ---------------------------------- | --------------------------------------------- |
+| JSON-RPC 2.0 Protocol Server       | Implemented                                   |
+| Client CLI                         | Implemented                                   |
+| Canonical Taxonomy                 | Implemented                                   |
+| Evidence Object + Evidence Graph   | Implemented                                   |
+| Provenance Chain                   | Implemented                                   |
+| Trust Score Calculator             | Implemented                                   |
+| Durable Verification Event Log     | Implemented                                   |
+| Content Identity (SHA-256)         | Implemented                                   |
+| Human Verification Authority Gate  | Implemented                                   |
+| Human Authority Registry           | Implemented                                   |
+| Config-driven Registry Loading     | Implemented                                   |
+| Content-change Revocation          | Implemented                                   |
+| Trust Pipeline Demo                | Implemented (verification lifecycle showcase) |
+| Policy Crawlers                    | Prototype (mock/sample data)                  |
+| Web Portal (port 8017)             | Prototype (mock policy search)                |
+| Real-world Identity Authentication | Not Implemented                               |
+| Real Government Data               | Not Implemented                               |
+| MCP (Model Context Protocol)       | Not Implemented                               |
+| A2A (Agent-to-Agent)               | Not Implemented                               |
+| Database Persistence               | Not Implemented                               |
+| OAuth / SSO / MFA                  | Not Implemented                               |
+| Production Deployment              | Not Implemented                               |
 
 **Honest boundaries are part of OpenInvest's credibility.** This matrix reflects the repository's actual state, not aspirations.
 
----
+***
 
 ## Testing
 
 ```bash
-# Full regression suite
+# Full regression suite (local: 637 tests)
 python -m pytest tests/ -q
+
+# CI-safe core tests (628+ — no live-server integration tests)
+python -m pytest tests/ --ignore=tests/integration -q
 
 # Specific subsystems
 python -m pytest tests/test_verification_infrastructure.py -q   # event log
@@ -246,46 +270,67 @@ python -m pytest tests/integration/test_integration.py -q       # integration
 
 Test coverage spans: JSON-RPC server endpoints, client logic, end-to-end integration, canonical taxonomy, evidence graph, provenance, trust score, verification event log, human verification gate, authority registry, config-driven registry loading, content-change revocation, verification showcase demo, architecture invariants, and UI mock disclosure.
 
----
+***
 
 ## Documentation
 
 > **Full index:** [`docs/README.md`](docs/README.md) — categorized navigation for all documentation.
 
 ### Start Here
+
 - [OpenInvest Core Thesis](docs/OpenInvest_Core_Thesis.md) — why this project exists
+
 - [OpenInvest Trust Architecture](docs/OpenInvest_Trust_Architecture.md) — how the trust layer works
+
 - [OpenInvest Trust Object Model](docs/OpenInvest_Trust_Object_Model.md) — evidence/provenance/verification model
 
 ### Architecture
+
 - [Evidence Graph Prototype](docs/Evidence_Graph_Prototype.md) — graph design
+
 - [Evidence Graph + Taxonomy Integration](docs/Evidence_Graph_Taxonomy_Integration_20260830.md) — graph + taxonomy
+
 - [Trust Score Framework](docs/Trust_Score_Framework.md) — scoring model
+
 - [Trust Evidence API](docs/Trust_Evidence_API.md) — API reference
 
 ### Verification & Trust
+
 - [Human Verification Authority Gate](docs/Human_Verification_Authority_Gate_20260831.md) — P1-4.3 gate design
+
 - [Human Verification Authority Registry](docs/Human_Verification_Authority_Registry_20260901.md) — P1-4.5 registry
+
 - [Config-driven Registry](docs/Human_Verification_Authority_Registry_Config_20260901.md) — P1-4.6 config loading
+
 - [Source Change Detection & Revocation](docs/Source_Change_Detection_VERIFIED_Revocation_20260901.md) — P1-4.4 revocation
+
 - [Durable Event Log](docs/Real_Policy_Verification_Durable_Event_Log_20260831.md) — P1-4.1 event log
+
 - [Runtime Wiring](docs/Real_Policy_Verification_Runtime_Wiring_20260831.md) — P1-4.2 wiring
 
 ### Governance / Security
+
 - [Policy Data Governance](docs/Policy_Data_Governance.md) — data governance rules
+
 - [Public Repository Safety Status](docs/Public_Repository_Final_Safety_Status.md) — safety audit
+
 - [MCP / A2A Future Architecture](docs/MCP_A2A_Future_Architecture.md) — future (not implemented)
 
 ### Development
+
 - [API Specification](docs/API.md) — endpoint reference
+
 - [Contributing Guide](CONTRIBUTING.md) — how to contribute
 
 ### Audit & Historical
+
 - [Public Product DX Audit](docs/Public_Product_DX_Audit_20260901.md) — P1-5 audit
+
 - [Canonical Taxonomy Registry](docs/Canonical_Taxonomy_Registry_Implementation_20260826.md) — taxonomy implementation
+
 - [Canonical Taxonomy Integration](docs/Canonical_Taxonomy_Integration_20260827.md) — taxonomy integration
 
----
+***
 
 ## Project Structure
 
@@ -314,30 +359,51 @@ open-invest-protocol/
 └── requirements.txt
 ```
 
----
+***
+
+## Roadmap
+
+| Phase                      | Status         | Focus                                                                                                     |
+| -------------------------- | -------------- | --------------------------------------------------------------------------------------------------------- |
+| **P0 Foundation**          | ✅ Shipped      | Protocol schema, evidence layer, taxonomy, trust primitives                                               |
+| **P1-4.x Safety Chain**    | ✅ Shipped      | Durable event log, Human Gate, Authority Registry, content identity, automatic revocation (628+ CI tests) |
+| **P1-5.x Discoverability** | 🟢 In progress | README, demo, docs index, CI, GitHub metadata                                                             |
+| P1-6+ (proposed)           | 🔮 Design only | Config-driven pipelines, real-crawler integration patterns, verification export APIs                      |
+| Long-term vision           | 🔮 Vision only | "The USB-C for DeepTech" — cross-agent trust layer, MCP-compatible trust tools                            |
+
+No promise dates. No scope guarantees. Honest boundaries are part of OpenInvest's credibility.
+
+***
 
 ## Contributing
 
 We welcome contributions. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 **Good first contributions:**
+
 - Documentation improvements
+
 - Test coverage expansion
+
 - Demo fixes (e.g., extending the verification showcase demo)
+
 - Example scripts
 
 **Do not contribute:**
+
 - Changes to verification semantics without discussion
+
 - Fake government data or fake verification claims
+
 - Production deployment claims without evidence
 
----
+***
 
 ## License
 
 MIT License — see [LICENSE](LICENSE).
 
----
+***
 
 <div align="center">
 
