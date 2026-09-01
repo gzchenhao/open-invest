@@ -1583,6 +1583,7 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 ### 22.2 Recent Commit History
 
 ```
+e641536 feat: config-driven human authority registry + fail-closed loading (P1-4.6) (2026-09-01)
 0209381 feat: human verification authority registry + identity binding (P1-4.5) (2026-09-01)
 ec8a2dd feat: source change detection + VERIFIED revocation (P1-4.4) (2026-09-01)
 9f87fa0 fix: update P1-4.1 tests for human authority role vocabulary (P1-4.3) (2026-08-31)
@@ -1638,17 +1639,28 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-4.5 — Human Verification Authority Registry & Identity Binding**
+**Current Quest**: **P1-4.6 — Persistent / Config-Driven Human Authority Registry**
 
 **Status**: ✅ **COMPLETE — VERDICT: PASS** (2026-09-01)
 
 **Completion Date**: 2026-09-01
 
-**Previous Quest**: P1-4.4 — Source Change Detection & VERIFIED Revocation ✅ COMPLETE (2026-09-01)
+**Previous Quest**: P1-4.5 — Human Verification Authority Registry & Identity Binding ✅ COMPLETE (2026-09-01)
 
-**Quest Before**: P1-4.3 — Human Verification Authority Gate ✅ COMPLETE (2026-08-31)
+**Quest Before**: P1-4.4 — Source Change Detection & VERIFIED Revocation ✅ COMPLETE (2026-09-01)
 
 ### 23.2 Quest Achievement Summary
+
+**P1-4.6 Persistent / Config-Driven Human Authority Registry Results (IMPLEMENTED + VERIFIED)**:
+- ✅ NEW `HumanVerificationAuthorityRegistry.from_config()` classmethod — loads registry from JSON config file; fail-closed on missing file, malformed JSON, missing keys, invalid entries, duplicate verifier_ids
+- ✅ HARDENED `HumanVerificationAuthority.from_dict()` — `active` field type-checked (no silent `bool()` coercion of strings/integers)
+- ✅ `TrustEvidenceService.__init__` gains optional `authority_registry_config_path` parameter; priority: explicit registry > config path > None (fail closed)
+- ✅ Config load failure propagates (raises) — NO silent fallback to role-only authorization
+- ✅ Config format: `{"authorities": [{verifier_id, role, active, metadata}, ...]}` — JSON, stdlib only, no new dependencies
+- ✅ Config persistence = authorization configuration durability, NOT identity authentication (explicitly documented)
+- ✅ Backward compatible: `TrustEvidenceService()` without config works for non-VERIFIED ops; `VerificationDecision` schema unchanged; existing `Registry(authorities=...)` API unchanged
+- ✅ Test count: 565 → 611 (+46 new, 0 failed, 1 pre-existing warning)
+- Report: `docs/Human_Verification_Authority_Registry_Config_20260901.md`
 
 **P1-4.5 Human Verification Authority Registry & Identity Binding Results (IMPLEMENTED + VERIFIED)**:
 - ✅ NEW `HumanVerificationAuthority` dataclass (frozen, validated): verifier_id + role + active + metadata
@@ -1703,7 +1715,7 @@ git rev-parse origin/master
 - ✅ Test count: 406 → 434 (+28 new, 0 failed, 1 pre-existing warning)
 - Report: `docs/Real_Policy_Verification_Durable_Event_Log_20260831.md`
 
-**Testing Status**: **565 passed, 0 failed** (as of 2026-09-01, includes P1-4.5 Human Verification Authority Registry & Identity Binding)
+**Testing Status**: **611 passed, 0 failed** (as of 2026-09-01, includes P1-4.6 Persistent / Config-Driven Human Authority Registry)
 
 **P1-4.0 Real Policy Verification Workflow Audit & Design Results (AUDIT / DESIGN)**:
 - ✅ AUDIT: **VERIFIED production path: NOT FOUND** — repo-wide, no code grants VERIFIED; `provenance_validator.py` only validates pre-existing labels; `verify_evidence()` is mock-only and sets MOCK ("not authoritative"); all 21 seed records are `is_mock:true / "mock"`; zero verified policies
@@ -1792,6 +1804,7 @@ git rev-parse origin/master
 - Independent verification: 37/37 parser runtime checks PASS (P1-3.3.1, see Section 23.2)
 
 **Documentation Evidence**:
+- Complete Human_Verification_Authority_Registry_Config_20260901.md (P1-4.6 config-driven registry loading)
 - Complete Human_Verification_Authority_Registry_20260901.md (P1-4.5 authority registry + identity binding)
 - Complete Source_Change_Detection_VERIFIED_Revocation_20260901.md (P1-4.4 source change detection + revocation)
 - Complete Human_Verification_Authority_Gate_20260831.md (P1-4.3 implementation + VERIFIED gate)
@@ -1818,12 +1831,15 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**NEXT QUEST — P1-4.6: TBD** (awaiting user directive)
+**NEXT QUEST — P1-4.7: TBD** (awaiting user directive)
 - **Priority**: TBD
 - **Purpose**: TBD
-- **Dependencies**: P1-4.5 complete (Human Verification Authority Registry & Identity Binding)
-- **Known deferred items from P1-4.5**: Registry is in-memory (no persistence on restart); verifier_id is still application-level string (no cryptographic identity binding); no registry admin UI; no role hierarchy (flat allowlist)
+- **Dependencies**: P1-4.6 complete (Persistent / Config-Driven Human Authority Registry)
+- **Known deferred items from P1-4.6**: Config read once (no hot-reload); no config file watching; no multi-file config merge; verifier_id still application-level string (no cryptographic identity binding)
+- **Known deferred items from P1-4.5**: No registry admin UI; no role hierarchy (flat allowlist)
 - **Known deferred items from P1-4.4**: EventLog still optional; content_identity covers EvidenceObject fields only (no deep content hashing); no automatic change polling/scheduler
+
+**~~P1-4.6: Persistent / Config-Driven Human Authority Registry~~ → ✅ COMPLETE (2026-09-01)** — Registry now loadable from JSON config; fail-closed on all error paths; no silent fallback, 611 tests, 0 failed
 
 **~~P1-4.5: Human Verification Authority Registry & Identity Binding~~ → ✅ COMPLETE (2026-09-01)** — VERIFIED now requires registered+active verifier in Authority Registry; free-string verifier_id loophole closed (fail closed), 565 tests, 0 failed
 
