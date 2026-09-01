@@ -1299,7 +1299,7 @@ TrustQueryResponse:
 python -m pytest tests/ -q --tb=no
 ```
 
-**Expected Result**: **494 passed, 0 failed**
+**Expected Result**: **523 passed, 0 failed**
 
 **Regression Protection**:
 - Test suite enforces all safety rules
@@ -1583,6 +1583,7 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 ### 22.2 Recent Commit History
 
 ```
+ec8a2dd feat: source change detection + VERIFIED revocation (P1-4.4) (2026-09-01)
 9f87fa0 fix: update P1-4.1 tests for human authority role vocabulary (P1-4.3) (2026-08-31)
 50e4de1 feat: human verification authority gate — VERIFIED requires human decision event (P1-4.3) (2026-08-31)
 b24d169 fix: add future marker to MCP/A2A reference in P1-4.2 doc (vision test) (2026-08-31)
@@ -1636,17 +1637,31 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-4.3 — Human Verification Authority Gate**
+**Current Quest**: **P1-4.4 — Source Change Detection & VERIFIED Revocation**
 
-**Status**: ✅ **COMPLETE — VERDICT: PASS** (2026-08-31)
+**Status**: ✅ **COMPLETE — VERDICT: PASS** (2026-09-01)
 
-**Completion Date**: 2026-08-31
+**Completion Date**: 2026-09-01
 
-**Previous Quest**: P1-4.2 — Verification Event Log Runtime Wiring + Content Identity ✅ COMPLETE (2026-08-31)
+**Previous Quest**: P1-4.3 — Human Verification Authority Gate ✅ COMPLETE (2026-08-31)
 
-**Quest Before**: P1-4.1 — Durable Verification Event Log + F-04 Trust Safety Containment ✅ COMPLETE (2026-08-31)
+**Quest Before**: P1-4.2 — Verification Event Log Runtime Wiring + Content Identity ✅ COMPLETE (2026-08-31)
 
 ### 23.2 Quest Achievement Summary
+
+**P1-4.4 Source Change Detection & VERIFIED Revocation Results (IMPLEMENTED + VERIFIED)**:
+- ✅ NEW `detect_content_change()` on `TrustEvidenceService` — compares latest verified event's content_identity against current; detects source/content changes (Rule A)
+- ✅ NEW `revoke_verified()` on `TrustEvidenceService` — records `"revoked"` VerificationDecision (system actor `system_content_change_detector`); sets evidence to UNVERIFIED; append-only (old event preserved, Rule F); records previous/current content_identity + reason in notes
+- ✅ NEW `check_verified_validity()` on `TrustEvidenceService` — queries effective VERIFIED state via gate; considers content_identity match, revocation events, MOCK status
+- ✅ NEW `get_effective_verified_state()` on `HumanVerificationGate` — determines VERIFIED validity: latest verified event + no later revocation + content_identity match + not MOCK
+- ✅ FIX: `verification_status` REMOVED from `_CONTENT_IDENTITY_FIELDS` — it was verification STATE not content; including it created a self-invalidation paradox (event recorded while UNVERIFIED became stale the moment VERIFIED was granted)
+- ✅ FIX: `can_grant_verified()` now finds LATEST verified event (was first/oldest) — after revocation + re-verification, the oldest event had stale content_identity causing spurious rejection
+- ✅ FIX: `can_grant_verified()` now checks for later revocation events (defence-in-depth, Rule C)
+- ✅ Security boundary: system actor can REVOKE but NEVER GRANT VERIFIED; `append()` gate enforces `decision="verified"` requires `actor_role in HUMAN_AUTHORITY_ROLES`
+- ✅ Old verification cannot validate new content (Rule D); MOCK remains MOCK (Rule E); revoked VERIFIED cannot auto-return to VERIFIED (Rule C); re-verification requires new Human Authority decision with matching content_identity
+- ✅ Backward compatible: EventLog remains optional; safe failure without log; no schema/enum/taxonomy/trust-score changes
+- ✅ Test count: 494 → 523 (+29 new, 0 failed, 1 pre-existing warning)
+- Report: `docs/Source_Change_Detection_VERIFIED_Revocation_20260901.md`
 
 **P1-4.3 Human Verification Authority Gate Results (IMPLEMENTED + VERIFIED)**:
 - ✅ NEW `HumanVerificationGate` class in `verification_event_log.py`: checks ALL conditions (human event exists, decision=verified, actor_role in HUMAN_AUTHORITY_ROLES, content_identity match, not MOCK, evidence_refs non-empty, evidence_id match) before allowing VERIFIED
@@ -1675,7 +1690,7 @@ git rev-parse origin/master
 - ✅ Test count: 406 → 434 (+28 new, 0 failed, 1 pre-existing warning)
 - Report: `docs/Real_Policy_Verification_Durable_Event_Log_20260831.md`
 
-**Testing Status**: **494 passed, 0 failed** (as of 2026-08-31)
+**Testing Status**: **523 passed, 0 failed** (as of 2026-09-01, includes P1-4.4 Source Change Detection + VERIFIED Revocation)
 
 **P1-4.0 Real Policy Verification Workflow Audit & Design Results (AUDIT / DESIGN)**:
 - ✅ AUDIT: **VERIFIED production path: NOT FOUND** — repo-wide, no code grants VERIFIED; `provenance_validator.py` only validates pre-existing labels; `verify_evidence()` is mock-only and sets MOCK ("not authoritative"); all 21 seed records are `is_mock:true / "mock"`; zero verified policies
@@ -1788,13 +1803,13 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**NEXT QUEST — P1-4.4: Source Change Detection & VERIFIED Revocation**
-- **Priority**: MEDIUM-HIGH
-- **Purpose**: When a verified source's content_identity changes, automatically downgrade VERIFIED back to CANDIDATE_REVIEW_REQUIRED and flag for re-verification
-- **Scope**: content_identity change detection on evidence update; automatic VERIFIED revocation; re-verification flag; NO crawler, NO real data
-- **Guardrails**: VERIFIED revocation must be automatic on content change; re-verification requires Human Gate again; MOCK excluded
-- **Dependencies**: P1-4.3 complete (Human Gate + content_identity)
-- **Estimated Effort**: Medium
+**NEXT QUEST — P1-4.5: TBD** (awaiting user directive)
+- **Priority**: TBD
+- **Purpose**: TBD
+- **Dependencies**: P1-4.4 complete (Source Change Detection + VERIFIED Revocation)
+- **Known deferred items from P1-4.4**: EventLog still optional; human verifier identity is application-level free string (no real authentication); content_identity covers EvidenceObject fields only (no deep content hashing); no automatic change polling/scheduler
+
+**~~P1-4.4: Source Change Detection & VERIFIED Revocation~~ → ✅ COMPLETE (2026-09-01)** — content change detection + automatic VERIFIED revocation + append-only audit history, 523 tests, 0 failed
 
 **~~P1-4.3: Human Verification Authority Gate~~ → ✅ COMPLETE (2026-08-31)** — VERIFIED now grantable ONLY through Human Gate, 494 tests, 0 failed
 
@@ -1860,7 +1875,7 @@ git log -3 --oneline
 git ls-remote origin master
 python -m pytest tests/ -q
 ```
-- **Expected Output**: Worktree clean, LOCAL HEAD == REMOTE HEAD, 494 passed
+- **Expected Output**: Worktree clean, LOCAL HEAD == REMOTE HEAD, 523 passed
 - **Action Required**: If discrepancies found, record before proceeding
 
 **STEP 3**: Check Project Reality
@@ -1986,7 +2001,7 @@ python -m pytest tests/ -q
 
 **Command**: `python -m pytest tests/ -q --tb=no`
 
-**Result**: `494 passed, 0 failed, 1 warning` (as of 2026-08-31, includes P1-4.3 Human Verification Authority Gate + P1-4.2 runtime wiring + content identity + P1-4.1 F-04 containment)
+**Result**: `523 passed, 0 failed, 1 warning` (as of 2026-09-01, includes P1-4.4 Source Change Detection + VERIFIED Revocation + P1-4.3 Human Verification Authority Gate + P1-4.2 runtime wiring + content identity + P1-4.1 F-04 containment)
 
 **Warning**: StarletteDeprecationWarning (third-party library, not project issue)
 
