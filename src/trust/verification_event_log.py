@@ -346,10 +346,14 @@ class HumanVerificationAuthority:
     def from_dict(cls, data: Dict[str, Any]) -> "HumanVerificationAuthority":
         # Malformed entry → fail closed (raise).  Never silently coerce.
         try:
+            active_raw = data.get("active", True)
+            if not isinstance(active_raw, bool):
+                raise ValueError(
+                    f"'active' must be a bool, got {type(active_raw).__name__}")
             return cls(
                 verifier_id=data["verifier_id"],
                 role=data["role"],
-                active=bool(data.get("active", True)),
+                active=active_raw,
                 metadata=data.get("metadata", {}) or {},
             )
         except (KeyError, TypeError, ValueError) as exc:
@@ -372,7 +376,9 @@ class HumanVerificationAuthorityRegistry:
 
     The registry is intentionally NOT backed by a database, OAuth provider,
     or external IAM.  It is an in-memory allowlist that may be seeded at
-    construction.  Persistence is the caller's responsibility (out of scope).
+    construction or loaded from a JSON config file (P1-4.6).  Config
+    persistence solves authorization configuration durability — it does NOT
+    provide identity authentication.
     """
 
     def __init__(self, authorities: Optional[List[HumanVerificationAuthority]] = None):
@@ -380,6 +386,72 @@ class HumanVerificationAuthorityRegistry:
         if authorities is not None:
             for a in authorities:
                 self.register(a)
+
+    # -- P1-4.6: config-driven loading (fail closed) -------------------
+
+    @classmethod
+    def from_config(cls, config_path: str) -> "HumanVerificationAuthorityRegistry":
+        """Load a registry from a JSON config file (P1-4.6, fail closed).
+
+        Config format (JSON):
+            {
+                "authorities": [
+                    {
+                        "verifier_id": "human-reviewer-001",
+                        "role": "human_verifier",
+                        "active": true,
+                        "metadata": {"display_name": "Reviewer 001"}
+                    },
+                    ...
+                ]
+            }
+
+        Fail-closed semantics — the following raise and NO registry is
+        returned:
+          - File not found / not readable
+          - Malformed JSON
+          - Missing "authorities" key or wrong type
+          - Any malformed authority entry (invalid role, empty verifier_id,
+            non-bool active, etc.)
+          - Duplicate verifier_id within the config
+
+        This method establishes APPLICATION-LEVEL AUTHORIZATION
+        configuration durability.  It does NOT provide real-world identity
+        authentication.
+        """
+        if not config_path or not str(config_path).strip():
+            raise ValueError("config_path must be a non-empty string")
+        if not os.path.isfile(config_path):
+            raise FileNotFoundError(
+                f"Authority registry config file not found: {config_path}")
+        try:
+            with open(config_path, "r", encoding="utf-8") as f:
+                raw = json.load(f)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"Authority registry config is not valid JSON: {exc}") from exc
+        if not isinstance(raw, dict):
+            raise ValueError(
+                f"Authority registry config must be a JSON object, got {type(raw).__name__}")
+        authorities_data = raw.get("authorities")
+        if authorities_data is None:
+            raise ValueError(
+                "Authority registry config missing 'authorities' key")
+        if not isinstance(authorities_data, list):
+            raise ValueError(
+                f"'authorities' must be a list, got {type(authorities_data).__name__}")
+
+        # Construct authorities — from_dict raises on malformed entries.
+        authorities: List[HumanVerificationAuthority] = []
+        for i, entry in enumerate(authorities_data):
+            if not isinstance(entry, dict):
+                raise ValueError(
+                    f"Authority entry at index {i} is not a JSON object "
+                    f"(got {type(entry).__name__}) — fail closed")
+            authorities.append(HumanVerificationAuthority.from_dict(entry))
+
+        # Construct registry — register() rejects duplicate verifier_ids.
+        return cls(authorities=authorities)
 
     def register(self, authority: HumanVerificationAuthority) -> None:
         """Register a new authority.  Rejects duplicate verifier_id."""

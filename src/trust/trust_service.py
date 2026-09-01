@@ -70,6 +70,7 @@ class TrustEvidenceService:
         self,
         event_log_path: Optional[str] = None,
         authority_registry: Optional[HumanVerificationAuthorityRegistry] = None,
+        authority_registry_config_path: Optional[str] = None,
     ):
         """Initialize trust evidence service.
 
@@ -84,6 +85,13 @@ class TrustEvidenceService:
                 is registered AND active AND role matches.  When None (default),
                 VERIFIED is NEVER granted (fail closed — closes the free-string
                 verifier_id loophole).  Non-VERIFIED operations are unaffected.
+            authority_registry_config_path: (P1-4.6) Optional path to a JSON
+                config file from which to load the authority registry.  Only
+                used when ``authority_registry`` is None.  If the config file
+                is missing or malformed, construction FAILS (raises) — there
+                is no silent fallback to role-only authorization.  Config
+                persistence = authorization durability, NOT identity
+                authentication.
         """
         self.evidence_graph = EvidenceGraph()
         self.graph_query_engine = GraphQueryEngine(self.evidence_graph)
@@ -91,7 +99,18 @@ class TrustEvidenceService:
         self.event_log: Optional[VerificationEventLog] = (
             VerificationEventLog(event_log_path) if event_log_path else None
         )
-        self.authority_registry: Optional[HumanVerificationAuthorityRegistry] = authority_registry
+
+        # P1-4.6: Registry resolution — explicit registry takes precedence,
+        # then config path, then None (fail closed for VERIFIED).
+        if authority_registry is not None:
+            self.authority_registry: Optional[HumanVerificationAuthorityRegistry] = authority_registry
+        elif (authority_registry_config_path is not None
+              and str(authority_registry_config_path).strip()):
+            # Fail closed: config load errors propagate — no silent fallback.
+            self.authority_registry = HumanVerificationAuthorityRegistry.from_config(
+                authority_registry_config_path)
+        else:
+            self.authority_registry = None
         self.service_status = ServiceStatus(
             is_ready=True,
             service_name="OpenInvest Trust Evidence Service",
