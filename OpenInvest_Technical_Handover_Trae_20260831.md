@@ -1583,6 +1583,7 @@ Highest discipline: 宁可 null，不要猜。宁可 UNVERIFIED，不要 VERIFIE
 ### 22.2 Recent Commit History
 
 ```
+0209381 feat: human verification authority registry + identity binding (P1-4.5) (2026-09-01)
 ec8a2dd feat: source change detection + VERIFIED revocation (P1-4.4) (2026-09-01)
 9f87fa0 fix: update P1-4.1 tests for human authority role vocabulary (P1-4.3) (2026-08-31)
 50e4de1 feat: human verification authority gate — VERIFIED requires human decision event (P1-4.3) (2026-08-31)
@@ -1637,17 +1638,29 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-4.4 — Source Change Detection & VERIFIED Revocation**
+**Current Quest**: **P1-4.5 — Human Verification Authority Registry & Identity Binding**
 
 **Status**: ✅ **COMPLETE — VERDICT: PASS** (2026-09-01)
 
 **Completion Date**: 2026-09-01
 
-**Previous Quest**: P1-4.3 — Human Verification Authority Gate ✅ COMPLETE (2026-08-31)
+**Previous Quest**: P1-4.4 — Source Change Detection & VERIFIED Revocation ✅ COMPLETE (2026-09-01)
 
-**Quest Before**: P1-4.2 — Verification Event Log Runtime Wiring + Content Identity ✅ COMPLETE (2026-08-31)
+**Quest Before**: P1-4.3 — Human Verification Authority Gate ✅ COMPLETE (2026-08-31)
 
 ### 23.2 Quest Achievement Summary
+
+**P1-4.5 Human Verification Authority Registry & Identity Binding Results (IMPLEMENTED + VERIFIED)**:
+- ✅ NEW `HumanVerificationAuthority` dataclass (frozen, validated): verifier_id + role + active + metadata
+- ✅ NEW `HumanVerificationAuthorityRegistry` class: register/lookup/is_registered/is_active/is_authorized; duplicate rejection; malformed entry fail-closed
+- ✅ VERIFIED gate now requires registry: verifier_id must be registered AND active AND role must match (10 conditions total)
+- ✅ Fail-closed: no registry → VERIFIED NEVER granted (closes free-string verifier_id loophole); unknown verifier_id → denied (never assumed human)
+- ✅ `TrustEvidenceService.__init__` gains optional `authority_registry` param; `record_human_verification()` checks registry BEFORE recording event
+- ✅ Legacy events remain readable; legacy events without registry → NOT VERIFIED; `VerificationDecision` schema unchanged
+- ✅ Registry = application-level authorization, NOT real-world identity authentication (explicitly documented)
+- ✅ Backward compatible: non-VERIFIED operations work without registry; no schema/enum/taxonomy/trust-score changes
+- ✅ Test count: 523 → 565 (+42 new, 0 failed, 1 pre-existing warning)
+- Report: `docs/Human_Verification_Authority_Registry_20260901.md`
 
 **P1-4.4 Source Change Detection & VERIFIED Revocation Results (IMPLEMENTED + VERIFIED)**:
 - ✅ NEW `detect_content_change()` on `TrustEvidenceService` — compares latest verified event's content_identity against current; detects source/content changes (Rule A)
@@ -1690,7 +1703,7 @@ git rev-parse origin/master
 - ✅ Test count: 406 → 434 (+28 new, 0 failed, 1 pre-existing warning)
 - Report: `docs/Real_Policy_Verification_Durable_Event_Log_20260831.md`
 
-**Testing Status**: **523 passed, 0 failed** (as of 2026-09-01, includes P1-4.4 Source Change Detection + VERIFIED Revocation)
+**Testing Status**: **565 passed, 0 failed** (as of 2026-09-01, includes P1-4.5 Human Verification Authority Registry & Identity Binding)
 
 **P1-4.0 Real Policy Verification Workflow Audit & Design Results (AUDIT / DESIGN)**:
 - ✅ AUDIT: **VERIFIED production path: NOT FOUND** — repo-wide, no code grants VERIFIED; `provenance_validator.py` only validates pre-existing labels; `verify_evidence()` is mock-only and sets MOCK ("not authoritative"); all 21 seed records are `is_mock:true / "mock"`; zero verified policies
@@ -1779,6 +1792,8 @@ git rev-parse origin/master
 - Independent verification: 37/37 parser runtime checks PASS (P1-3.3.1, see Section 23.2)
 
 **Documentation Evidence**:
+- Complete Human_Verification_Authority_Registry_20260901.md (P1-4.5 authority registry + identity binding)
+- Complete Source_Change_Detection_VERIFIED_Revocation_20260901.md (P1-4.4 source change detection + revocation)
 - Complete Human_Verification_Authority_Gate_20260831.md (P1-4.3 implementation + VERIFIED gate)
 - Complete Real_Policy_Verification_Runtime_Wiring_20260831.md (P1-4.2 runtime wiring + content identity)
 - Complete Real_Policy_Verification_Durable_Event_Log_20260831.md (P1-4.1 implementation + F-04 containment)
@@ -1803,11 +1818,14 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**NEXT QUEST — P1-4.5: TBD** (awaiting user directive)
+**NEXT QUEST — P1-4.6: TBD** (awaiting user directive)
 - **Priority**: TBD
 - **Purpose**: TBD
-- **Dependencies**: P1-4.4 complete (Source Change Detection + VERIFIED Revocation)
-- **Known deferred items from P1-4.4**: EventLog still optional; human verifier identity is application-level free string (no real authentication); content_identity covers EvidenceObject fields only (no deep content hashing); no automatic change polling/scheduler
+- **Dependencies**: P1-4.5 complete (Human Verification Authority Registry & Identity Binding)
+- **Known deferred items from P1-4.5**: Registry is in-memory (no persistence on restart); verifier_id is still application-level string (no cryptographic identity binding); no registry admin UI; no role hierarchy (flat allowlist)
+- **Known deferred items from P1-4.4**: EventLog still optional; content_identity covers EvidenceObject fields only (no deep content hashing); no automatic change polling/scheduler
+
+**~~P1-4.5: Human Verification Authority Registry & Identity Binding~~ → ✅ COMPLETE (2026-09-01)** — VERIFIED now requires registered+active verifier in Authority Registry; free-string verifier_id loophole closed (fail closed), 565 tests, 0 failed
 
 **~~P1-4.4: Source Change Detection & VERIFIED Revocation~~ → ✅ COMPLETE (2026-09-01)** — content change detection + automatic VERIFIED revocation + append-only audit history, 523 tests, 0 failed
 
