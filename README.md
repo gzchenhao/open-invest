@@ -1,5 +1,8 @@
 # OpenInvest
 
+![Tests](https://github.com/gzchenhao/open-invest/actions/workflows/tests.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)
+
 **An open protocol and evidence infrastructure for trustworthy hard-tech investment intelligence.**
 
 OpenInvest provides a deterministic evidence layer, provenance tracking, and a fail-closed verification boundary for policy and investment intelligence. OpenInvest is currently an experimental framework — not a production system, not a government data source, and not an identity authentication platform.

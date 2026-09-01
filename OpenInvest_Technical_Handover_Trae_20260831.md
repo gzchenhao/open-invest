@@ -1639,17 +1639,28 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-5.4 — Developer Quickstart & First-Run Experience**
+**Current Quest**: **P1-5.5 — Minimal GitHub Actions CI + Project Credibility Signal**
 
 **Status**: ✅ **COMPLETE — VERDICT: PASS** (2026-09-01)
 
 **Completion Date**: 2026-09-01
 
-**Previous Quest**: P1-5.3 — Documentation Index / GitHub Discoverability ✅ COMPLETE (2026-09-01)
+**Previous Quest**: P1-5.4 — Developer Quickstart & First-Run Experience ✅ COMPLETE (2026-09-01)
 
-**Quest Before**: P1-5.2 — Trust Verification Showcase Demo ✅ COMPLETE (2026-09-01)
+**Quest Before**: P1-5.3 — Documentation Index / GitHub Discoverability ✅ COMPLETE (2026-09-01)
 
 ### 23.2 Quest Achievement Summary
+
+**P1-5.5 Minimal GitHub Actions CI + Project Credibility Signal Results (CI + BADGE ONLY — No production code changed)**:
+- ✅ Created `.github/workflows/tests.yml` — runs on push/PR to master, Python 3.11 + 3.12 matrix, installs requirements.txt, runs `python -m pytest tests/ -q`
+- ✅ README updated with real GitHub Actions badge (points to actual workflow URL)
+- ✅ Badge URL: `https://github.com/gzchenhao/open-invest/actions/workflows/tests.yml/badge.svg`
+- ✅ Python version badge added (3.11 | 3.12)
+- ✅ No fake badges (no coverage, no security, no production-readiness claims)
+- ✅ No production code changed
+- ✅ Test count: 637 passed, 0 failed (unchanged — CI/badge-only change)
+- ✅ CI status: CONFIGURED / NOT YET REMOTE-VERIFIED (requires GitHub runner to execute after push)
+- ✅ GitHub metadata audit: Topics, description, homepage not modified (audit-only per directive)
 
 **P1-5.4 Developer Quickstart & First-Run Experience Results (DOCUMENTATION ONLY — No production code changed)**:
 - ✅ Created `QUICKSTART.md` — 2-minute quickstart: prerequisites, install, demo, test suite, boundaries
@@ -1879,11 +1890,14 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**NEXT QUEST — P1-5.5: TBD** (awaiting user directive)
+**NEXT QUEST — P1-5.6: TBD** (awaiting user directive)
 - **Priority**: TBD
 - **Purpose**: TBD
-- **Dependencies**: P1-5.4 complete (Developer Quickstart)
-- **Known deferred items from P1-5.4**: No CI workflow (proposed as separate quest if desired); no screenshots (text-only output)
+- **Dependencies**: P1-5.5 complete (CI + Badge)
+- **Known deferred items from P1-5.5**: CI not yet remote-verified; GitHub Topics/description/homepage not set (audit-only)
+- **Suggested future Quest**: Set GitHub Topics, description, homepage via repo settings (requires GitHub UI/API access)
+
+**~~P1-5.5: Minimal GitHub Actions CI~~ → ✅ COMPLETE (2026-09-01)** — Created .github/workflows/tests.yml (Python 3.11+3.12, push/PR). README badge added (real URL). CI CONFIGURED / NOT YET REMOTE-VERIFIED. 637 tests, 0 failed.
 
 **~~P1-5.4: Developer Quickstart~~ → ✅ COMPLETE (2026-09-01)** — Created QUICKSTART.md (2-min quickstart, real demo output, 7 state transitions, boundaries table). README updated. No CI badge (no workflow). 637 tests, 0 failed.
 
