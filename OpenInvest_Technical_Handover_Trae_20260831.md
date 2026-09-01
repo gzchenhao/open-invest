@@ -1639,17 +1639,33 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-5.5 — Minimal GitHub Actions CI + Project Credibility Signal**
+**Current Quest**: **P1-5.6 — GitHub Repository Metadata & Discoverability Audit**
 
 **Status**: ✅ **COMPLETE — VERDICT: PASS** (2026-09-01)
 
 **Completion Date**: 2026-09-01
 
-**Previous Quest**: P1-5.4 — Developer Quickstart & First-Run Experience ✅ COMPLETE (2026-09-01)
+**Previous Quest**: P1-5.5 — Minimal GitHub Actions CI + Project Credibility Signal ✅ COMPLETE (2026-09-01)
 
-**Quest Before**: P1-5.3 — Documentation Index / GitHub Discoverability ✅ COMPLETE (2026-09-01)
+**Quest Before**: P1-5.4 — Developer Quickstart & First-Run Experience ✅ COMPLETE (2026-09-01)
 
 ### 23.2 Quest Achievement Summary
+
+**P1-5.6 GitHub Repository Metadata & Discoverability Audit Results (AUDIT + CI BUGFIX ONLY — No production code changed)**:
+- ✅ CI REMOTE FAIL found: P1-5.5 workflow Run #1 failed — `working-directory: open-invest-protocol` does not exist (repo root IS open-invest-protocol content)
+- ✅ CI FIXED: Removed `working-directory` from install + test steps in `.github/workflows/tests.yml`
+- ✅ CI status: RE-CONFIGURED / pending remote run #2 verification on push
+- ✅ Repository description AUDITED + suggested value provided (113 chars, matches README positioning)
+- ✅ GitHub Topics AUDITED + 11 suggested topics (deeptech, investment-intelligence, evidence-graph, provenance, verification, trust, ai, autonomous-driving, policy-analysis, new-energy, semiconductor)
+- ✅ Topics NOT suggested: government, production, enterprise, mcp, a2a, agi, oauth, authentication, database
+- ✅ Homepage AUDITED: Recommend leaving blank (no real product site)
+- ✅ Social preview AUDITED: Recommend auto-generated placeholder (no brand asset; acceptable)
+- ✅ Repository visibility: Public ✅ (confirmed)
+- ✅ README consistency chain audit: description → README → QUICKSTART → demo → docs/README.md — NO contradictions
+- ✅ TRAE cannot write GitHub settings via API (no token/credential) — manual setup instructions provided in audit doc
+- ✅ Report: `docs/GitHub_Repository_Metadata_Audit_20260901.md`
+- ✅ No production code changed
+- ✅ Test count: 637 passed, 0 failed (unchanged)
 
 **P1-5.5 Minimal GitHub Actions CI + Project Credibility Signal Results (CI + BADGE ONLY — No production code changed)**:
 - ✅ Created `.github/workflows/tests.yml` — runs on push/PR to master, Python 3.11 + 3.12 matrix, installs requirements.txt, runs `python -m pytest tests/ -q`
@@ -1890,12 +1906,14 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**NEXT QUEST — P1-5.6: TBD** (awaiting user directive)
+**NEXT QUEST — P1-6: TBD** (awaiting user directive)
 - **Priority**: TBD
 - **Purpose**: TBD
-- **Dependencies**: P1-5.5 complete (CI + Badge)
-- **Known deferred items from P1-5.5**: CI not yet remote-verified; GitHub Topics/description/homepage not set (audit-only)
-- **Suggested future Quest**: Set GitHub Topics, description, homepage via repo settings (requires GitHub UI/API access)
+- **Dependencies**: P1-5.6 complete (Metadata Audit + CI fix)
+- **Known deferred items from P1-5.6**: CI run #2 pending remote verification; GitHub metadata (description/topics/homepage/social preview) requires manual GitHub UI setup; Python badge not yet green (CI not yet passing)
+- **Suggested immediate action**: After CI run #2 completes, badge will turn green automatically if tests pass; then manually apply GitHub description + topics per audit doc
+
+**~~P1-5.6: GitHub Metadata Audit~~ → ✅ COMPLETE (2026-09-01)** — CI FAIL fixed (removed working-directory). Description/topics/homepage/social preview audited + suggested values for manual setup. README consistency chain verified. 637 tests, 0 failed.
 
 **~~P1-5.5: Minimal GitHub Actions CI~~ → ✅ COMPLETE (2026-09-01)** — Created .github/workflows/tests.yml (Python 3.11+3.12, push/PR). README badge added (real URL). CI CONFIGURED / NOT YET REMOTE-VERIFIED. 637 tests, 0 failed.
 

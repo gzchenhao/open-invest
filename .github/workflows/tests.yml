@@ -23,11 +23,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        working-directory: open-invest-protocol
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run tests
-        working-directory: open-invest-protocol
         run: python -m pytest tests/ -q
