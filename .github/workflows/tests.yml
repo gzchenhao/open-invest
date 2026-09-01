@@ -37,23 +37,20 @@ jobs:
           set -o pipefail
           python -m pytest tests/ --ignore=tests/integration --tb=long -v 2>&1 | tee /tmp/pytest_output.txt
 
-      - name: Write test output to step summary
+      - name: Report failures as annotations
         if: always()
         run: |
-          echo "## Pytest Output (Python ${{ matrix.python-version }})" >> $GITHUB_STEP_SUMMARY
-          echo '### FAILED / ERROR lines:' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          grep -E "^FAILED|^ERRORS|^=.*FAILURES|^=.*ERRORS|short test summary|Process completed" /tmp/pytest_output.txt >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo "(no FAILED lines found)" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo '### Last 100 lines of full output:' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          tail -100 /tmp/pytest_output.txt >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "=== FAILED/ERROR lines ==="
+          grep -E "^FAILED|^ERRORS|^=.*FAILURES|^=.*ERRORS|short test summary" /tmp/pytest_output.txt || echo "(no FAILED lines found)"
+          echo "=== Last 30 lines ==="
+          tail -30 /tmp/pytest_output.txt
+          echo "=== First 30 lines ==="
+          head -30 /tmp/pytest_output.txt
 
       - name: Check exit code
         if: always()
         run: |
           if [ "${{ steps.tests.outcome }}" != "success" ]; then
-            echo "Tests failed. See step summary for details."
+            echo "::error::Tests failed. Check 'Report failures' step for details."
             exit 1
           fi
