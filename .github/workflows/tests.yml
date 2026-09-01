@@ -37,33 +37,26 @@ jobs:
           set -o pipefail
           python -m pytest tests/ --ignore=tests/integration --tb=long -v 2>&1 | tee /tmp/pytest_output.txt
 
-      - name: Post test output as commit comment
+      - name: Report failures
         if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            let output = '';
-            try {
-              output = fs.readFileSync('/tmp/pytest_output.txt', 'utf8');
-            } catch (e) {
-              output = 'Could not read pytest output: ' + e.message;
-            }
-            const lines = output.split('\n');
-            const last80 = lines.slice(-80).join('\n');
-            const first30 = lines.slice(0, 30).join('\n');
-            const body = `## Pytest Output (Python ${{ matrix.python-version }})\n\n### First 30 lines:\n\`\`\`\n${first30}\n\`\`\`\n\n### Last 80 lines:\n\`\`\`\n${last80}\n\`\`\`\n`;
-            await github.rest.repos.createCommitComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: context.sha,
-              body: body
-            });
+        run: |
+          # Extract key failure info and emit as error annotations
+          echo "=== PYTEST OUTPUT START ==="
+          head -30 /tmp/pytest_output.txt 2>/dev/null || echo "(no output file)"
+          echo "=== PYTEST OUTPUT MIDDLE (FAILED lines) ==="
+          grep -E "FAILED|ERROR|Error|error|Exception|Traceback|assert" /tmp/pytest_output.txt 2>/dev/null | head -20 || echo "(no failure lines)"
+          echo "=== PYTEST OUTPUT END (last 50 lines) ==="
+          tail -50 /tmp/pytest_output.txt 2>/dev/null || echo "(no output file)"
+          echo "=== PYTEST OUTPUT DONE ==="
+
+          # Also emit as annotation (first 4000 chars of last 50 lines)
+          SUMMARY=$(tail -50 /tmp/pytest_output.txt 2>/dev/null | head -c 4000 | tr '\n' '|')
+          echo "::error::PYTEST_OUTPUT_PY${{ matrix.python-version }}=${SUMMARY}"
 
       - name: Check exit code
         if: always()
         run: |
           if [ "${{ steps.tests.outcome }}" != "success" ]; then
-            echo "::error::Tests failed. See commit comment for details."
+            echo "::error::Tests failed. Check 'Report failures' step output."
             exit 1
           fi
