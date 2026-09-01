@@ -34,13 +34,11 @@ OpenInvest addresses this with an **evidence + provenance + verification** archi
 git clone https://github.com/gzchenhao/open-invest.git
 cd open-invest/open-invest-protocol
 pip install -r requirements.txt
-python -m pytest tests/ -q          # 611 tests, 0 failed
-python examples/trust_pipeline_demo.py   # see the evidence pipeline (note: demo has a known bug, see below)
+python -m pytest tests/ -q          # 637 tests, 0 failed
+python examples/trust_pipeline_demo.py   # see the verification lifecycle (10 steps)
 ```
 
-The demo walks through: Evidence Object → Provenance Chain → Trust Score → Evidence Graph. All demo data is **MOCK** — no real government data is included.
-
-> **Known demo bug:** `trust_pipeline_demo.py` currently fails with `NameError: name 'step1_create_evidence_objects' is not defined` (function defined as `step1_create_evidence_object`). This is a demo-only bug; production code and tests are unaffected. Fixing it is out of scope for this README-only Quest.
+The demo shows the complete verification lifecycle: Create Evidence → Agent/System Denied → Human Verification → VERIFIED → Content Change → Revocation → Re-verification. All demo data is **MOCK** — no real government data is included.
 
 ---
 
@@ -60,21 +58,42 @@ pip install -r requirements.txt
 python -m pytest tests/ -q
 ```
 
-**Expected:** `611 passed, 0 failed` — the test suite covers the JSON-RPC server, client, integration, canonical taxonomy, evidence graph, provenance, trust score, verification event log, human verification gate, content identity, revocation, and authority registry.
+**Expected:** `637 passed, 0 failed` — the test suite covers the JSON-RPC server, client, integration, canonical taxonomy, evidence graph, provenance, trust score, verification event log, human verification gate, content identity, revocation, authority registry, config-driven registry, and the verification showcase demo.
 
-### 3. Run the Trust Pipeline Demo
+### 3. Run the Trust Verification Showcase Demo
 
 ```bash
 python examples/trust_pipeline_demo.py
 ```
 
-**What it shows:**
-- Creates Evidence Objects from MOCK policy/company/evidence data
-- Builds Provenance Chains for each evidence
-- Calculates Trust Scores
-- Builds an Evidence Graph with typed relations
+**What it shows (10 steps, all via real production APIs):**
+1. Create Evidence → UNVERIFIED
+2. Agent attempt → DENIED (not human authority)
+3. System attempt → DENIED (not human authority)
+4. Human Authority verification → VERIFIED
+5. MOCK evidence → remains MOCK (can never be VERIFIED)
+6. Content change → content_identity changes
+7. Change detection → VERIFIED invalid
+8. Revocation → UNVERIFIED (revocation event recorded)
+9. Human Re-verification → VERIFIED (new content_identity)
+10. Event history → append-only log (verified + revoked + verified)
 
-**What is MOCK:** All data in `examples/trust_demo/` is mock. No real government data exists in this repository. The demo does **not** demonstrate the VERIFIED gate (see [Verification System](#verification-system) below).
+**Sample output:**
+```
+[4] HUMAN AUTHORITY VERIFICATION
+    Verifier: demo-human-verifier (registered, active, human_verifier)
+    Result: VERIFIED
+
+[8] REVOCATION
+    Revoked: True
+    Status After Revocation: UNVERIFIED
+
+[9] HUMAN RE-VERIFICATION
+    Result: VERIFIED
+    VERIFIED Valid: True
+```
+
+**What is MOCK:** All demo data is mock. The demo authority (`demo-human-verifier`) is an application-level demo identifier, NOT real-world identity authentication. See [Verification System](#verification-system) below.
 
 ### 4. Start the JSON-RPC Protocol Server (Advanced)
 
@@ -186,7 +205,7 @@ If any condition fails, VERIFIED is refused.
 | Human Authority Registry | Implemented |
 | Config-driven Registry Loading | Implemented |
 | Content-change Revocation | Implemented |
-| Trust Pipeline Demo | Prototype (has known bug) |
+| Trust Pipeline Demo | Implemented (verification lifecycle showcase) |
 | Policy Crawlers | Prototype (mock/sample data) |
 | Web Portal (port 8017) | Prototype (mock policy search) |
 | Real-world Identity Authentication | Not Implemented |
@@ -218,9 +237,9 @@ python -m pytest tests/client/test_client.py -q                 # client
 python -m pytest tests/integration/test_integration.py -q       # integration
 ```
 
-**Current result:** 611 passed, 0 failed.
+**Current result:** 637 passed, 0 failed.
 
-Test coverage spans: JSON-RPC server endpoints, client logic, end-to-end integration, canonical taxonomy, evidence graph, provenance, trust score, verification event log, human verification gate, authority registry, config-driven registry loading, content-change revocation, architecture invariants, and UI mock disclosure.
+Test coverage spans: JSON-RPC server endpoints, client logic, end-to-end integration, canonical taxonomy, evidence graph, provenance, trust score, verification event log, human verification gate, authority registry, config-driven registry loading, content-change revocation, verification showcase demo, architecture invariants, and UI mock disclosure.
 
 ---
 
@@ -279,9 +298,9 @@ open-invest-protocol/
 ├── client/                       # Client CLI (Implemented)
 ├── schema/                       # Protocol types + canonical taxonomy
 ├── examples/                     # Demos
-│   ├── trust_pipeline_demo.py    #   Trust pipeline demo (prototype, has bug)
+│   ├── trust_pipeline_demo.py    #   Verification lifecycle showcase demo
 │   └── trust_demo/               #   Mock demo data
-├── tests/                        # 611 tests, 0 failed
+├── tests/                        # 637 tests, 0 failed
 ├── docs/                         # Documentation
 ├── policy_crawler/               # Policy crawlers (prototype, mock data)
 ├── global_policy_aggregator/     # China policy intelligence (prototype)
@@ -297,7 +316,7 @@ We welcome contributions. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 **Good first contributions:**
 - Documentation improvements
 - Test coverage expansion
-- Demo fixes (e.g., the `trust_pipeline_demo.py` bug)
+- Demo fixes (e.g., extending the verification showcase demo)
 - Example scripts
 
 **Do not contribute:**
@@ -317,7 +336,7 @@ MIT License — see [LICENSE](LICENSE).
 
 **OpenInvest** — Evidence infrastructure for trustworthy hard-tech investment intelligence.
 
-Experimental framework · 611 tests · No real government data · No identity authentication
+Experimental framework · 637 tests · No real government data · No identity authentication
 
 ⭐ If this project's technical direction is interesting, consider giving it a star.
 

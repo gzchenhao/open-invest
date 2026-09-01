@@ -1639,17 +1639,29 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-5.1 — README Public Product Reset**
+**Current Quest**: **P1-5.2 — Trust Verification Showcase Demo**
 
 **Status**: ✅ **COMPLETE — VERDICT: PASS** (2026-09-01)
 
 **Completion Date**: 2026-09-01
 
-**Previous Quest**: P1-5 Phase 0 — Public Product DX Audit ✅ COMPLETE (2026-09-01)
+**Previous Quest**: P1-5.1 — README Public Product Reset ✅ COMPLETE (2026-09-01)
 
-**Quest Before**: P1-4.6 — Persistent / Config-Driven Human Authority Registry ✅ COMPLETE (2026-09-01)
+**Quest Before**: P1-5 Phase 0 — Public Product DX Audit ✅ COMPLETE (2026-09-01)
 
 ### 23.2 Quest Achievement Summary
+
+**P1-5.2 Trust Verification Showcase Demo Results (DEMO + TESTS)**:
+- ✅ FIXED `trust_pipeline_demo.py` NameError (step1_create_evidence_objects → step_create_evidence)
+- ✅ REWROTE demo from old evidence-graph demo to verification lifecycle showcase (10 steps, all via real production APIs)
+- ✅ Demo demonstrates: Create → Agent/System Denied → Human VERIFIED → MOCK stays MOCK → Content Change → Revocation → Re-verification → Event History
+- ✅ No bypass: demo calls only TrustEvidenceService / HumanVerificationGate / AuthorityRegistry production APIs
+- ✅ No fake claims: DEMO DATA, application-level authority, NOT real identity authentication
+- ✅ Temporary EventLog (no repository pollution, cleaned up after run)
+- ✅ 26 new demo-specific tests (test_trust_pipeline_demo.py), 637 total, 0 failed
+- ✅ Demo runs successfully (exit code 0)
+- ✅ README updated: test count 611→637, demo description updated, sample output added, status matrix updated
+- Report: `docs/Trust_Verification_Showcase_Demo_20260901.md`
 
 **P1-5.1 README Public Product Reset Results (DOCUMENTATION ONLY — No production code changed)**:
 - ✅ README rewritten from 557 lines (internally-focused, old protocol layer marketing) to ~325 lines (public-product-grade)
@@ -1845,12 +1857,14 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**NEXT QUEST — P1-5.2: Quick Start Rewrite** (awaiting user directive)
+**NEXT QUEST — P1-5.3: TBD** (awaiting user directive)
 - **Priority**: TBD
-- **Purpose**: P1-5 audit recommended pivoting Quick Start to show verification gate in action (create evidence → human verification → gate decision → content change → revocation)
-- **Dependencies**: P1-5.1 complete (README Public Product Reset)
-- **Known deferred items from P1-5.1**: `trust_pipeline_demo.py` has a NameError bug (step1_create_evidence_objects vs step1_create_evidence_object) — needs fix before P1-5.2 can make demo the primary Quick Start
-- **Known deferred items from P1-4.6**: Config read once (no hot-reload); no config file watching; verifier_id still application-level string
+- **Purpose**: TBD
+- **Dependencies**: P1-5.2 complete (Trust Verification Showcase Demo)
+- **Known deferred items from P1-5.2**: Demo authority is hardcoded (not from config); demo uses single evidence (no multi-evidence graph); demo is text-only (no visual)
+- **Known deferred items from P1-5.1**: `trust_pipeline_demo.py` NameError fixed (P1-5.2)
+
+**~~P1-5.2: Trust Verification Showcase Demo~~ → ✅ COMPLETE (2026-09-01)** — Demo rewritten as 10-step verification lifecycle showcase; NameError fixed; 26 new tests; 637 total, 0 failed; demo runs successfully
 
 **~~P1-5.1: README Public Product Reset~~ → ✅ COMPLETE (2026-09-01)** — README rewritten public-product-grade; verification chain surfaced; test count 68→611; status matrix; architecture diagram; docs nav, 611 tests, 0 failed
 
