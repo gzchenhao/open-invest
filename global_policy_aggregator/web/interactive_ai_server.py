@@ -968,7 +968,23 @@ async def generate_policy_pdf(policy_id: int):
         font_name = "SimHei"
     else:
         font_name = "Helvetica"
-    
+
+    # P1-6.1: Linux CI 环境无 SimHei 中文字体，Helvetica 不支持中文，直接渲染会抛
+    # FPDFUnicodeEncodingException 导致端点 500。字体不可用时生成保留 MOCK 披露的
+    # 最小英文 PDF 并提前返回。不修改 MOCK / verification_status 语义，仅为环境兼容。
+    if font_name == "Helvetica":
+        pdf.set_font("Helvetica", size=12)
+        pdf.cell(0, 10, "MOCK / DEMONSTRATION DATA", ln=True)
+        pdf.cell(0, 10, f"Policy ID: {policy_id} (CJK font not available)", ln=True)
+        pdf.cell(0, 10, "This is synthetic mock data, not a real government policy.", ln=True)
+        pdf.cell(0, 10, "Unverified - do not use for real investment decisions.", ln=True)
+        pdf_bytes = pdf.output()
+        return StreamingResponse(
+            io.BytesIO(pdf_bytes),
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename=policy_{policy_id}.pdf"}
+        )
+
     # 标题
     pdf.set_font(font_name, size=18)
     pdf.cell(0, 15, policy["title"], ln=True, align="C")

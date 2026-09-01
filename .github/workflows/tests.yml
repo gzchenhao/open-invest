@@ -38,7 +38,7 @@ jobs:
           python -m pytest tests/ --ignore=tests/integration --tb=long -v 2>&1 | tee /tmp/pytest_output.txt
 
       - name: Report failures
-        if: always()
+        if: always() && steps.tests.outcome != 'success'
         run: |
           # Extract key failure info and emit as error annotations
           echo "=== PYTEST OUTPUT START ==="
