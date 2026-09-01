@@ -31,6 +31,8 @@ from .verification_event_log import (
     VerificationDecision,
     VerificationEventLog,
     HumanVerificationGate,
+    HumanVerificationAuthority,
+    HumanVerificationAuthorityRegistry,
     HUMAN_AUTHORITY_ROLES,
     compute_content_identity,
 )
@@ -64,7 +66,11 @@ class TrustEvidenceService:
     - Production verification: NOT IMPLEMENTED
     """
     
-    def __init__(self, event_log_path: Optional[str] = None):
+    def __init__(
+        self,
+        event_log_path: Optional[str] = None,
+        authority_registry: Optional[HumanVerificationAuthorityRegistry] = None,
+    ):
         """Initialize trust evidence service.
 
         Args:
@@ -73,6 +79,11 @@ class TrustEvidenceService:
                 VerificationDecision events to this log.  When None (default),
                 no event log is active — backward compatible with all
                 existing callers that use TrustEvidenceService().
+            authority_registry: (P1-4.5) Optional HumanVerificationAuthorityRegistry.
+                When provided, VERIFIED can only be granted if the verifier_id
+                is registered AND active AND role matches.  When None (default),
+                VERIFIED is NEVER granted (fail closed — closes the free-string
+                verifier_id loophole).  Non-VERIFIED operations are unaffected.
         """
         self.evidence_graph = EvidenceGraph()
         self.graph_query_engine = GraphQueryEngine(self.evidence_graph)
@@ -80,6 +91,7 @@ class TrustEvidenceService:
         self.event_log: Optional[VerificationEventLog] = (
             VerificationEventLog(event_log_path) if event_log_path else None
         )
+        self.authority_registry: Optional[HumanVerificationAuthorityRegistry] = authority_registry
         self.service_status = ServiceStatus(
             is_ready=True,
             service_name="OpenInvest Trust Evidence Service",
@@ -333,6 +345,21 @@ class TrustEvidenceService:
                 "message": "Human verification requires a durable event log"
             }
 
+        # P1-4.5: Authority Registry required — fail closed.
+        # Without a registry, VERIFIED is NEVER granted (closes the free-string
+        # verifier_id loophole).  The event is NOT recorded when the registry
+        # is absent, because recording a "verified" event that can never be
+        # granted would only pollute the audit log.
+        if self.authority_registry is None:
+            return {
+                "success": False,
+                "evidence_id": evidence_id,
+                "error": "no_authority_registry",
+                "verification_status": "UNVERIFIED",
+                "message": "No Authority Registry configured — VERIFIED cannot be "
+                           "granted without a registered, active verifier (P1-4.5)"
+            }
+
         # Rule A/B: validate verifier_role
         if verifier_role not in HUMAN_AUTHORITY_ROLES:
             return {
@@ -342,6 +369,27 @@ class TrustEvidenceService:
                 "verification_status": "UNVERIFIED",
                 "message": f"verifier_role '{verifier_role}' is not in HUMAN_AUTHORITY_ROLES "
                            f"({sorted(HUMAN_AUTHORITY_ROLES)}). Agent/System/Mock cannot grant VERIFIED."
+            }
+
+        # P1-4.5: verifier_id must be registered AND active AND role must match.
+        # This is the identity-binding gate — an unregistered verifier_id is
+        # denied, never assumed human.
+        if not self.authority_registry.is_authorized(verifier_id, verifier_role):
+            if not self.authority_registry.is_registered(verifier_id):
+                msg = (f"verifier_id '{verifier_id}' is NOT registered in the "
+                       "Authority Registry — unknown verifier denied (P1-4.5)")
+            elif not self.authority_registry.is_active(verifier_id):
+                msg = (f"verifier_id '{verifier_id}' is registered but INACTIVE — "
+                       "inactive verifier cannot grant VERIFIED (P1-4.5)")
+            else:
+                msg = (f"verifier_id '{verifier_id}' registered role does not match "
+                       f"verifier_role '{verifier_role}' — role mismatch denied (P1-4.5)")
+            return {
+                "success": False,
+                "evidence_id": evidence_id,
+                "error": "verifier_not_authorized",
+                "verification_status": "UNVERIFIED",
+                "message": msg
             }
 
         # Rule B: verifier_id must be present
@@ -401,7 +449,7 @@ class TrustEvidenceService:
             self.event_log.append(decision)  # raises on failure — never silent
 
             # Gate check: verify ALL conditions before granting VERIFIED
-            gate = HumanVerificationGate(self.event_log)
+            gate = HumanVerificationGate(self.event_log, self.authority_registry)
             gate_result = gate.can_grant_verified(
                 evidence_id=evidence_id,
                 expected_content_identity=current_content_identity,
@@ -654,7 +702,7 @@ class TrustEvidenceService:
                 or (evidence_data.get("metadata", {}) or {}).get("is_mock", False)
             )
 
-            gate = HumanVerificationGate(self.event_log)
+            gate = HumanVerificationGate(self.event_log, self.authority_registry)
             state = gate.get_effective_verified_state(
                 evidence_id=evidence_id,
                 current_content_identity=current_ci,

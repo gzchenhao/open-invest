@@ -23,9 +23,28 @@ from trust.verification_event_log import (
     VerificationDecision,
     VerificationEventLog,
     HumanVerificationGate,
+    HumanVerificationAuthority,
+    HumanVerificationAuthorityRegistry,
     HUMAN_AUTHORITY_ROLES,
     compute_content_identity,
 )
+
+
+def _build_test_registry():
+    """Build a registry seeded with the standard test verifiers (P1-4.5).
+
+    Only registered + active verifiers can grant VERIFIED.  Tests that
+    exercise rejection paths (agent/system/unknown) do NOT register those
+    identifiers — they are denied by design.
+    """
+    return HumanVerificationAuthorityRegistry([
+        HumanVerificationAuthority("test-verifier", "human_verifier"),
+        HumanVerificationAuthority("test-verifier-001", "human_verifier"),
+        HumanVerificationAuthority("test-human-verifier-001", "human_verifier"),
+        HumanVerificationAuthority("test-reviewer-002", "authorized_reviewer"),
+        HumanVerificationAuthority("v1", "human_verifier"),
+        HumanVerificationAuthority("v2", "human_verifier"),
+    ])
 
 
 class TestHumanAuthorityGate(unittest.TestCase):
@@ -34,7 +53,7 @@ class TestHumanAuthorityGate(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
         self.log_path = os.path.join(self.tmpdir, "events.jsonl")
-        self.service = TrustEvidenceService(event_log_path=self.log_path)
+        self.service = TrustEvidenceService(event_log_path=self.log_path, authority_registry=_build_test_registry())
         # Create non-mock UNVERIFIED evidence
         self.service.create_evidence({
             "id": "ev_hv_001", "type": "policy", "source": "government",
@@ -118,7 +137,7 @@ class TestEventIntegrity(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
         self.log_path = os.path.join(self.tmpdir, "events.jsonl")
-        self.service = TrustEvidenceService(event_log_path=self.log_path)
+        self.service = TrustEvidenceService(event_log_path=self.log_path, authority_registry=_build_test_registry())
         self.service.create_evidence({
             "id": "ev_ei_001", "type": "policy", "source": "government",
             "source_reference": "https://example.gov.cn/policy/001",
@@ -218,7 +237,7 @@ class TestSafetyBoundaries(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
         self.log_path = os.path.join(self.tmpdir, "events.jsonl")
-        self.service = TrustEvidenceService(event_log_path=self.log_path)
+        self.service = TrustEvidenceService(event_log_path=self.log_path, authority_registry=_build_test_registry())
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir, ignore_errors=True)
@@ -267,7 +286,7 @@ class TestSafetyBoundaries(unittest.TestCase):
             content_identity="some_hash", evidence_refs=["ref"])
         self.service.event_log.append(d)
         # Now check gate
-        gate = HumanVerificationGate(self.service.event_log)
+        gate = HumanVerificationGate(self.service.event_log, self.service.authority_registry)
         result = gate.can_grant_verified("ev_agent_001", "some_hash", False)
         self.assertFalse(result["granted"])
 
@@ -286,7 +305,7 @@ class TestSafetyBoundaries(unittest.TestCase):
             "verification_status": "UNVERIFIED", "confidence_score": 0.5,
         })
         # No human verification recorded — just check gate
-        gate = HumanVerificationGate(self.service.event_log)
+        gate = HumanVerificationGate(self.service.event_log, self.service.authority_registry)
         result = gate.can_grant_verified("ev_gov_001", "any_hash", False)
         self.assertFalse(result["granted"])
 
@@ -318,7 +337,7 @@ class TestPersistence(unittest.TestCase):
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def test_ps_001_decision_survives_replay(self):
-        service = TrustEvidenceService(event_log_path=self.log_path)
+        service = TrustEvidenceService(event_log_path=self.log_path, authority_registry=_build_test_registry())
         service.create_evidence({
             "id": "ev_ps_001", "type": "policy", "source": "government",
             "source_reference": "https://example.gov.cn/1",
@@ -335,7 +354,8 @@ class TestPersistence(unittest.TestCase):
         self.assertEqual(events[0].decision, "verified")
 
     def test_ps_002_matching_event_found_across_instances(self):
-        service1 = TrustEvidenceService(event_log_path=self.log_path)
+        registry = _build_test_registry()
+        service1 = TrustEvidenceService(event_log_path=self.log_path, authority_registry=registry)
         service1.create_evidence({
             "id": "ev_ps_002", "type": "policy", "source": "government",
             "source_reference": "https://example.gov.cn/1",
@@ -347,15 +367,15 @@ class TestPersistence(unittest.TestCase):
             verifier_role="human_verifier",
             verification_evidence=["ref"])
         # New service instance
-        service2 = TrustEvidenceService(event_log_path=self.log_path)
-        gate = HumanVerificationGate(service2.event_log)
+        service2 = TrustEvidenceService(event_log_path=self.log_path, authority_registry=registry)
+        gate = HumanVerificationGate(service2.event_log, registry)
         result = gate.can_grant_verified("ev_ps_002", None, False)
         # Should find the matching event (content_identity check is skipped
         # when expected is None)
         self.assertTrue(result["granted"])
 
     def test_ps_003_verified_status_persists_in_graph(self):
-        service = TrustEvidenceService(event_log_path=self.log_path)
+        service = TrustEvidenceService(event_log_path=self.log_path, authority_registry=_build_test_registry())
         service.create_evidence({
             "id": "ev_ps_003", "type": "policy", "source": "government",
             "source_reference": "https://example.gov.cn/1",
@@ -432,7 +452,7 @@ class TestDeterminism(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
         self.log_path = os.path.join(self.tmpdir, "events.jsonl")
-        self.service = TrustEvidenceService(event_log_path=self.log_path)
+        self.service = TrustEvidenceService(event_log_path=self.log_path, authority_registry=_build_test_registry())
         self.service.create_evidence({
             "id": "ev_det_001", "type": "policy", "source": "government",
             "source_reference": "https://example.gov.cn/1",
@@ -448,7 +468,7 @@ class TestDeterminism(unittest.TestCase):
             verifier_id="test-verifier",
             verifier_role="human_verifier",
             verification_evidence=["ref"])
-        gate = HumanVerificationGate(self.service.event_log)
+        gate = HumanVerificationGate(self.service.event_log, self.service.authority_registry)
         evidence_data = self.service.get_evidence("ev_det_001")["evidence"]
         ci = compute_content_identity(evidence_data)
         r1 = gate.can_grant_verified("ev_det_001", ci, False)

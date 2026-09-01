@@ -26,9 +26,22 @@ from trust.verification_event_log import (
     VerificationDecision,
     VerificationEventLog,
     HumanVerificationGate,
+    HumanVerificationAuthority,
+    HumanVerificationAuthorityRegistry,
     HUMAN_AUTHORITY_ROLES,
     compute_content_identity,
 )
+
+
+def _build_test_registry():
+    """Build a registry seeded with the standard test verifiers (P1-4.5)."""
+    return HumanVerificationAuthorityRegistry([
+        HumanVerificationAuthority("test-verifier", "human_verifier"),
+        HumanVerificationAuthority("test-verifier-001", "human_verifier"),
+        HumanVerificationAuthority("test-reviewer-002", "authorized_reviewer"),
+        HumanVerificationAuthority("v1", "human_verifier"),
+        HumanVerificationAuthority("v2", "human_verifier"),
+    ])
 
 
 class TestContentIdentityChange(unittest.TestCase):
@@ -71,7 +84,7 @@ class TestVerifiedValidity(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
         self.log_path = os.path.join(self.tmpdir, "events.jsonl")
-        self.service = TrustEvidenceService(event_log_path=self.log_path)
+        self.service = TrustEvidenceService(event_log_path=self.log_path, authority_registry=_build_test_registry())
         self.service.create_evidence({
             "id": "ev_vv_001", "type": "policy", "source": "government",
             "source_reference": "https://example.gov.cn/policy/001",
@@ -120,7 +133,7 @@ class TestRevocation(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
         self.log_path = os.path.join(self.tmpdir, "events.jsonl")
-        self.service = TrustEvidenceService(event_log_path=self.log_path)
+        self.service = TrustEvidenceService(event_log_path=self.log_path, authority_registry=_build_test_registry())
         self.service.create_evidence({
             "id": "ev_rv_001", "type": "policy", "source": "government",
             "source_reference": "https://example.gov.cn/policy/001",
@@ -198,7 +211,7 @@ class TestSecurityBoundaries(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
         self.log_path = os.path.join(self.tmpdir, "events.jsonl")
-        self.service = TrustEvidenceService(event_log_path=self.log_path)
+        self.service = TrustEvidenceService(event_log_path=self.log_path, authority_registry=_build_test_registry())
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir, ignore_errors=True)
@@ -314,7 +327,7 @@ class TestHumanReVerification(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
         self.log_path = os.path.join(self.tmpdir, "events.jsonl")
-        self.service = TrustEvidenceService(event_log_path=self.log_path)
+        self.service = TrustEvidenceService(event_log_path=self.log_path, authority_registry=_build_test_registry())
         self.service.create_evidence({
             "id": "ev_hrv_001", "type": "policy", "source": "government",
             "source_reference": "https://example.gov.cn/policy/001",
@@ -373,7 +386,7 @@ class TestPersistence(unittest.TestCase):
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def test_ps_001_revocation_survives_replay(self):
-        service = TrustEvidenceService(event_log_path=self.log_path)
+        service = TrustEvidenceService(event_log_path=self.log_path, authority_registry=_build_test_registry())
         service.create_evidence({
             "id": "ev_ps_001", "type": "policy", "source": "government",
             "source_reference": "https://example.gov.cn/1",
@@ -386,13 +399,13 @@ class TestPersistence(unittest.TestCase):
         node.data["confidence_score"] = 0.9
         service.revoke_verified("ev_ps_001")
         # New instance
-        service2 = TrustEvidenceService(event_log_path=self.log_path)
+        service2 = TrustEvidenceService(event_log_path=self.log_path, authority_registry=_build_test_registry())
         events, malformed = service2.event_log.replay()
         self.assertEqual(malformed, [])
         self.assertTrue(any(e.decision == "revoked" for e in events))
 
     def test_ps_002_replay_produces_deterministic_state(self):
-        service = TrustEvidenceService(event_log_path=self.log_path)
+        service = TrustEvidenceService(event_log_path=self.log_path, authority_registry=_build_test_registry())
         service.create_evidence({
             "id": "ev_ps_002", "type": "policy", "source": "government",
             "source_reference": "https://example.gov.cn/1",
@@ -405,8 +418,8 @@ class TestPersistence(unittest.TestCase):
         node.data["confidence_score"] = 0.9
         service.revoke_verified("ev_ps_002")
         # Check state via two separate gate instances
-        gate1 = HumanVerificationGate(service.event_log)
-        gate2 = HumanVerificationGate(service.event_log)
+        gate1 = HumanVerificationGate(service.event_log, service.authority_registry)
+        gate2 = HumanVerificationGate(service.event_log, service.authority_registry)
         ci = compute_content_identity(
             service.get_evidence("ev_ps_002")["evidence"])
         s1 = gate1.get_effective_verified_state("ev_ps_002", ci, False)
@@ -415,7 +428,7 @@ class TestPersistence(unittest.TestCase):
         self.assertEqual(s1["reasons"], s2["reasons"])
 
     def test_ps_003_multiple_events_maintain_chronological_history(self):
-        service = TrustEvidenceService(event_log_path=self.log_path)
+        service = TrustEvidenceService(event_log_path=self.log_path, authority_registry=_build_test_registry())
         service.create_evidence({
             "id": "ev_ps_003", "type": "policy", "source": "government",
             "source_reference": "https://example.gov.cn/1",
@@ -443,7 +456,7 @@ class TestPersistence(unittest.TestCase):
         # State should be valid (latest verified, no revocation after it)
         ci = compute_content_identity(
             service.get_evidence("ev_ps_003")["evidence"])
-        gate = HumanVerificationGate(service.event_log)
+        gate = HumanVerificationGate(service.event_log, service.authority_registry)
         state = gate.get_effective_verified_state("ev_ps_003", ci, False)
         self.assertTrue(state["is_valid"])
 

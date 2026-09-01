@@ -297,13 +297,126 @@ class VerificationStatusAdapter:
 
 
 # ---------------------------------------------------------------------------
-# Human Verification Authority Gate
+# Human Verification Authority Registry (P1-4.5)
 # ---------------------------------------------------------------------------
 
 # Allowlisted human authority roles. Only these roles can record a "verified"
 # decision.  This is an application-level authority boundary, NOT an identity
-# authentication platform.  See P1-4.3 design doc for rationale.
+# authentication platform.  See P1-4.3/P1-4.5 design docs for rationale.
 HUMAN_AUTHORITY_ROLES = frozenset({"human_verifier", "authorized_reviewer"})
+
+
+@dataclass(frozen=True)
+class HumanVerificationAuthority:
+    """A registered human verification authority (P1-4.5, additive).
+
+    This is an APPLICATION-LEVEL authorization record, NOT real-world identity
+    authentication.  Existence in the registry means the operator has decided
+    this verifier_id is allowed to perform human verification — it does NOT
+    prove the caller is who they claim to be.  Real authentication (OAuth/SSO/
+    login/crypto identity) is explicitly out of scope (NON-GOAL).
+
+    Attributes:
+        verifier_id: stable identifier of the verifier (must be non-empty).
+        role:        must be in HUMAN_AUTHORITY_ROLES.
+        active:      inactive authorities cannot grant VERIFIED.
+        metadata:    optional display info (e.g. {"display_name": "..."}).
+                     MUST NOT be treated as identity claims.
+    """
+
+    verifier_id: str
+    role: str
+    active: bool = True
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self):
+        if not self.verifier_id or not str(self.verifier_id).strip():
+            raise ValueError("HumanVerificationAuthority.verifier_id must be non-empty")
+        if self.role not in HUMAN_AUTHORITY_ROLES:
+            raise ValueError(
+                f"HumanVerificationAuthority.role '{self.role}' is not in "
+                f"HUMAN_AUTHORITY_ROLES {sorted(HUMAN_AUTHORITY_ROLES)}")
+        if not isinstance(self.active, bool):
+            raise ValueError("HumanVerificationAuthority.active must be bool")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "HumanVerificationAuthority":
+        # Malformed entry → fail closed (raise).  Never silently coerce.
+        try:
+            return cls(
+                verifier_id=data["verifier_id"],
+                role=data["role"],
+                active=bool(data.get("active", True)),
+                metadata=data.get("metadata", {}) or {},
+            )
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(f"Malformed authority entry: {exc}") from exc
+
+
+class HumanVerificationAuthorityRegistry:
+    """Application-level registry of human verification authorities (P1-4.5).
+
+    Establishes APPLICATION-LEVEL AUTHORIZATION, not real-world identity
+    authentication.  The registry is an allowlist: only registered + active
+    authorities can participate in granting VERIFIED.
+
+    Security semantics (fail closed):
+      - Empty registry → NO VERIFIED possible.
+      - Unknown verifier_id → denied (never assumed human).
+      - Inactive verifier_id → denied.
+      - Role mismatch (registered role != event actor_role) → denied.
+      - Malformed entry on load → raise (never silently skipped).
+
+    The registry is intentionally NOT backed by a database, OAuth provider,
+    or external IAM.  It is an in-memory allowlist that may be seeded at
+    construction.  Persistence is the caller's responsibility (out of scope).
+    """
+
+    def __init__(self, authorities: Optional[List[HumanVerificationAuthority]] = None):
+        self._by_id: Dict[str, HumanVerificationAuthority] = {}
+        if authorities is not None:
+            for a in authorities:
+                self.register(a)
+
+    def register(self, authority: HumanVerificationAuthority) -> None:
+        """Register a new authority.  Rejects duplicate verifier_id."""
+        if not isinstance(authority, HumanVerificationAuthority):
+            raise ValueError("authority must be a HumanVerificationAuthority")
+        if authority.verifier_id in self._by_id:
+            raise ValueError(
+                f"verifier_id '{authority.verifier_id}' already registered — "
+                "duplicate registration rejected")
+        self._by_id[authority.verifier_id] = authority
+
+    def lookup(self, verifier_id: str) -> Optional[HumanVerificationAuthority]:
+        """Return the authority for verifier_id, or None if not registered."""
+        return self._by_id.get(verifier_id)
+
+    def is_registered(self, verifier_id: str) -> bool:
+        """True if verifier_id exists in the registry (regardless of active)."""
+        return verifier_id in self._by_id
+
+    def is_active(self, verifier_id: str) -> bool:
+        """True if verifier_id exists AND is active."""
+        a = self._by_id.get(verifier_id)
+        return a is not None and a.active
+
+    def is_authorized(self, verifier_id: str, role: str) -> bool:
+        """True if verifier_id is registered AND active AND role matches."""
+        a = self._by_id.get(verifier_id)
+        if a is None or not a.active:
+            return False
+        return a.role == role
+
+    def __len__(self) -> int:
+        return len(self._by_id)
+
+    def all_authorities(self) -> List[HumanVerificationAuthority]:
+        """Return all registered authorities (for audit/inspection)."""
+        return list(self._by_id.values())
 
 
 class HumanVerificationGate:
@@ -317,9 +430,15 @@ class HumanVerificationGate:
       5. The evidence is NOT MOCK (is_mock orthogonal — Rule E)
       6. The event has non-empty evidence_refs (verification evidence — Rule B)
       7. The event's evidence_id matches the target evidence
+      8. (P1-4.5) An Authority Registry is configured
+      9. (P1-4.5) The event's actor (verifier_id) is registered AND active
+     10. (P1-4.5) The registered role matches the event's actor_role
 
     If ANY condition fails, VERIFIED is refused.  The gate is read-only
-    with respect to the EventLog — it never mutates events.
+    with respect to the EventLog and the Registry — it never mutates either.
+
+    P1-4.5 fail-closed: if no authority_registry is configured, VERIFIED is
+    NEVER granted.  This closes the free-string verifier_id loophole.
 
     This gate does NOT implement:
       - user accounts / OAuth / JWT / RBAC backend
@@ -328,8 +447,13 @@ class HumanVerificationGate:
       - real human login
     """
 
-    def __init__(self, event_log: VerificationEventLog):
+    def __init__(
+        self,
+        event_log: VerificationEventLog,
+        authority_registry: Optional[HumanVerificationAuthorityRegistry] = None,
+    ):
         self.event_log = event_log
+        self.authority_registry = authority_registry
 
     def can_grant_verified(
         self,
@@ -398,6 +522,31 @@ class HumanVerificationGate:
                     f"VERIFIED was revoked at {latest_revoked.timestamp} — "
                     "re-verification requires a new Human Authority decision (Rule C)")
 
+        # P1-4.5: Authority Registry binding — fail closed.
+        # Without a registry, VERIFIED is NEVER granted (closes the free-string
+        # verifier_id loophole).  With a registry, the event's actor (verifier_id)
+        # must be registered, active, and have a matching role.
+        if matching_event is not None and not evidence_is_mock:
+            if self.authority_registry is None:
+                reasons.append(
+                    "No Authority Registry configured — VERIFIED cannot be "
+                    "granted without a registered, active verifier (P1-4.5)")
+            else:
+                vid = matching_event.actor
+                if not self.authority_registry.is_registered(vid):
+                    reasons.append(
+                        f"verifier_id '{vid}' is NOT registered in the Authority "
+                        "Registry — unknown verifier denied (P1-4.5)")
+                elif not self.authority_registry.is_active(vid):
+                    reasons.append(
+                        f"verifier_id '{vid}' is registered but INACTIVE — "
+                        "inactive verifier cannot grant VERIFIED (P1-4.5)")
+                elif not self.authority_registry.is_authorized(vid, matching_event.actor_role):
+                    reasons.append(
+                        f"verifier_id '{vid}' registered role does not match "
+                        f"event actor_role '{matching_event.actor_role}' — "
+                        "role mismatch denied (P1-4.5)")
+
         granted = len(reasons) == 0 and matching_event is not None and not evidence_is_mock
         return {
             "granted": granted,
@@ -465,6 +614,28 @@ class HumanVerificationGate:
                         f"Content identity changed: verified="
                         f"{latest_verified.content_identity[:16]}... vs current="
                         f"{current_content_identity[:16]}... (Rule D)")
+
+            # P1-4.5: Authority Registry binding for effective state.
+            # A VERIFIED event from an unregistered/inactive/mismatched verifier
+            # is NOT effectively valid.
+            if self.authority_registry is None:
+                reasons.append(
+                    "No Authority Registry configured — VERIFIED cannot be "
+                    "valid without a registered, active verifier (P1-4.5)")
+            else:
+                vid = latest_verified.actor
+                if not self.authority_registry.is_registered(vid):
+                    reasons.append(
+                        f"verifier_id '{vid}' is NOT registered — unknown "
+                        "verifier (P1-4.5)")
+                elif not self.authority_registry.is_active(vid):
+                    reasons.append(
+                        f"verifier_id '{vid}' is INACTIVE — inactive verifier "
+                        "(P1-4.5)")
+                elif not self.authority_registry.is_authorized(vid, latest_verified.actor_role):
+                    reasons.append(
+                        f"verifier_id '{vid}' role mismatch with "
+                        f"'{latest_verified.actor_role}' (P1-4.5)")
 
         is_valid = len(reasons) == 0 and latest_verified is not None
         return {
