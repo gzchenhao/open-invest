@@ -24,8 +24,16 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
+          pip check || true
+
+      - name: Diagnostics (package versions + collection)
+        run: |
+          python -c "import sys; print(sys.version)"
+          python -c "import pydantic; print('pydantic', pydantic.__version__)"
+          python -c "import pytest; print('pytest', pytest.__version__)"
+          python -m pytest tests/ --collect-only -q 2>&1 | tail -5
 
       - name: Run tests
-        run: python -m pytest tests/ -q
+        run: python -m pytest tests/ --tb=short
