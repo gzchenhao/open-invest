@@ -20,7 +20,7 @@ No database. No external services. No authentication. No real government data.
 
 ```bash
 git clone https://github.com/gzchenhao/open-invest.git
-cd open-invest/open-invest-protocol
+cd open-invest
 pip install -r requirements.txt
 ```
 

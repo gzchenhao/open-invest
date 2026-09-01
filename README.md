@@ -54,7 +54,7 @@ OpenInvest addresses this with an **evidence + provenance + verification** archi
 
 ```bash
 git clone https://github.com/gzchenhao/open-invest.git
-cd open-invest/open-invest-protocol
+cd open-invest
 pip install -r requirements.txt
 python -m pytest tests/ -q          # 637 tests, 0 failed
 python examples/trust_pipeline_demo.py   # see the verification lifecycle (10 steps)
@@ -72,7 +72,7 @@ The demo shows the complete verification lifecycle: Create Evidence → Agent/Sy
 
 ```bash
 git clone https://github.com/gzchenhao/open-invest.git
-cd open-invest/open-invest-protocol
+cd open-invest
 pip install -r requirements.txt
 ```
 

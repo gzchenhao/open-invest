@@ -1639,17 +1639,33 @@ git rev-parse origin/master
 
 ### 23.1 Quest Status
 
-**Current Quest**: **P1-5.7 — GitHub Discoverability & Trust Conversion**
+**Current Quest**: **P1-6.0 — GitHub Growth Readiness Audit**
 
-**Status**: ✅ **COMPLETE — VERDICT: PASS** (2026-09-01)
+**Status**: ✅ **COMPLETE — VERDICT: PASS WITH FINDINGS** (2026-09-01)
 
 **Completion Date**: 2026-09-01
 
-**Previous Quest**: P1-5.6 — GitHub Repository Metadata & Discoverability Audit ✅ COMPLETE (2026-09-01)
+**Previous Quest**: P1-5.7 — GitHub Discoverability & Trust Conversion ✅ COMPLETE (2026-09-01)
 
-**Quest Before**: P1-5.5 — Minimal GitHub Actions CI + Project Credibility Signal ✅ COMPLETE (2026-09-01)
+**Quest Before**: P1-5.6 — GitHub Repository Metadata & Discoverability Audit ✅ COMPLETE (2026-09-01)
 
 ### 23.2 Quest Achievement Summary
+
+**P1-6.0 GitHub Growth Readiness Audit Results (AUDIT ONLY + 2 unavoidable documentation fixes)**:
+- ✅ **AUDIT COMPLETE:** First 60s user journey, Star/Fork/Contribution conversion, Trust/Credibility (8 findings), GitHub metadata, OSS baseline files (9 items), Technical debt (5 items), Prioritization (P0/P1/P2/IGNORE), Strategic recommendation.
+- ✅ **P0 FIX 1 (unavoidable):** Install path bug corrected — README x2 + QUICKSTART.md: `cd open-invest/open-invest-protocol` → `cd open-invest` (repo root IS the protocol dir; old path caused 100% first-run step-2 failure)
+- ✅ **P0 FIX 2 (unavoidable):** MIT LICENSE file created (gzchenhao © 2026). README referenced MIT but LICENSE file did not exist → GitHub license detection broken.
+- ✅ Audit report: `docs/GitHub_Growth_Readiness_Audit_20260901.md`
+- ✅ No production code, Trust Score, Verification, taxonomy, crawler, authentication modifications.
+- ✅ Local tests: 637 passed, 0 failed. CI-safe subset: 628 passed.
+
+**Prioritization Summary (from audit):**
+- **P0 (3, 2 fixed):** Path bug ✅, LICENSE ✅, **CI badge green NOT YET CONFIRMED**
+- **P1 (5):** Apply About metadata manually → Confirm CI green → Relocate root clutter → Clean internal dirs from root → Seed Good First Issues
+- **P2 (5):** Issue templates, SECURITY.md, CoC, v0.1.0-experimental tag, CI integration test port fix
+- **IGNORE (5):** Coverage, social preview image, lint/pre-commit, Wiki, Dependabot
+
+**Strategic Recommendation:** Do NOT enter P1-6.x implementation yet. Fix remaining adoption blockers first (CI green + metadata + root cleanup).
 
 **P1-5.7 GitHub Discoverability & Trust Conversion Results (README + CI FIX — No production code changed)**:
 - ✅ CI FAILURE FIXED: Root cause = 9 integration tests require live uvicorn server (port 8000), incompatible with Linux CI. Solution: workflow adds `--ignore=tests/integration`. 628 core tests in CI (covers P1-4.x Safety Chain). Local: 637 tests all pass.
@@ -1924,11 +1940,12 @@ git rev-parse origin/master
 
 ### 24.1 Immediate Next Steps
 
-**NEXT QUEST — P1-5.8 / P1-6: TBD** (awaiting user directive)
-- **Priority**: TBD
-- **Purpose**: TBD
-- **Dependencies**: P1-5.7 complete (Discoverability & Trust Conversion)
-- **Known deferred items from P1-5.7**: CI Run #4 remote verification pending; GitHub description/topics require manual setup; 9 integration tests excluded from CI (live server port 8000)
+**NEXT QUEST — TBD** (awaiting user directive)
+- **Priority**: Pending decision
+- **Recommended direction**: Do NOT enter P1-6.x yet. Close P0/P1 adoption blockers first: (1) manually apply GitHub About metadata (Settings→General), (2) confirm CI badge green on master, (3) consider root clutter relocation per P1-6.0 audit §P1.
+- **Dependencies**: P1-6.0 audit complete. 2 P0 fixes applied. CI remote-verified green + About metadata are the two highest-ROI remaining steps.
+
+**~~P1-6.0: GitHub Growth Readiness Audit~~ → ✅ COMPLETE WITH FINDINGS (2026-09-01)** — Audit + 2 unavoidable P0 fixes: install-path bug (3 doc lines; `cd open-invest/open-invest-protocol` → `cd open-invest`) + missing MIT LICENSE file created. Full prioritization in docs/GitHub_Growth_Readiness_Audit_20260901.md. Strategic recommendation: do NOT enter P1-6.x implementation until adoption blockers are cleared.
 
 **~~P1-5.7: GitHub Discoverability & Trust Conversion~~ → ✅ COMPLETE (2026-09-01)** — CI FIX: exclude 9 integration tests (628 core in CI, 637 local). README 3 minimal edits: +Who/Why Star section, +Roadmap table, +Testing CI vs local count. Metadata checklist provided for manual setup.
 
