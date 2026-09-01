@@ -6,7 +6,7 @@ OpenInvest provides a deterministic evidence layer, provenance tracking, and a f
 
 **Strategic vision:** "The USB-C for DeepTech" — a future trust layer for DeepTech agent interoperability. This is a vision, not a current capability.
 
-[Quick Start](#quick-start) · [Architecture](#architecture) · [Status Matrix](#status-matrix) · [Tests](#testing) · [Docs](#documentation)
+[Quick Start](QUICKSTART.md) · [Architecture](#architecture) · [Status Matrix](#status-matrix) · [Tests](#testing) · [Docs](#documentation)
 
 ---
 
@@ -43,6 +43,8 @@ The demo shows the complete verification lifecycle: Create Evidence → Agent/Sy
 ---
 
 ## Quick Start
+
+> **New here?** See [**QUICKSTART.md**](QUICKSTART.md) — from zero to verification lifecycle in 2 minutes.
 
 ### 1. Install
 
