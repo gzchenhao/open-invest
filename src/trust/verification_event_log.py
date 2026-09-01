@@ -38,9 +38,17 @@ from typing import Any, Dict, List, Optional, Tuple
 # ---------------------------------------------------------------------------
 
 # Fields included in content identity (stable, ordered, deterministic).
+# P1-4.4 fix: verification_status is intentionally EXCLUDED.  It represents
+# verification STATE, not content.  Including it created a self-invalidating
+# paradox — an event recorded while UNVERIFIED would immediately become stale
+# the moment the gate granted VERIFIED, making every VERIFIED invalid by
+# construction.  Content identity must be stable across verification state
+# transitions so that "the content that was verified" remains identifiable.
+# confidence_score IS included because it is substantive assessed content:
+# a changed confidence assessment is a real content change requiring re-verification.
 _CONTENT_IDENTITY_FIELDS = (
     "id", "type", "source", "source_reference",
-    "verification_status", "confidence_score",
+    "confidence_score",
 )
 
 
@@ -347,11 +355,14 @@ class HumanVerificationGate:
         if not events:
             reasons.append("No verification decision event exists in the durable log (Rule C)")
         else:
-            # Find a matching "verified" decision by a human authority
+            # Find the LATEST "verified" decision by a human authority.
+            # P1-4.4: must use the latest, not the first — after revocation +
+            # re-verification, the oldest event has a stale content_identity
+            # and would cause a spurious mismatch (Rule D).
             for evt in events:
                 if evt.decision == "verified" and evt.actor_role in HUMAN_AUTHORITY_ROLES:
-                    matching_event = evt
-                    break
+                    if matching_event is None or evt.timestamp >= matching_event.timestamp:
+                        matching_event = evt
 
             if matching_event is None:
                 reasons.append(
@@ -371,10 +382,94 @@ class HumanVerificationGate:
             # Rule B: evidence_refs must be non-empty
             if not matching_event.evidence_refs:
                 reasons.append("Matching event has no verification evidence references (Rule B)")
+            # P1-4.4 Rule C: if a revocation event exists AFTER the latest
+            # verified event, the verification has been invalidated and the
+            # gate must NOT grant (defence-in-depth — prevents a stale
+            # verified event from re-granting VERIFIED without a new human
+            # decision).
+            latest_revoked = None
+            for evt in events:
+                if evt.decision == "revoked":
+                    if latest_revoked is None or evt.timestamp >= latest_revoked.timestamp:
+                        latest_revoked = evt
+            if (latest_revoked is not None and matching_event is not None
+                    and latest_revoked.timestamp >= matching_event.timestamp):
+                reasons.append(
+                    f"VERIFIED was revoked at {latest_revoked.timestamp} — "
+                    "re-verification requires a new Human Authority decision (Rule C)")
 
         granted = len(reasons) == 0 and matching_event is not None and not evidence_is_mock
         return {
             "granted": granted,
             "reasons": reasons,
             "matching_event": matching_event,
+        }
+
+    def get_effective_verified_state(
+        self,
+        evidence_id: str,
+        current_content_identity: Optional[str],
+        evidence_is_mock: bool = False,
+    ) -> Dict[str, Any]:
+        """Determine the effective VERIFIED state after considering revocations.
+
+        P1-4.4: VERIFIED is only valid if:
+          1. A human "verified" event exists
+          2. No later "revoked" event supersedes it
+          3. The verified event's content_identity matches the current one
+          4. The evidence is not MOCK
+
+        Returns:
+            {"is_valid": bool, "reasons": [str], "latest_verified_event": Optional[VerificationDecision],
+             "latest_revocation_event": Optional[VerificationDecision]}
+        """
+        events = self.event_log.get_events_for_evidence(evidence_id)
+
+        # Rule E: MOCK can never be VERIFIED
+        if evidence_is_mock:
+            return {
+                "is_valid": False,
+                "reasons": ["Evidence is MOCK — MOCK can never be VERIFIED (Rule E)"],
+                "latest_verified_event": None,
+                "latest_revocation_event": None,
+            }
+
+        # Find latest verified and latest revoked events
+        latest_verified: Optional[VerificationDecision] = None
+        latest_revoked: Optional[VerificationDecision] = None
+        for evt in events:
+            if evt.decision == "verified":
+                if latest_verified is None or evt.timestamp >= latest_verified.timestamp:
+                    latest_verified = evt
+            elif evt.decision == "revoked":
+                if latest_revoked is None or evt.timestamp >= latest_revoked.timestamp:
+                    latest_revoked = evt
+
+        reasons: List[str] = []
+
+        if latest_verified is None:
+            reasons.append("No 'verified' decision event found")
+        else:
+            # Check if revoked AFTER verified
+            if latest_revoked is not None and latest_revoked.timestamp >= latest_verified.timestamp:
+                reasons.append(
+                    f"VERIFIED was revoked at {latest_revoked.timestamp} — "
+                    "re-verification required (Rule C: never auto-reverify)")
+
+            # Check content_identity match (Rule D)
+            if latest_verified.content_identity is None:
+                reasons.append("Verified event has no content_identity")
+            elif current_content_identity is not None:
+                if latest_verified.content_identity != current_content_identity:
+                    reasons.append(
+                        f"Content identity changed: verified="
+                        f"{latest_verified.content_identity[:16]}... vs current="
+                        f"{current_content_identity[:16]}... (Rule D)")
+
+        is_valid = len(reasons) == 0 and latest_verified is not None
+        return {
+            "is_valid": is_valid,
+            "reasons": reasons,
+            "latest_verified_event": latest_verified,
+            "latest_revocation_event": latest_revoked,
         }

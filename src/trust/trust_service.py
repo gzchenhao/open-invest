@@ -451,6 +451,238 @@ class TrustEvidenceService:
                 "message": "Failed to record human verification"
             }
 
+    def detect_content_change(self, evidence_id: str) -> Dict[str, Any]:
+        """P1-4.4: Detect if a VERIFIED evidence's content has changed.
+
+        Compares the content_identity stored in the latest "verified" event
+        against the current evidence's content_identity.  If they differ,
+        the source content has changed and VERIFIED must be revoked.
+
+        Returns:
+            {"changed": bool, "verified_content_identity": Optional[str],
+             "current_content_identity": Optional[str], "reason": str}
+        """
+        if self.event_log is None:
+            return {
+                "changed": False,
+                "reason": "No event log configured — cannot detect changes"
+            }
+
+        try:
+            # Get current evidence
+            result = self.get_evidence(evidence_id)
+            if not result["success"]:
+                return {
+                    "changed": False,
+                    "reason": f"Evidence '{evidence_id}' not found"
+                }
+
+            current_ci = compute_content_identity(result["evidence"])
+
+            # Find latest verified event
+            events = self.event_log.get_events_for_evidence(evidence_id)
+            latest_verified = None
+            for evt in events:
+                if evt.decision == "verified":
+                    if latest_verified is None or evt.timestamp >= latest_verified.timestamp:
+                        latest_verified = evt
+
+            if latest_verified is None:
+                return {
+                    "changed": False,
+                    "verified_content_identity": None,
+                    "current_content_identity": current_ci,
+                    "reason": "No verified event found — nothing to compare"
+                }
+
+            if latest_verified.content_identity is None:
+                return {
+                    "changed": False,
+                    "verified_content_identity": None,
+                    "current_content_identity": current_ci,
+                    "reason": "Verified event has no content_identity"
+                }
+
+            if latest_verified.content_identity != current_ci:
+                return {
+                    "changed": True,
+                    "verified_content_identity": latest_verified.content_identity,
+                    "current_content_identity": current_ci,
+                    "reason": "Content identity mismatch — source content has changed (Rule A)"
+                }
+            else:
+                return {
+                    "changed": False,
+                    "verified_content_identity": latest_verified.content_identity,
+                    "current_content_identity": current_ci,
+                    "reason": "Content identity matches — VERIFIED still valid"
+                }
+        except Exception as e:
+            return {
+                "changed": False,
+                "error": str(e),
+                "reason": "Failed to detect content change"
+            }
+
+    def revoke_verified(self, evidence_id: str, reason: str = "content_changed") -> Dict[str, Any]:
+        """P1-4.4: Revoke VERIFIED status and record a revocation event.
+
+        This is an AUTOMATIC revocation — it does NOT require Human Authority.
+        The system can revoke VERIFIED (Rule B) but can NEVER grant it (Rule C).
+
+        The revocation event is recorded as:
+          VerificationDecision(decision="revoked", actor="system_content_change_detector",
+                               actor_role="system", content_identity=<current>,
+                               notes=<JSON with previous + reason>)
+
+        The old VERIFIED event is NOT deleted — it remains in the append-only
+        log for audit history (Rule F).
+
+        After revocation, evidence.verification_status is set to "UNVERIFIED".
+        Re-verification requires a new Human Authority decision with the NEW
+        content_identity (Rule C/D).
+        """
+        if self.event_log is None:
+            return {
+                "success": False,
+                "error": "No event log configured",
+                "message": "Revocation requires a durable event log"
+            }
+
+        try:
+            # Get current evidence
+            result = self.get_evidence(evidence_id)
+            if not result["success"]:
+                return {
+                    "success": False,
+                    "evidence_id": evidence_id,
+                    "error": "evidence_not_found",
+                    "message": f"Evidence '{evidence_id}' not found"
+                }
+
+            evidence_data = result["evidence"]
+            current_ci = compute_content_identity(evidence_data)
+
+            # Find the latest verified event to capture the old content_identity
+            events = self.event_log.get_events_for_evidence(evidence_id)
+            latest_verified_ci = None
+            for evt in events:
+                if evt.decision == "verified":
+                    if latest_verified_ci is None or evt.timestamp >= (latest_verified_ci.timestamp if latest_verified_ci else ""):
+                        latest_verified_ci = evt
+
+            previous_ci = latest_verified_ci.content_identity if latest_verified_ci else None
+
+            # Record revocation event (system actor — can revoke but NOT grant)
+            import json as _json
+            revocation_notes = _json.dumps({
+                "previous_content_identity": previous_ci,
+                "current_content_identity": current_ci,
+                "reason": reason,
+            })
+
+            decision = VerificationDecision(
+                event_id=uuid.uuid4().hex,
+                evidence_id=evidence_id,
+                decision="revoked",
+                actor="system_content_change_detector",
+                actor_role="system",
+                method="automatic_content_change_detection",
+                timestamp=datetime.now(timezone.utc).isoformat(),
+                content_identity=current_ci,
+                evidence_refs=[],
+                notes=revocation_notes,
+            )
+            self.event_log.append(decision)  # raises on failure — never silent
+
+            # Revoke VERIFIED — set back to UNVERIFIED
+            node = self.evidence_graph.nodes[evidence_id]
+            node.data["verification_status"] = "UNVERIFIED"
+
+            return {
+                "success": True,
+                "evidence_id": evidence_id,
+                "verification_status": "UNVERIFIED",
+                "revoked": True,
+                "previous_content_identity": previous_ci,
+                "current_content_identity": current_ci,
+                "event_id": decision.event_id,
+                "reason": reason,
+                "message": "VERIFIED revoked — content changed. Re-verification requires Human Authority."
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "evidence_id": evidence_id,
+                "error": str(e),
+                "message": "Failed to revoke VERIFIED"
+            }
+
+    def check_verified_validity(self, evidence_id: str) -> Dict[str, Any]:
+        """P1-4.4: Check whether an evidence's VERIFIED status is still valid.
+
+        VERIFIED is valid ONLY if:
+          1. Current verification_status == "VERIFIED"
+          2. A human "verified" event exists in the durable log
+          3. No later "revoked" event supersedes it
+          4. The verified event's content_identity matches current
+          5. The evidence is not MOCK
+
+        If invalid, returns reasons.  This method does NOT automatically
+        revoke — it reports.  Use revoke_verified() to act on a finding.
+        """
+        if self.event_log is None:
+            return {
+                "is_valid": False,
+                "reasons": ["No event log configured"],
+                "message": "Cannot verify without durable event log"
+            }
+
+        try:
+            result = self.get_evidence(evidence_id)
+            if not result["success"]:
+                return {
+                    "is_valid": False,
+                    "reasons": [f"Evidence '{evidence_id}' not found"],
+                    "message": "Evidence not found"
+                }
+
+            evidence_data = result["evidence"]
+            current_ci = compute_content_identity(evidence_data)
+            is_mock = (
+                evidence_data.get("verification_status") == "MOCK"
+                or (evidence_data.get("metadata", {}) or {}).get("is_mock", False)
+            )
+
+            gate = HumanVerificationGate(self.event_log)
+            state = gate.get_effective_verified_state(
+                evidence_id=evidence_id,
+                current_content_identity=current_ci,
+                evidence_is_mock=is_mock,
+            )
+
+            return {
+                "is_valid": state["is_valid"],
+                "reasons": state["reasons"],
+                "current_verification_status": evidence_data.get("verification_status", "UNVERIFIED"),
+                "current_content_identity": current_ci,
+                "latest_verified_event": (
+                    state["latest_verified_event"].to_dict()
+                    if state["latest_verified_event"] else None
+                ),
+                "latest_revocation_event": (
+                    state["latest_revocation_event"].to_dict()
+                    if state["latest_revocation_event"] else None
+                ),
+                "message": "VERIFIED is valid" if state["is_valid"] else "VERIFIED is NOT valid"
+            }
+        except Exception as e:
+            return {
+                "is_valid": False,
+                "reasons": [str(e)],
+                "message": "Failed to check verified validity"
+            }
+
     def get_provenance(self, evidence_id: str) -> Dict[str, Any]:
         """
         Get provenance chain for evidence.
