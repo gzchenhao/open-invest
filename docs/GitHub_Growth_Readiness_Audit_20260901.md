@@ -10,7 +10,7 @@
 
 | Item | Value |
 |------|-------|
-| HEAD (remote/local synced) | `a603954` → `{post-fix commit}` |
+| HEAD (remote/local synced) | `d36c29e` |
 | Local pytest | 637 passed, 0 failed (full); 628 CI-safe (--ignore=tests/integration) |
 | Worktree | Clean before fixes |
 | GitHub Actions CI | NOT VERIFIED (WebFetch cannot inspect runner logs) |
