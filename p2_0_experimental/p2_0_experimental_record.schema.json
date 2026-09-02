@@ -1,0 +1,144 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "P2-0 EXPERIMENTAL Record Schema — VALIDATION-ONLY / NON-CANONICAL",
+  "description": "EXPERIMENTAL | VALIDATION-ONLY | NON-CANONICAL | DO NOT TREAT AS PRODUCTION SCHEMA. This schema exists solely to record P2-0 E1/E2/E3 real-world experiment observations. It is NOT the OpenInvest canonical policy schema, NOT a Trust Layer schema, NOT a Claim schema. It cannot grant VERIFIED status. It cannot alter Trust Layer semantics.",
+  "x-experimental": true,
+  "x-validation-only": true,
+  "x-non-canonical": true,
+  "x-distinctions": {
+    "experimental_record_not_canonical_schema": true,
+    "hook_not_claim": true,
+    "project_intent_not_project": true,
+    "real_not_verified": true,
+    "no_hook_status_machine": true,
+    "no_automatic_event_generation": true
+  },
+  "type": "object",
+  "oneOf": [
+    { "$ref": "#/$defs/POLICY" },
+    { "$ref": "#/$defs/PROJECT_INTENT" },
+    { "$ref": "#/$defs/HOOK" },
+    { "$ref": "#/$defs/PARTICIPANT" },
+    { "$ref": "#/$defs/EVENT" }
+  ],
+  "$defs": {
+    "POLICY": {
+      "type": "object",
+      "description": "Experimental policy record. is_mock=false + verification_status='UNVERIFIED' = REAL policy awaiting Trust Layer verification. 'VERIFIED' is NEVER allowed at this layer.",
+      "properties": {
+        "record_type": { "type": "string", "const": "POLICY" },
+        "policy_id": { "type": "string", "minLength": 1, "description": "Unique identifier (UUID recommended)" },
+        "title": { "type": "string", "minLength": 1 },
+        "source_url": { "type": "string", "minLength": 1, "description": "External official URL, NOT internal /api/.../pdf" },
+        "is_mock": { "type": "boolean", "description": "Data nature: true=MOCK (synthetic), false=REAL (real source)" },
+        "verification_status": {
+          "type": "string",
+          "enum": ["MOCK", "UNVERIFIED"],
+          "description": "Trust status. ONLY 'MOCK' (when is_mock=true) or 'UNVERIFIED' (when is_mock=false). 'VERIFIED' and 'REJECTED' are NEVER allowed at this layer."
+        },
+        "created_at": { "type": "string", "minLength": 1, "description": "ISO-8601 timestamp" },
+        "source": { "type": "string", "minLength": 1, "description": "Who/what ingested this record" }
+      },
+      "required": ["record_type", "policy_id", "title", "source_url", "is_mock", "verification_status", "created_at", "source"],
+      "additionalProperties": false
+    },
+    "PROJECT_INTENT": {
+      "type": "object",
+      "description": "Minimal observation of a real project need/intent. NOT a formal Project Entity. PROJECT_HOOK.object_id may point to project_intent_id, but this does NOT make ProjectIntent a Project.",
+      "properties": {
+        "record_type": { "type": "string", "const": "PROJECT_INTENT" },
+        "project_intent_id": { "type": "string", "minLength": 1 },
+        "policy_id": { "type": "string", "minLength": 1, "description": "FK to Policy.policy_id" },
+        "need_description": { "type": "string", "minLength": 1, "description": "Real project need (>=1 sentence)" },
+        "project_type": { "type": ["string", "null"] },
+        "industry": { "type": ["string", "null"] },
+        "region": { "type": ["string", "null"] },
+        "actor_id": { "type": "string", "minLength": 1, "description": "e.g. anonymous_project_001" },
+        "created_at": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "contact_info": { "type": ["string", "null"], "description": "OPTIONAL. Hook can exist without contact info." }
+      },
+      "required": ["record_type", "project_intent_id", "policy_id", "need_description", "actor_id", "created_at", "source"],
+      "additionalProperties": false
+    },
+    "HOOK": {
+      "type": "object",
+      "description": "An unresolved value interface. Hook ≠ Claim: this record has NO status, NO claim_status, NO claim_token fields. Interest/Response/Connection are expressed as Events, NOT as Hook fields. Hook has NO state machine.",
+      "properties": {
+        "record_type": { "type": "string", "const": "HOOK" },
+        "hook_id": { "type": "string", "minLength": 1 },
+        "hook_type": { "type": "string", "enum": ["POLICY_HOOK", "PROJECT_HOOK"] },
+        "object_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "POLICY_HOOK → policy_id; PROJECT_HOOK → project_intent_id"
+        },
+        "created_at": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 }
+      },
+      "required": ["record_type", "hook_id", "hook_type", "object_id", "created_at", "source"],
+      "additionalProperties": false
+    },
+    "PARTICIPANT": {
+      "type": "object",
+      "description": "Minimal E3 outreach target. NOT a Participant System / CRM. Only 3 data fields. No name, phone, email, company, or metadata.",
+      "properties": {
+        "record_type": { "type": "string", "const": "PARTICIPANT" },
+        "participant_id": { "type": "string", "minLength": 1 },
+        "participant_type": { "type": "string", "enum": ["POLICY_AUTHORITY", "PARK", "PROJECT", "CAPITAL", "OTHER"] },
+        "source": { "type": "string", "minLength": 1 }
+      },
+      "required": ["record_type", "participant_id", "participant_type", "source"],
+      "additionalProperties": false
+    },
+    "EVENT": {
+      "type": "object",
+      "description": "Behavioral observation record. The most important record type. Evidence is folded into 'evidence_ref' (string), NOT a separate entity. 'metadata' field is FORBIDDEN — use explicit named fields only. No automatic event generation: creating a Hook does NOT auto-create HOOK_INTERESTED; PARTICIPANT_CONTACTED does NOT auto-create INTERESTED or Claim.",
+      "type": "object",
+      "allOf": [
+        {
+          "properties": {
+            "record_type": { "type": "string", "const": "EVENT" },
+            "event_id": { "type": "string", "minLength": 1, "description": "Deterministic: sha256 of canonical JSON (sorted keys)" },
+            "timestamp": { "type": "string", "minLength": 1, "description": "ISO-8601" },
+            "event_type": {
+              "type": "string",
+              "enum": [
+                "POLICY_SEARCHED", "POLICY_VIEWED",
+                "PROJECT_INTENT_CREATED", "PROJECT_HOOK_CREATED",
+                "HOOK_INTERESTED", "HOOK_RESPONDED", "HOOK_CONNECTED",
+                "PARTICIPANT_CONTACTED", "PARTICIPANT_RESPONDED"
+              ]
+            },
+            "actor_id": { "type": ["string", "null"] },
+            "actor_type": { "type": ["string", "null"], "enum": ["PROJECT", "PARTICIPANT", "EXPERIMENTER", "SYSTEM", null] },
+            "object_type": { "type": ["string", "null"], "enum": ["POLICY", "PROJECT_INTENT", "HOOK", "PARTICIPANT", null] },
+            "object_id": { "type": ["string", "null"] },
+            "source": { "type": "string", "minLength": 1 },
+            "evidence_ref": { "type": ["string", "null"], "description": "Path/URL to evidence (screenshot, email, etc.)" },
+            "response_level": { "type": ["string", "null"], "enum": ["L0", "L1", "L2", "L3", "L4", null], "description": "ONLY non-null when event_type=PARTICIPANT_RESPONDED" },
+            "note": { "type": ["string", "null"], "description": "Experimenter note (if necessary)" }
+          },
+          "required": ["record_type", "event_id", "timestamp", "event_type", "source"],
+          "additionalProperties": false
+        },
+        {
+          "if": {
+            "properties": { "event_type": { "const": "PARTICIPANT_RESPONDED" } },
+            "required": ["event_type"]
+          },
+          "then": {
+            "properties": {
+              "response_level": { "enum": ["L0", "L1", "L2", "L3", "L4", null] }
+            }
+          },
+          "else": {
+            "properties": {
+              "response_level": { "type": "null" }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,4 @@
+# P2-0 experimental records are runtime artifacts — not committed.
+# Only this .gitignore is tracked to keep the directory in the repo.
+*.jsonl
+!.gitignore
