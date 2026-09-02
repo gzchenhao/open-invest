@@ -15,11 +15,45 @@ import re
 import io
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+
+# ─── P2-0B.3: Minimal Event Logging（Experimental / Validation-only / Non-canonical）───
+# 将 Portal 真实行为写入 P2-0B.2 实验记录（仅 POLICY_SEARCHED / POLICY_VIEWED）。
+# 记录失败只打印 stderr，不改变任何 API 行为；无 retry / queue / telemetry 基础设施。
+_P2_0_RECORDS_DIR = Path(__file__).resolve().parents[2] / "p2_0_experimental" / "records"
+_p2_0_store = None
+
+
+def _get_p2_0_store():
+    """Lazy singleton：直接运行本文件时 sys.path 不含 repo root，需要 fallback。"""
+    global _p2_0_store
+    if _p2_0_store is None:
+        repo_root = Path(__file__).resolve().parents[2]
+        if str(repo_root) not in sys.path:
+            sys.path.insert(0, str(repo_root))
+        from p2_0_experimental.jsonl_store import ExperimentalJSONLStore
+        records_dir = os.environ.get("P2_0_RECORDS_DIR") or str(_P2_0_RECORDS_DIR)
+        _p2_0_store = ExperimentalJSONLStore(records_dir=records_dir)
+    return _p2_0_store
+
+
+def _log_p2_0_event(event_type, object_type=None, object_id=None):
+    """记录一次 Portal 真实行为为 P2-0 实验事件。失败打印 stderr，不破坏 API。"""
+    try:
+        _get_p2_0_store().append_event({
+            "record_type": "EVENT",
+            "event_type": event_type,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "source": "interactive_ai_server",
+            "object_type": object_type,
+            "object_id": object_id,
+        })
+    except Exception as e:
+        print(f"[P2-0B.3] event logging failed: {e}", file=sys.stderr)
 
 # 演示政策数据（MOCK）：is_mock=True 显式标记；联系方式/来源均未经官方核验。
 # 依据 TASK-P0-2 DATA-INTEGRITY 规则：宁可 null，不要猜。
@@ -957,6 +991,9 @@ async def generate_policy_pdf(policy_id: int):
     if not policy:
         return {"error": "Policy not found"}
     
+    # P2-0B.3: 政策 PDF 下载 = POLICY_VIEWED（唯一服务端可观察的 per-policy engagement 信号）
+    _log_p2_0_event("POLICY_VIEWED", "POLICY", str(policy_id))
+    
     # 创建PDF
     pdf = FPDF()
     pdf.add_page()
@@ -1085,6 +1122,9 @@ async def search_policies_api(request: Request):
         body = await request.json()
         keywords = str(body.get("keywords", "")).strip()
         limit = int(body.get("limit", 10))
+        
+        # P2-0B.3: 服务端搜索请求 = POLICY_SEARCHED（首页 JS 为客户端过滤，不经过此端点）
+        _log_p2_0_event("POLICY_SEARCHED")
         
         if not keywords:
             return {"count": len(policies), "policies": policies[:limit]}
