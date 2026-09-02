@@ -15,6 +15,7 @@ import re
 import io
 import os
 import sys
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -41,17 +42,21 @@ def _get_p2_0_store():
     return _p2_0_store
 
 
-def _log_p2_0_event(event_type, object_type=None, object_id=None):
+def _log_p2_0_event(event_type, object_type=None, object_id=None, actor_id=None):
     """记录一次 Portal 真实行为为 P2-0 实验事件。失败打印 stderr，不破坏 API。"""
     try:
-        _get_p2_0_store().append_event({
+        event = {
             "record_type": "EVENT",
             "event_type": event_type,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "source": "interactive_ai_server",
             "object_type": object_type,
             "object_id": object_id,
-        })
+        }
+        # P2-0B.4: 仅在明确提供时写入 actor_id，保持 B.3 事件 shape 不变
+        if actor_id is not None:
+            event["actor_id"] = actor_id
+        _get_p2_0_store().append_event(event)
     except Exception as e:
         print(f"[P2-0B.3] event logging failed: {e}", file=sys.stderr)
 
@@ -867,6 +872,15 @@ async def home():
                 
                 <!-- 新增：认领勾子 -->
                 ${claimHookHtml}
+
+                <!-- P2-0B.4: 极简 Project Need 表达入口（Experimental：ProjectIntent ≠ Project）-->
+                <div style="margin-top: 15px; padding: 12px; background: #f3f9ff; border-radius: 8px; border: 1px solid #bbdefb;">
+                    <h4 style="color: #1565c0; margin: 0 0 8px 0;">💡 与这项政策相关的项目机会（实验功能）</h4>
+                    <p style="margin: 0 0 8px 0; color: #555; font-size: 0.85em;">我正在寻找/建设与这项政策相关的项目机会……（内容将作为匿名实验记录保存，不建立任何合作关系）</p>
+                    <textarea id="need-input-${policy.id}" rows="3" style="width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.9em;" placeholder="请用一两句话描述您的项目需求"></textarea>
+                    <button onclick="submitProjectNeed(${policy.id})" style="margin-top: 8px; padding: 8px 20px; background: #1976d2; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold;">提交需求</button>
+                    <div id="need-status-${policy.id}" style="margin-top: 6px; font-size: 0.85em;"></div>
+                </div>
             `;
             
             return card;
@@ -911,6 +925,11 @@ async def home():
                     resultsDiv.appendChild(policyCard);
                 });
             }
+
+            // P2-0B.4: fire-and-forget 搜索 beacon（不携带 keywords，失败静默，不影响搜索结果）
+            try {
+                fetch('/api/event/search', { method: 'POST' }).catch(function() {});
+            } catch (e) { /* beacon 失败不影响本地过滤 */ }
         }
         
         // 辅助函数：检查金额匹配
@@ -967,6 +986,40 @@ async def home():
             } else {
                 alert('❌ 认领令牌无效，请联系系统管理员');
             }
+        }
+
+        // P2-0B.4: 提交 Project Need（最小 capture；ProjectIntent ≠ Project；失败不影响页面）
+        function submitProjectNeed(policyId) {
+            const textarea = document.getElementById('need-input-' + policyId);
+            const statusDiv = document.getElementById('need-status-' + policyId);
+            const needDescription = (textarea.value || '').trim();
+            if (!needDescription) {
+                statusDiv.textContent = '❌ 请先填写需求描述';
+                statusDiv.style.color = '#c62828';
+                return;
+            }
+            statusDiv.textContent = '⏳ 提交中……';
+            statusDiv.style.color = '#555';
+            fetch('/api/project-intent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ policy_id: String(policyId), need_description: needDescription })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.ok) {
+                    statusDiv.textContent = '✅ 需求已记录（匿名实验记录，不代表已建立合作）';
+                    statusDiv.style.color = '#2e7d32';
+                    textarea.value = '';
+                } else {
+                    statusDiv.textContent = '❌ ' + (data.error || '提交失败，请稍后重试');
+                    statusDiv.style.color = '#c62828';
+                }
+            })
+            .catch(function() {
+                statusDiv.textContent = '❌ 提交失败，请稍后重试';
+                statusDiv.style.color = '#c62828';
+            });
         }
     </script>
 </body>
@@ -1148,6 +1201,61 @@ async def search_policies_api(request: Request):
         }
     except Exception as e:
         return {"count": 0, "policies": [], "error": str(e)}
+
+@app.post("/api/event/search")
+async def record_policy_searched():
+    """P2-0B.4: 首页搜索 beacon——只记录 POLICY_SEARCHED，不执行搜索、不记录 keywords。"""
+    _log_p2_0_event("POLICY_SEARCHED")
+    return {"ok": True}
+
+@app.post("/api/project-intent")
+async def create_project_intent(request: Request):
+    """P2-0B.4: 最小 Project Intent capture（Experimental）。
+
+    ProjectIntent ≠ Project：仅记录真实需求表达，不建 Project、不触发 Claim/Match。
+    project_intent_id = UUID4；actor_id = 实验匿名标识（非真实用户身份，跨请求不可关联）。
+    """
+    try:
+        body = await request.json()
+    except Exception:
+        return {"error": "Invalid JSON body"}
+
+    policy_id = str(body.get("policy_id", "")).strip()
+    need_description = str(body.get("need_description", "")).strip()
+
+    if not policy_id:
+        return {"error": "policy_id is required"}
+    if not need_description:
+        return {"error": "need_description is required (non-empty text)"}
+
+    # policy 必须真实存在于当前 Portal Policy 集合（不自动创建、不修改 Policy）
+    policy = next((p for p in policies if str(p["id"]) == policy_id), None)
+    if policy is None:
+        return {"error": "Policy not found"}
+
+    # 生成 PROJECT_INTENT record（P2-0B.2 validator/store；写入 project_intents.jsonl）
+    project_intent_id = str(uuid.uuid4())
+    # 实验匿名 actor identifier：无 auth/session，不宣称真实用户身份
+    actor_id = f"anonymous_{uuid.uuid4().hex[:12]}"
+    intent_record = {
+        "record_type": "PROJECT_INTENT",
+        "project_intent_id": project_intent_id,
+        "policy_id": policy_id,
+        "need_description": need_description,
+        "actor_id": actor_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "source": "interactive_ai_server",
+    }
+    try:
+        _get_p2_0_store().append(intent_record)
+    except Exception as e:
+        print(f"[P2-0B.4] project intent record failed: {e}", file=sys.stderr)
+        return {"error": "Failed to record project intent"}
+
+    # PROJECT_INTENT_CREATED event（actor_id 与 record 保持一致）
+    _log_p2_0_event("PROJECT_INTENT_CREATED", "PROJECT_INTENT", project_intent_id, actor_id=actor_id)
+
+    return {"ok": True, "project_intent_id": project_intent_id}
 
 # 启动服务
 
