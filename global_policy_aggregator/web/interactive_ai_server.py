@@ -8,7 +8,7 @@
 """
 
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 import json
 import re
@@ -880,6 +880,8 @@ async def home():
                     <textarea id="need-input-${policy.id}" rows="3" style="width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.9em;" placeholder="请用一两句话描述您的项目需求"></textarea>
                     <button onclick="submitProjectNeed(${policy.id})" style="margin-top: 8px; padding: 8px 20px; background: #1976d2; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold;">提交需求</button>
                     <div id="need-status-${policy.id}" style="margin-top: 6px; font-size: 0.85em;"></div>
+                    <button id="hook-btn-${policy.id}" onclick="exposeProjectHook(${policy.id})" style="display: none; margin-top: 8px; padding: 8px 20px; background: #7b1fa2; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold;">Expose as Project Hook</button>
+                    <div id="hook-status-${policy.id}" style="margin-top: 6px; font-size: 0.85em;"></div>
                 </div>
             `;
             
@@ -1011,6 +1013,50 @@ async def home():
                     statusDiv.textContent = '✅ 需求已记录（匿名实验记录，不代表已建立合作）';
                     statusDiv.style.color = '#2e7d32';
                     textarea.value = '';
+                    // P2-0B.5: 保存 project_intent_id，显示第二个独立动作（不自动创建 Hook）
+                    showHookAction(policyId, data.project_intent_id);
+                } else {
+                    statusDiv.textContent = '❌ ' + (data.error || '提交失败，请稍后重试');
+                    statusDiv.style.color = '#c62828';
+                }
+            })
+            .catch(function() {
+                statusDiv.textContent = '❌ 提交失败，请稍后重试';
+                statusDiv.style.color = '#c62828';
+            });
+        }
+
+        // P2-0B.5: Expose as Project Hook——必须由用户主动点击的第二个独立动作；
+        // 绝不自动派生（PROJECT_INTENT_CREATED ≠> PROJECT_HOOK_CREATED，E2 conversion 语义）。
+        var lastProjectIntentIds = {};
+        function showHookAction(policyId, projectIntentId) {
+            lastProjectIntentIds[policyId] = projectIntentId;
+            var btn = document.getElementById('hook-btn-' + policyId);
+            btn.style.display = 'inline-block';
+            btn.disabled = false;
+        }
+        function exposeProjectHook(policyId) {
+            var btn = document.getElementById('hook-btn-' + policyId);
+            var statusDiv = document.getElementById('hook-status-' + policyId);
+            var projectIntentId = lastProjectIntentIds[policyId];
+            if (!projectIntentId) {
+                statusDiv.textContent = '❌ 请先提交需求';
+                statusDiv.style.color = '#c62828';
+                return;
+            }
+            btn.disabled = true; // 立即 disable；后端不做 dedup，重复 HTTP 请求会形成独立 Hook（裁决 R4）
+            statusDiv.textContent = '⏳ 暴露中……';
+            statusDiv.style.color = '#555';
+            fetch('/api/project-hook', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ project_intent_id: projectIntentId })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.ok) {
+                    statusDiv.textContent = '✅ 已暴露为 Project Hook（等待政策方/资金方连接，不代表已建立合作）';
+                    statusDiv.style.color = '#2e7d32';
                 } else {
                     statusDiv.textContent = '❌ ' + (data.error || '提交失败，请稍后重试');
                     statusDiv.style.color = '#c62828';
@@ -1256,6 +1302,55 @@ async def create_project_intent(request: Request):
     _log_p2_0_event("PROJECT_INTENT_CREATED", "PROJECT_INTENT", project_intent_id, actor_id=actor_id)
 
     return {"ok": True, "project_intent_id": project_intent_id}
+
+@app.post("/api/project-hook")
+async def create_project_hook(request: Request):
+    """P2-0B.5: 最小 Project Hook capture（Experimental E2）。
+
+    Project Hook ≠ Project / ≠ Claim / ≠ Match：仅当用户在提交 ProjectIntent
+    之后主动执行第二个独立动作（Expose as Project Hook）时才创建。
+    绝不自动派生：PROJECT_INTENT_CREATED ≠> PROJECT_HOOK_CREATED（E2 conversion 语义）。
+    本 event 不带 actor_id：无 auth/session，跨 HTTP 请求无法诚实关联 Intent 与 Hook。
+    """
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse(status_code=400, content={"error": "Invalid JSON body"})
+
+    project_intent_id = str(body.get("project_intent_id", "")).strip()
+    if not project_intent_id:
+        return JSONResponse(status_code=400, content={"error": "project_intent_id is required"})
+
+    # ProjectIntent 必须真实存在（防 orphan Hook）；只读验证，不建 Project entity / FK
+    try:
+        intent = _get_p2_0_store().read_by_id("PROJECT_INTENT", project_intent_id)
+    except Exception as e:
+        print(f"[P2-0B.5] project intent lookup failed: {e}", file=sys.stderr)
+        return JSONResponse(status_code=500, content={"error": "Failed to verify project intent"})
+    if intent is None:
+        return JSONResponse(status_code=404, content={"error": "ProjectIntent not found"})
+
+    # HOOK record：严格 B.2 schema 6 字段；store.append 内部执行 validate_hook，
+    # 校验失败抛 ValueError → 明确错误，不制造伪成功状态。
+    hook_id = str(uuid.uuid4())
+    hook_record = {
+        "record_type": "HOOK",
+        "hook_id": hook_id,
+        "hook_type": "PROJECT_HOOK",
+        "object_id": project_intent_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "source": "interactive_ai_server",
+    }
+    try:
+        _get_p2_0_store().append(hook_record)
+    except Exception as e:
+        print(f"[P2-0B.5] project hook record failed: {e}", file=sys.stderr)
+        return JSONResponse(status_code=500, content={"error": "Failed to record project hook"})
+
+    # PROJECT_HOOK_CREATED event：object 指向 Hook 本身；不带 actor_id（审计结论）
+    _log_p2_0_event("PROJECT_HOOK_CREATED", "HOOK", hook_id)
+
+    return {"ok": True, "hook_id": hook_id}
 
 # 启动服务
 
