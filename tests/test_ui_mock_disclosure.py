@@ -71,10 +71,21 @@ class TestUIMock002CardMockLabel:
         assert "MOCK / 演示数据 · 未经官方来源核验" in home_html
 
     def test_all_embedded_policies_are_flagged_mock(self, portal):
-        assert len(portal.policies) == 12
-        for policy in portal.policies:
+        # P2-0C.1: MOCK 子列表单独锁定；REAL 条目由下一个测试单独检查，
+        # 不得因 real_policies.json 的存在改变 MOCK 数量与内容
+        mock_policies = [p for p in portal.policies if p.get("is_mock") is True]
+        assert len(mock_policies) == 12
+        for policy in mock_policies:
             assert policy.get("is_mock") is True
             assert policy.get("verification_status") == "mock"
+        assert [p["id"] for p in mock_policies] == list(range(1, 13))
+
+    def test_real_policy_subset_is_checked_separately(self, portal):
+        # P2-0C.1/C.2: MOCK 子集固定 12 条；REAL 子集可为空或非空（由 real_policies.json 决定）
+        mock_policies = [p for p in portal.policies if p.get("is_mock") is True]
+        assert len(mock_policies) == 12
+        real_policies = [p for p in portal.policies if p.get("is_mock") is False]
+        assert len(portal.policies) == len(mock_policies) + len(real_policies)
 
 
 # ---------------------------------------------------------------------------

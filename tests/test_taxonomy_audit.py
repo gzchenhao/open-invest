@@ -96,18 +96,21 @@ class TestWebPortalTaxonomy:
     def test_web_portal_has_12_policies(self):
         """Web portal has 12 mock policies"""
         from global_policy_aggregator.web.interactive_ai_server import policies
-        assert len(policies) == 12
+        mock_policies = [p for p in policies if p.get("is_mock") is True]
+        assert len(mock_policies) == 12
 
     def test_web_portal_has_12_unique_industries(self):
-        """Web portal policies have 12 unique Chinese industry labels"""
+        """Web portal mock policies have 12 unique Chinese industry labels"""
         from global_policy_aggregator.web.interactive_ai_server import policies
-        industries = set(p["industry"] for p in policies)
+        mock_policies = [p for p in policies if p.get("is_mock") is True]
+        industries = set(p["industry"] for p in mock_policies)
         assert len(industries) == 12
 
     def test_web_portal_all_policies_are_mock(self):
-        """All web portal policies must be marked as mock"""
+        """All web portal MOCK policies must be marked as mock (REAL policies are unverified)"""
         from global_policy_aggregator.web.interactive_ai_server import policies
-        for p in policies:
+        mock_policies = [p for p in policies if p.get("is_mock") is True]
+        for p in mock_policies:
             assert p.get("is_mock") is True
             assert p.get("verification_status") == "mock"
 

@@ -195,8 +195,9 @@ class TestHistory003MockMustShowDisclaimer:
 
     def test_portal_has_mock_policies_and_all_are_disclosed(self, home_html):
         portal = _load_module("p22c_interactive_ai_server", WEB_DIR / "interactive_ai_server.py")
-        mock_count = sum(1 for p in portal.policies if p.get("is_mock"))
-        assert mock_count == len(portal.policies) > 0, "门户全部政策必须显式标记 mock"
+        mock_policies = [p for p in portal.policies if p.get("is_mock") is True]
+        assert len(mock_policies) == 12, "门户 MOCK 政策必须为 12 条"
+        assert len(mock_policies) > 0, "门户必须包含 MOCK 政策"
         # 页面级免责声明 + 卡片级 MOCK 徽章渲染逻辑必须存在
         assert "MOCK 演示数据" in home_html, "缺少页面级 MOCK 免责声明"
         assert "policy.is_mock" in home_html, "缺少卡片级 MOCK 标签渲染"

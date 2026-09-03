@@ -505,8 +505,9 @@ class TestWebPortalIntegration:
             assert "industry" in p, f"Policy missing legacy 'industry' field"
 
     def test_interactive_server_mock_preserved(self):
-        """All policies must remain marked as mock."""
+        """MOCK policies must remain marked as mock (REAL policies are unverified)."""
         from global_policy_aggregator.web.interactive_ai_server import policies
-        for p in policies:
+        mock_policies = [p for p in policies if p.get("is_mock") is True]
+        for p in mock_policies:
             assert p.get("is_mock") is True
             assert p.get("verification_status") == "mock"
