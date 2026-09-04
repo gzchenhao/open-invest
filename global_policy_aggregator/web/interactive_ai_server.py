@@ -3,8 +3,9 @@
 交互式AI政策查询系统（DEMONSTRATION PORTAL — TASK-P0-2.1）
 包含搜索、筛选和AI对话功能
 
-⚠️ 本门户展示的全部政策为 MOCK 演示数据（is_mock=True，0 条 VERIFIED），
-非生产政府政策服务。页面横幅 / 卡片 MOCK 标签 / PDF 免责声明为强制披露层，不得移除。
+⚠️ 门户政策来源（P2-0C.1）：内嵌 12 条 MOCK 演示数据（is_mock=True）+
+data/real_policies/real_policies.json 加载的 REAL/UNVERIFIED 条目（is_mock=False，初始为空 []）。
+系统内 0 条 VERIFIED。页面横幅 / 卡片状态标签 / PDF 免责声明为强制披露层，不得移除。
 """
 
 from fastapi import FastAPI, Request, Form
@@ -497,6 +498,32 @@ policies = [
     }
 ]
 
+# ─── P2-0C.1: REAL/UNVERIFIED policy ingestion（Handover §5.2: JSON file → existing Portal）───
+# 最小加载器：文件缺失 / 非法 JSON / 顶层非 list / 空 list → 一律返回 []，绝不 crash Portal。
+# 只读数据：不产生任何 Experimental Event，不写 p2_0_experimental/records/。
+# REAL 条目数据契约（由 tests/test_p2_0_real_policy_ingestion.py 锁定）：
+#   is_mock 严格 False、verification_status="unverified"、真实 HTTP(S) source_url（禁本地 PDF）、
+#   禁 metadata、禁 VERIFIED/REJECTED、联系方式一律 null（宁可 null，不要猜）、id 从 101 起。
+_REAL_POLICIES_FILE = Path(__file__).resolve().parent.parent / "data" / "real_policies" / "real_policies.json"
+
+
+def load_real_policies():
+    """Graceful loader for REAL/UNVERIFIED policies. Missing/invalid file → []."""
+    try:
+        if not _REAL_POLICIES_FILE.exists():
+            return []
+        with open(_REAL_POLICIES_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, ValueError):
+        return []
+    if not isinstance(data, list):
+        return []
+    return data
+
+
+_real_policies = load_real_policies()
+policies = policies + _real_policies
+
 # P1-3.3: Enrich policies with canonical_industry (non-destructive, optional field)
 try:
     _project_root = str(Path(__file__).parent.parent.parent)
@@ -513,39 +540,46 @@ except Exception:
 def search_policies(query="", region="", industry="", min_amount=0):
     """搜索政策"""
     results = []
-    
+
     for policy in policies:
+        # P2-0C.2 runtime fix: REAL policy 的 nullable 字段合法为 None，用 `or ""` 归一化
+        p_title = policy.get("title") or ""
+        p_description = policy.get("description") or ""
+        p_industry = policy.get("industry") or ""
+        p_region = policy.get("region") or ""
+        p_amount = policy.get("amount") or ""
+
         # 匹配查询关键词
         query_match = True
         if query:
             query_lower = query.lower()
-            title_match = query_lower in policy["title"].lower()
-            desc_match = query_lower in policy["description"].lower()
-            industry_match = query_lower in policy["industry"].lower()
+            title_match = query_lower in p_title.lower()
+            desc_match = query_lower in p_description.lower()
+            industry_match = query_lower in p_industry.lower()
             if not (title_match or desc_match or industry_match):
                 query_match = False
-        
+
         # 匹配地区
-        region_match = not region or region == policy["region"]
-        
+        region_match = not region or region == p_region
+
         # 匹配行业
-        industry_match = not industry or industry == policy["industry"]
-        
+        industry_match = not industry or industry == p_industry
+
         # 匹配金额
         amount_match = True
         if min_amount > 0:
             try:
                 # 提取金额数字
-                amount_str = policy["amount"].replace("最高", "").replace("万", "").strip()
+                amount_str = p_amount.replace("最高", "").replace("万", "").strip()
                 amount = int(amount_str)
                 if amount < min_amount:
                     amount_match = False
             except:
                 amount_match = False
-        
+
         if query_match and region_match and industry_match and amount_match:
             results.append(policy)
-    
+
     return results
 
 @app.get("/", response_class=HTMLResponse)
@@ -693,16 +727,16 @@ async def home():
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 OpenInvest AI政策查询系统</h1>
-            <p>智能发现 · 精准匹配 · 高效申请</p>
+            <h1>OpenInvest</h1>
+            <p>政策查询</p>
             <p style="margin-top: 12px; padding: 10px 16px; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 8px; font-size: 0.9em;">
-                ⚠️ 数据声明：当前展示的政策均为 <strong>MOCK 演示数据</strong>（is_mock=true），
-                未经官方来源核验，不得作为申报、投资或决策依据。联系方式未经核验前一律留空。
+                ⚠️ 数据声明：页面包含 <strong>MOCK 演示数据</strong>与<strong>未经官方来源核验</strong>的真实政策（UNVERIFIED），
+                均不得作为申报、投资或决策依据。联系方式未经核验前一律留空。
             </p>
         </div>
 
         <div class="search-section">
-            <h2 class="search-title">🔍 智能政策搜索</h2>
+            <h2 class="search-title">🔍 搜索政策</h2>
             <form class="search-form" onsubmit="searchPolicies(event)">
                 <div class="form-group">
                     <label for="query">关键词搜索</label>
@@ -752,12 +786,6 @@ async def home():
             </form>
         </div>
 
-        <div class="ai-section">
-            <h3>🤖 AI智能助手</h3>
-            <p>让AI为您精准匹配最适合的政策</p>
-            <button class="ai-btn" onclick="startAIChat()">💬 开始AI对话</button>
-        </div>
-
         <div class="results-section">
             <h2 class="results-title">📋 搜索结果</h2>
             <div id="results">
@@ -793,37 +821,21 @@ async def home():
                 `<li><strong>${key}:</strong> ${value}</li>`
             ).join('');
             
-            // 构建联系方式HTML
+            // 构建联系方式HTML（删除"联系方式：未核验"模块）
             let contactHtml = '';
-            if (policy.official_contact) {
-                contactHtml = `
-                    <div style="margin-top: 15px; padding: 12px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
-                        <h4 style="color: #1976d2; margin-bottom: 8px;">📞 联系方式：未核验</h4>
-                        <p style="margin: 5px 0; color: #555;"><strong>部门：</strong>${policy.official_contact.department || '未核验'}</p>
-                        <p style="margin: 5px 0; color: #555;"><strong>电话：</strong>${policy.official_contact.phone || '未核验（待官方认领后提供）'}</p>
-                        <p style="margin: 5px 0; color: #555;"><strong>邮箱：</strong>${policy.official_contact.email || '未核验（待官方认领后提供）'}</p>
-                        <p style="margin: 5px 0; color: #555;"><strong>地址：</strong>${policy.official_contact.address || '未核验'}</p>
-                    </div>
-                `;
-            }
             
-            // 构建认领勾子HTML
+            // 构建认领勾子HTML（降级为低权重链接）
             let claimHookHtml = '';
             if (policy.claim_status === 'unclaimed') {
                 claimHookHtml = `
-                    <div style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #fff9e6 0%, #ffeaa7 100%); border-radius: 8px; border: 2px dashed #ffc107; text-align: center;">
-                        <p style="margin: 0 0 10px 0; color: #856404; font-weight: bold;">🎯 您是该政策的发布方吗？</p>
-                        <button onclick="claimPolicy(${policy.id})" style="padding: 8px 20px; background: #ffc107; color: #333; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                            👉 立即认领此政策
-                        </button>
-                        <p style="margin: 8px 0 0 0; font-size: 0.85em; color: #856404;">认领后可更新政策信息、维护联系方式</p>
-                        <p style="margin: 5px 0 0 0; font-size: 0.8em; color: #856404;">联系平台管理员: <a href="mailto:30861337@qq.com" style="color: #1976d2;">30861337@qq.com</a></p>
+                    <div style="margin-top: 15px; font-size: 0.85em; text-align: center;">
+                        <a href="#" onclick="claimPolicy(${policy.id}); return false;" style="color: #1976d2; text-decoration: none;">发布方？认领此政策</a>
                     </div>
                 `;
             } else {
                 claimHookHtml = `
-                    <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px; border-left: 4px solid #28a745; text-align: center;">
-                        <p style="margin: 0; color: #155724; font-weight: bold;">✅ 该政策已被官方认领</p>
+                    <div style="margin-top: 15px; font-size: 0.85em; text-align: center; color: #28a745;">
+                        ✅ 该政策已被官方认领
                     </div>
                 `;
             }
@@ -831,58 +843,63 @@ async def home():
             card.innerHTML = `
                 <div class="policy-title">${policy.title}</div>
                 <div class="policy-meta">
-                    ${policy.is_mock ? '<span class="policy-tag" style="background:#fff3cd;color:#856404;border:1px solid #ffc107;font-weight:bold;">⚠️ MOCK / 演示数据 · 未经官方来源核验</span>' : ''}
+                    ${policy.is_mock ? '<span class="policy-tag" style="background:#fff3cd;color:#856404;border:1px solid #ffc107;font-weight:bold;">演示数据</span>' : '<span class="policy-tag" style="background:#e3f2fd;color:#0d47a1;border:1px solid #1976d2;font-weight:bold;">待核验</span>'}
                     <span class="policy-tag region-tag">${policy.region}</span>
                     <span class="policy-tag industry-tag">${policy.industry}</span>
                     <span class="policy-tag type-tag">${policy.type}</span>
                     <span class="policy-tag amount-tag">${policy.amount}</span>
                 </div>
                 
-                <!-- 新增：颁布日期和有效期 -->
                 <div style="margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #6c757d;">
                     <p style="margin: 5px 0; color: #495057;"><strong>📅 颁布日期：</strong>${policy.issue_date || '未注明'}</p>
                     <p style="margin: 5px 0; color: #495057;"><strong>⏰ 有效期：</strong>${policy.valid_period || '长期有效'}</p>
                 </div>
                 
-                <!-- 新增：源文件下载 -->
-                ${policy.source_url ? `
+                ${!policy.is_mock && policy.source_url ? `
                 <div style="margin: 10px 0;">
-                    <a href="${policy.source_url}" target="_blank" style="display: inline-block; padding: 10px 20px; background: #dc3545; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; transition: all 0.3s;" onmouseover="this.style.background='#c82333'" onmouseout="this.style.background='#dc3545'">
-                        📄 下载演示文档（PDF，非官方红头文件）
+                    <a href="${policy.source_url}" target="_blank" style="display: inline-block; padding: 10px 20px; background: #1976d2; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; transition: all 0.3s;" onmouseover="this.style.background='#1565c0'" onmouseout="this.style.background='#1976d2'">
+                        📄 查看官方原文 →
                     </a>
                 </div>
                 ` : ''}
                 
                 <div class="policy-description">${policy.description}</div>
-                <div class="policy-details">
-                    <h4>📋 政策详情</h4>
-                    <ul>
-                        ${policy.details.map(detail => `<li>${detail}</li>`).join('')}
-                    </ul>
-                </div>
-                <div class="policy-requirements">
-                    <h4>📊 申请要求</h4>
-                    <ul>
-                        ${requirements}
-                    </ul>
-                </div>
                 
-                <!-- 联系方式：未核验 -->
-                ${contactHtml}
-                
-                <!-- 新增：认领勾子 -->
-                ${claimHookHtml}
-
-                <!-- P2-0B.4: 极简 Project Need 表达入口（Experimental：ProjectIntent ≠ Project）-->
-                <div style="margin-top: 15px; padding: 12px; background: #f3f9ff; border-radius: 8px; border: 1px solid #bbdefb;">
-                    <h4 style="color: #1565c0; margin: 0 0 8px 0;">💡 与这项政策相关的项目机会（实验功能）</h4>
-                    <p style="margin: 0 0 8px 0; color: #555; font-size: 0.85em;">我正在寻找/建设与这项政策相关的项目机会……（内容将作为匿名实验记录保存，不建立任何合作关系）</p>
-                    <textarea id="need-input-${policy.id}" rows="3" style="width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.9em;" placeholder="请用一两句话描述您的项目需求"></textarea>
-                    <button onclick="submitProjectNeed(${policy.id})" style="margin-top: 8px; padding: 8px 20px; background: #1976d2; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold;">提交需求</button>
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 2px solid #e0e0e0;">
+                    <h3 style="color: #1565c0; margin: 0 0 10px 0;">🎯 项目机会</h3>
+                    <p style="margin: 0 0 10px 0; color: #555; font-size: 0.9em;">如果您正在寻找/建设与此政策相关的项目：</p>
+                    <textarea id="need-input-${policy.id}" rows="2" style="width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.9em;" placeholder="请用一两句话描述您的项目需求"></textarea>
+                    <button onclick="submitProjectNeed(${policy.id})" style="margin-top: 8px; padding: 8px 20px; background: #1976d2; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold;">提交项目需求</button>
                     <div id="need-status-${policy.id}" style="margin-top: 6px; font-size: 0.85em;"></div>
                     <button id="hook-btn-${policy.id}" onclick="exposeProjectHook(${policy.id})" style="display: none; margin-top: 8px; padding: 8px 20px; background: #7b1fa2; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold;">Expose as Project Hook</button>
                     <div id="hook-status-${policy.id}" style="margin-top: 6px; font-size: 0.85em;"></div>
                 </div>
+                
+                <div class="policy-details" id="details-${policy.id}" style="margin-top: 15px;">
+                    <div onclick="toggleDetails(${policy.id})" style="cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; transition: background 0.3s;" onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">
+                        <h4 style="margin: 0; color: #495057;">政策详情</h4>
+                        <span id="details-arrow-${policy.id}" style="font-size: 1.2em; color: #6c757d;">⌄</span>
+                    </div>
+                    <div id="details-content-${policy.id}" style="display: none; padding: 15px; background: white; border-left: 3px solid #dee2e6; margin-top: 5px;">
+                        <ul style="margin: 0; padding-left: 20px;">
+                            ${policy.details.map(detail => `<li>${detail}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="policy-requirements" id="requirements-${policy.id}" style="margin-top: 10px;">
+                    <div onclick="toggleRequirements(${policy.id})" style="cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; transition: background 0.3s;" onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">
+                        <h4 style="margin: 0; color: #495057;">申请要求</h4>
+                        <span id="requirements-arrow-${policy.id}" style="font-size: 1.2em; color: #6c757d;">⌄</span>
+                    </div>
+                    <div id="requirements-content-${policy.id}" style="display: none; padding: 15px; background: white; border-left: 3px solid #dee2e6; margin-top: 5px;">
+                        <ul style="margin: 0; padding-left: 20px;">
+                            ${requirements}
+                        </ul>
+                    </div>
+                </div>
+                
+                ${claimHookHtml}
             `;
             
             return card;
@@ -1067,6 +1084,31 @@ async def home():
                 statusDiv.style.color = '#c62828';
             });
         }
+
+        // 新增：可折叠功能
+        function toggleDetails(policyId) {
+            var content = document.getElementById('details-content-' + policyId);
+            var arrow = document.getElementById('details-arrow-' + policyId);
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.textContent = '⌃';
+            } else {
+                content.style.display = 'none';
+                arrow.textContent = '⌄';
+            }
+        }
+
+        function toggleRequirements(policyId) {
+            var content = document.getElementById('requirements-content-' + policyId);
+            var arrow = document.getElementById('requirements-arrow-' + policyId);
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.textContent = '⌃';
+            } else {
+                content.style.display = 'none';
+                arrow.textContent = '⌄';
+            }
+        }
     </script>
 </body>
 </html>'''
@@ -1140,37 +1182,44 @@ async def generate_policy_pdf(policy_id: int):
     pdf.ln(5)
     
     # 基本信息
+    # P2-0C.2 runtime fix: REAL policy 的 nullable 字段合法为 None / ""；
+    # policy.get(k, default) 在 key 存在但 value=None 时返回 None，导致 PDF 显示 "None"
+    # 或 .items() 崩溃。用 `or "未注明"` / `or []` / `or {}` 归一化。
     pdf.set_font(font_name, size=11)
-    pdf.cell(0, 8, f"颁布日期: {policy.get('issue_date', '未注明')}", ln=True)
-    pdf.cell(0, 8, f"有效期: {policy.get('valid_period', '长期有效')}", ln=True)
-    pdf.cell(0, 8, f"地区: {policy['region']}", ln=True)
-    pdf.cell(0, 8, f"行业: {policy['industry']}", ln=True)
-    pdf.cell(0, 8, f"类型: {policy['type']}", ln=True)
-    pdf.cell(0, 8, f"扶持金额: {policy['amount']}", ln=True)
+    pdf.cell(0, 8, f"颁布日期: {policy.get('issue_date') or '未注明'}", ln=True)
+    pdf.cell(0, 8, f"有效期: {policy.get('valid_period') or '长期有效'}", ln=True)
+    pdf.cell(0, 8, f"地区: {policy.get('region') or '未注明'}", ln=True)
+    pdf.cell(0, 8, f"行业: {policy.get('industry') or '未注明'}", ln=True)
+    pdf.cell(0, 8, f"类型: {policy.get('type') or '未注明'}", ln=True)
+    pdf.cell(0, 8, f"扶持金额: {policy.get('amount') or '未注明'}", ln=True)
     pdf.ln(5)
-    
+
     # 政策描述
     pdf.set_font(font_name, size=14)
     pdf.cell(0, 10, "政策概述", ln=True)
     pdf.set_font(font_name, size=11)
-    pdf.multi_cell(0, 7, policy["description"])
+    pdf.multi_cell(0, 7, policy.get("description") or "暂无描述")
     pdf.ln(5)
-    
+
     # 政策详情
-    pdf.set_font(font_name, size=14)
-    pdf.cell(0, 10, "政策详情", ln=True)
-    pdf.set_font(font_name, size=11)
-    for detail in policy.get("details", []):
-        pdf.cell(0, 7, f"  - {detail}", ln=True)
-    pdf.ln(5)
-    
+    details = policy.get("details") or []
+    if isinstance(details, list) and details:
+        pdf.set_font(font_name, size=14)
+        pdf.cell(0, 10, "政策详情", ln=True)
+        pdf.set_font(font_name, size=11)
+        for detail in details:
+            pdf.cell(0, 7, f"  - {detail}", ln=True)
+        pdf.ln(5)
+
     # 申请要求
-    pdf.set_font(font_name, size=14)
-    pdf.cell(0, 10, "申请要求", ln=True)
-    pdf.set_font(font_name, size=11)
-    for key, value in policy.get("requirements", {}).items():
-        pdf.cell(0, 7, f"  {key}: {value}", ln=True)
-    pdf.ln(5)
+    requirements = policy.get("requirements") or {}
+    if isinstance(requirements, dict) and requirements:
+        pdf.set_font(font_name, size=14)
+        pdf.cell(0, 10, "申请要求", ln=True)
+        pdf.set_font(font_name, size=11)
+        for key, value in requirements.items():
+            pdf.cell(0, 7, f"  {key}: {value}", ln=True)
+        pdf.ln(5)
     
     # 联系方式（未核验；字段为 null 时显示“未核验”，绝不生成虚构联系方式）
     contact = policy.get("official_contact", {})
@@ -1203,8 +1252,8 @@ async def generate_policy_pdf(policy_id: int):
 @app.get("/api/stats")
 async def get_stats():
     """获取系统统计信息"""
-    regions = list(set(policy.get('region', 'Unknown') for policy in policies))
-    industries = list(set(policy.get('industry', 'Unknown') for policy in policies))
+    regions = list(set((policy.get('region') or 'Unknown') for policy in policies))
+    industries = list(set((policy.get('industry') or 'Unknown') for policy in policies))
     
     return {
         "total_policies": len(policies),
@@ -1229,15 +1278,18 @@ async def search_policies_api(request: Request):
             return {"count": len(policies), "policies": policies[:limit]}
         
         # 关键词匹配（标题、地区、行业、描述）
+        # P2-0C.2 runtime fix: REAL policy 的 nullable 字段（region/amount 等）合法为 None；
+        # policy.get(k, "") 在 key 存在但 value=None 时返回 None，None.lower() 会 500。
+        # 用 `or ""` 统一将 None / "" 归一化为空字符串。
         results = []
         kw = keywords.lower()
         for policy in policies:
-            title = policy.get("title", "")
-            region = policy.get("region", "")
-            industry = policy.get("industry", "")
-            description = policy.get("description", "")
-            
-            if (kw in title.lower() or kw in region.lower() or 
+            title = policy.get("title") or ""
+            region = policy.get("region") or ""
+            industry = policy.get("industry") or ""
+            description = policy.get("description") or ""
+
+            if (kw in title.lower() or kw in region.lower() or
                 kw in industry.lower() or kw in description.lower()):
                 results.append(policy)
         
