@@ -5,8 +5,8 @@
 **Created**: 2026-08-26  
 **Repository**: https://github.com/gzchenhao/open-invest.git (branch `master`)  
 **Last Updated**: 2026-09-05  
-**Baseline Commit at Last Update**: `4acffb7` (PORTAL V2 Minimal UX Refactor, pre-RECOVERY-fix)  
-**P2.x-RECOVERY Fix Commit**: see Section 27 (`<PENDING_COMMIT_HASH>` filled post-commit)  
+**Baseline Commit at Last Update**: `2526218` (P2.x-RECOVERY minimal fix)  
+**P2.x-RECOVERY Fix Commit**: `2526218` (see Section 27)  
 **Current Expected Baseline**: Tests 812 passed (full `pytest tests/`); no failed / no errors / 0 skipped; GitHub Actions Python 3.11 + 3.12 both green.
 
 ---
@@ -3053,7 +3053,7 @@ Per RECOVERY classification, each `_p2_0_store` symptom was triaged (NOT "just a
 ### 27.6 Git Status & Commit
 
 - **PUSH = NO** (per quest instruction; final push decision rests with JUDGE).
-- Final commit hash: `<PENDING_COMMIT_HASH>` (updated immediately after commit).
+- Final commit hash: `2526218`.
 - **GIT STATUS (at completion)**: production code, P2.x tests, and this Handover committed; `src/trust/`, `p2_0_experimental/`, `real_policies.json`, `schema/` untouched; worktree clean.
 
 ### 27.7 Files Changed in This Quest
