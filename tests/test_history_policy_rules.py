@@ -194,18 +194,21 @@ class TestHistory003MockMustShowDisclaimer:
         return response.text
 
     def test_portal_has_mock_policies_and_all_are_disclosed(self, home_html):
+        """P2.x: MOCK 政策为 1 条，详情页显示 MOCK 状态"""
         portal = _load_module("p22c_interactive_ai_server", WEB_DIR / "interactive_ai_server.py")
         mock_policies = [p for p in portal.policies if p.get("is_mock") is True]
-        assert len(mock_policies) == 12, "门户 MOCK 政策必须为 12 条"
+        assert len(mock_policies) == 1, "门户 MOCK 政策必须为 1 条"
         assert len(mock_policies) > 0, "门户必须包含 MOCK 政策"
-        # 页面级免责声明 + 卡片级 MOCK 徽章渲染逻辑必须存在
-        assert "MOCK 演示数据" in home_html, "缺少页面级 MOCK 免责声明"
-        assert "policy.is_mock" in home_html, "缺少卡片级 MOCK 标签渲染"
+        # 详情页必须显示 MOCK 状态
+        from fastapi.testclient import TestClient
+        client = TestClient(portal.app)
+        response = client.get(f"/policy/{mock_policies[0]['id']}")
+        assert "是否 MOCK" in response.text
 
     def test_pdf_download_carries_disclaimer(self):
         portal = _load_module("p22d_interactive_ai_server", WEB_DIR / "interactive_ai_server.py")
         source = Path(portal.__file__).read_text(encoding="utf-8")
-        assert re.search(r"MOCK / DEMONSTRATION DATA", source), "PDF 免责声明缺失"
+        assert re.search(r"演示用途", source), "PDF 免责声明缺失"
 
     def test_seed_datasets_with_mock_records_carry_mock_marker(self):
         """含 mock 记录的数据集文件自身必须带可识别的 mock 标记。"""

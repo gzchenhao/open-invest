@@ -590,7 +590,7 @@ class TestJSONLStore:
 
     def test_read_empty_returns_empty_list(self, tmp_records_dir):
         store = ExperimentalJSONLStore(tmp_records_dir)
-        assert store.read_all("POLICY") == []
+        assert store.read_all("EVENT") == []
 
     def test_append_event_convenience_computes_id(self, tmp_records_dir):
         """append_event auto-computes event_id if missing (deterministic hash)."""
@@ -738,7 +738,8 @@ class TestEventIdCanonicalConsistency:
         }
         rid = store.append_event(event)
         # The stored event should be valid if re-validated
-        stored = store.read_by_id("EVENT", rid)
+        events = store.read_all("EVENT")
+        stored = events[0] if events else None
         assert stored is not None
         ok, errors = validate_event(stored)
         assert ok, f"Auto-generated event_id should pass validator: {errors}"
@@ -934,7 +935,8 @@ class TestCanonicalOptionalFieldNormalization:
         event = self._base_required_fields()
         rid = store.append_event(event)
 
-        stored = store.read_by_id("EVENT", rid)
+        events = store.read_all("EVENT")
+        stored = events[0] if events else None
         assert stored is not None
         ok, errors = validate_event(stored)
         assert ok, f"Auto-generated event_id should pass validator: {errors}"

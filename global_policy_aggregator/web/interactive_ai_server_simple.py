@@ -168,6 +168,21 @@ def get_distinct_values(field):
     return sorted(list(values))
 
 # ─── API 端点 ──
+@app.get("/test")
+async def test():
+    """测试页面"""
+    return HTMLResponse(content="""
+    <!DOCTYPE html>
+    <html>
+    <head><title>Test</title></head>
+    <body>
+        <h1>Test Page</h1>
+        <p>Server is working!</p>
+        <p>Policies count: """ + str(len(policies)) + """</p>
+    </body>
+    </html>
+    """)
+
 @app.get("/")
 async def home():
     """首页"""
@@ -243,7 +258,7 @@ async def search(keyword: str = Form(""), region: str = Form(""), industry: str 
     if not filtered_policies:
         content += "<li>没有找到匹配的政策</li>"
     
-    content += """
+    content += f"""
         </ul>
         
         <h2>筛选条件</h2>

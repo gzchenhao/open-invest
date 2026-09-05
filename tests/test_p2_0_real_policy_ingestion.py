@@ -202,10 +202,11 @@ class TestRealPolicyDataContract:
 
 
 class TestMockPoliciesUntouched:
-    def test_twelve_mock_policies_with_ids_1_to_12(self, portal):
+    def test_one_mock_policy_with_id_1(self, portal):
+        """P2.x: MOCK 政策从 12 条减少为 1 条，ID=1"""
         mock_policies = [p for p in portal.policies if p.get("is_mock") is True]
-        assert len(mock_policies) == 12
-        assert [p["id"] for p in mock_policies] == list(range(1, 13))
+        assert len(mock_policies) == 1
+        assert mock_policies[0]["id"] == 1
 
     def test_mock_policy_content_invariants_unchanged(self, portal):
         mock_policies = [p for p in portal.policies if p.get("is_mock") is True]
@@ -224,7 +225,7 @@ class TestMockPoliciesUntouched:
     def test_real_ids_do_not_conflict_with_mock_ids(self, portal):
         mock_ids = {p["id"] for p in portal.policies if p.get("is_mock") is True}
         real_ids = {p["id"] for p in portal.policies if p.get("is_mock") is False}
-        assert mock_ids == set(range(1, 13))
+        assert mock_ids == {1}
         assert mock_ids.isdisjoint(real_ids)
 
     def test_first_real_id_101_disjoint_from_mock(self, portal):
@@ -245,9 +246,10 @@ class TestLoaderSideEffectFree:
         assert _records_snapshot() == before
 
     def test_loading_never_initializes_experimental_store(self, portal):
-        assert portal._p2_0_store is None
+        """P2.x: 生产代码不再包含 _p2_0_store 属性"""
+        assert not hasattr(portal, "_p2_0_store")
         portal.load_real_policies()
-        assert portal._p2_0_store is None
+        assert not hasattr(portal, "_p2_0_store")
 
     def test_module_level_has_no_experimental_import(self, portal):
         assert "p2_0_experimental" not in vars(portal)
