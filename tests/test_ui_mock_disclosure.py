@@ -132,21 +132,46 @@ class TestUIMock004NullContactsStayNull:
 
 
 # ---------------------------------------------------------------------------
-# TEST-UI-MOCK-005: PDF Mock Policy 必须包含 Mock Disclaimer
+# TEST-UI-MOCK-005: /pdf 端点（text/plain 契约）传输层与免责声明必须诚实
 # ---------------------------------------------------------------------------
 class TestUIMock005PdfDisclaimer:
-    def test_pdf_endpoint_returns_content(self, portal):
-        """PDF 端点必须返回内容（P2.x: 返回文本格式而非二进制PDF）"""
+    def test_pdf_endpoint_returns_honest_text(self, portal):
+        """P2.x F-1 契约（JUDGE 2026-09-06）：/pdf 为历史兼容路径，输出 text/plain + .txt，不冒充 PDF 二进制"""
         from fastapi.testclient import TestClient
         client = TestClient(portal.app)
         response = client.get("/api/policy/1/pdf")
         assert response.status_code == 200
+        assert response.headers["content-type"].startswith("text/plain")
+        assert response.headers["content-disposition"].endswith(".txt")
         assert len(response.content) > 0
 
-    def test_pdf_generator_source_contains_policy_data(self):
-        """PDF 生成源码必须包含政策数据"""
-        source = (WEB_DIR / "interactive_ai_server.py").read_text(encoding="utf-8")
-        assert "policy" in source.lower()
+    def test_disclaimer_matches_is_mock_status(self, portal):
+        """MOCK 政策必须标注 MOCK/演示；REAL 政策必须标注未经官方核验，不得写成演示数据（DATA-INTEGRITY）"""
+        from fastapi.testclient import TestClient
+        client = TestClient(portal.app)
+        mock_policies = [p for p in portal.policies if p.get("is_mock")]
+        real_policies = [p for p in portal.policies if not p.get("is_mock")]
+        assert len(mock_policies) > 0
+        for policy in mock_policies:
+            resp = client.get(f"/api/policy/{policy['id']}/pdf")
+            assert resp.status_code == 200
+            text = resp.content.decode("utf-8")
+            assert "MOCK" in text and "演示" in text
+        assert len(real_policies) > 0
+        for policy in real_policies:
+            resp = client.get(f"/api/policy/{policy['id']}/pdf")
+            assert resp.status_code == 200
+            text = resp.content.decode("utf-8")
+            assert "未经 OpenInvest 官方核验" in text
+            assert "演示" not in text
+
+    @pytest.mark.parametrize("server_file", ["interactive_ai_server.py", "interactive_ai_server_simple.py"])
+    def test_pdf_transport_contract_in_source(self, server_file):
+        """两个生产入口的 /pdf 端点必须同契约：text/plain + .txt，禁用 application/pdf 标头"""
+        source = (WEB_DIR / server_file).read_text(encoding="utf-8")
+        assert 'media_type="text/plain; charset=utf-8"' in source
+        assert "filename=policy_{policy_id}.txt" in source
+        assert 'media_type="application/pdf"' not in source
 
 
 # ---------------------------------------------------------------------------

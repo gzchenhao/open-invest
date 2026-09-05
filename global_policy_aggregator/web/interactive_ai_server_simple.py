@@ -383,7 +383,7 @@ async def policy_detail(policy_id: int):
 
 @app.get("/api/policy/{policy_id}/pdf")
 async def policy_pdf(request: Request, policy_id: int):
-    """政策PDF下载（演示用）"""
+    """政策文档下载（P2.x 契约：/pdf 为历史兼容路径，输出 text/plain）"""
     policy = get_policy_by_id(policy_id)
     if not policy:
         return JSONResponse(content={"error": "Policy not found"}, status_code=404)
@@ -405,6 +405,12 @@ async def policy_pdf(request: Request, policy_id: int):
     else:
         requirements_items = []
     
+    # F-1: 免责声明按 is_mock 区分 —— REAL 政策不得标注为演示数据（DATA-INTEGRITY）。
+    if policy.get('is_mock'):
+        disclaimer = "免责声明：本文件为 MOCK / 演示数据，不构成正式政策文件，不得用于实际申报、投资或商业决策。"
+    else:
+        disclaimer = "免责声明：本政策内容未经 OpenInvest 官方核验（UNVERIFIED），请以官方发布内容为准。"
+
     pdf_content = f"""
 政策详情 - {policy.get('title', '')}
 
@@ -420,16 +426,18 @@ async def policy_pdf(request: Request, policy_id: int):
 申请要求：
 {chr(10).join(f'• {key}: {value}' for key, value in requirements_items)}
 
-免责声明：本PDF为演示用途，不构成正式政策文件。请以官方发布文件为准。
+    {disclaimer}
     """.strip()
-    
+
     pdf_buffer = io.StringIO(pdf_content)
-    
+
     def generate_pdf():
         yield pdf_buffer.getvalue().encode('utf-8')
-    
-    return StreamingResponse(generate_pdf(), media_type="application/pdf", headers={
-        "Content-Disposition": f"attachment; filename=policy_{policy_id}.pdf"
+
+    # F-1 (P2.x contract, JUDGE 2026-09-06): 内容是纯文本，传输层必须一致。
+    # /pdf 路径为历史兼容保留，输出为 text/plain，不冒充 PDF 二进制。
+    return StreamingResponse(generate_pdf(), media_type="text/plain; charset=utf-8", headers={
+        "Content-Disposition": f"attachment; filename=policy_{policy_id}.txt"
     })
 
 @app.get("/api/intent")

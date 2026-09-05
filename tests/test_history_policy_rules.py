@@ -206,9 +206,12 @@ class TestHistory003MockMustShowDisclaimer:
         assert "是否 MOCK" in response.text
 
     def test_pdf_download_carries_disclaimer(self):
+        """P2.x F-1 契约：/pdf 免责声明按 is_mock 区分（MOCK=演示数据；REAL=未经官方核验）"""
         portal = _load_module("p22d_interactive_ai_server", WEB_DIR / "interactive_ai_server.py")
         source = Path(portal.__file__).read_text(encoding="utf-8")
-        assert re.search(r"演示用途", source), "PDF 免责声明缺失"
+        assert re.search(r"MOCK / 演示数据", source), "MOCK 免责声明缺失"
+        assert re.search(r"未经 OpenInvest 官方核验", source), "REAL 免责声明缺失"
+        assert "本PDF为演示用途" not in source, "REAL 政策不得沿用'演示用途'统一文案"
 
     def test_seed_datasets_with_mock_records_carry_mock_marker(self):
         """含 mock 记录的数据集文件自身必须带可识别的 mock 标记。"""

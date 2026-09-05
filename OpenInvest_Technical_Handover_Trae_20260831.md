@@ -4,10 +4,10 @@
 **Purpose**: The SINGLE SOURCE OF TRUTH (SSOT) for OpenInvest product strategy, current-state boundaries, evidence classification, and Quest governance. Any future AI coding agent / LLM / developer MUST read and obey this document in full before touching the repository.  
 **Created**: 2026-08-26  
 **Repository**: https://github.com/gzchenhao/open-invest.git (branch `master`)  
-**Last Updated**: 2026-09-05  
-**Baseline Commit at Last Update**: `2526218` (P2.x-RECOVERY minimal fix)  
+**Last Updated**: 2026-09-06  
+**Baseline Commit at Last Update**: `2526218` (P2.x-RECOVERY minimal fix) + F-1 PDF transport honesty fix (Section 28)  
 **P2.x-RECOVERY Fix Commit**: `2526218` (see Section 27)  
-**Current Expected Baseline**: Tests 812 passed (full `pytest tests/`); no failed / no errors / 0 skipped; GitHub Actions Python 3.11 + 3.12 both green.
+**Current Expected Baseline**: Tests **814** passed (full `pytest tests/`; 812 pre-F-1 + 2 net new TEST-UI-MOCK-005 tests, see Section 28); no failed / no errors / 0 skipped. P2.x focused set unchanged at **174**.
 
 ---
 
@@ -3062,3 +3062,55 @@ Per RECOVERY classification, each `_p2_0_store` symptom was triaged (NOT "just a
 - `global_policy_aggregator/web/interactive_ai_server_simple.py` — (new, tracked) same fixes as above.
 - `tests/test_p2_0b3_portal_event_logging.py`, `test_p2_0b4_e1_minimal_observability.py`, `test_p2_0b5_e2_hook_capture.py`, `test_p2_0b6_e3_outreach_recording.py`, `test_p2_0c2_runtime_fix.py` (force-added; previously gitignored), `test_p2_0_experimental_records.py`, `test_p2_0_real_policy_ingestion.py`, `test_taxonomy_audit.py`, `test_taxonomy_integration.py`, `test_history_policy_rules.py`, `test_ui_mock_disclosure.py` — updated to the P2.x production contract.
 - `OpenInvest_Technical_Handover_Trae_20260831.md` — this record (single Master Handover preserved).
+
+---
+
+## 28. P2.x F-1 — PDF TRANSPORT-LAYER HONESTY FIX (2026-09-06)
+
+> Result of the F-1 PDF CONTRACT AUDIT (read-only, TAKEOVER phase) and the subsequent JUDGE DECISION (2026-09-06). Scope was ONE thing only: make the HTTP transport layer of `/api/policy/{id}/pdf` match its actual content, and make the disclaimer match each policy's `is_mock` status. No UI changes, no real PDF restoration, no Policy Execution Engine, no Trust/Evidence-Graph changes.
+
+### 28.1 Background — the F-1 finding
+
+The TAKEOVER AUDIT found that the P2.x endpoint `/api/policy/{policy_id}/pdf` returned UTF-8 plain text while the HTTP headers claimed `media_type="application/pdf"` and `filename=policy_{id}.pdf`. History (git evidence):
+
+- `a00fb32` (P1-6.1) → `4acffb7`: the endpoint produced a **real FPDF binary** (fpdf2 + SimHei; Linux CJK-absent fallback emitted a minimal valid PDF with English MOCK warning), enforced by the test assertion `response.content[:4] == b"%PDF"`.
+- `2526218` (P2.x-RECOVERY) rewrote the endpoint as UTF-8 text and **simultaneously weakened the safety test** `TEST-UI-MOCK-005` (`%PDF` magic-byte assertion → `len(response.content) > 0`, docstring "P2.x: 返回文本格式而非二进制PDF"). This test weakening is recorded here per JUDGE instruction as a **fact**; the weakening is NOT rolled back.
+
+### 28.2 JUDGE DECISION (2026-09-06) — canonical record
+
+1. **Option B approved: honest transport layer.** The real PDF binary contract is **NOT restored**. `text/plain` is the current formal P2.x contract.
+2. `/api/policy/{id}/pdf` remains as a **historical-compatibility path** (path unchanged to avoid scope expansion), but must honestly serve:
+   - `media_type: text/plain; charset=utf-8`
+   - `filename=policy_{id}.txt`
+   - non-empty content
+3. **Disclaimer split by `is_mock`** (DATA-INTEGRITY):
+   - MOCK: "免责声明：本文件为 MOCK / 演示数据，不构成正式政策文件，不得用于实际申报、投资或商业决策。"
+   - REAL: "免责声明：本政策内容未经 OpenInvest 官方核验（UNVERIFIED），请以官方发布内容为准。" — REAL policies must NEVER be labelled 演示数据.
+4. `TEST-UI-MOCK-005` upgraded (NOT the old `%PDF` assertion — that stays dead): content-type honesty, `.txt` filename, non-empty content, disclaimer matching `is_mock` status, plus source-level contract assertions for BOTH production entries.
+5. `fpdf2==2.7.9` orphan dependency: NOT removed now; deferred to a separate cleanup Quest.
+
+### 28.3 Files changed
+
+- `global_policy_aggregator/web/interactive_ai_server.py` — PDF endpoint: text/plain + .txt + `is_mock`-branched disclaimer.
+- `global_policy_aggregator/web/interactive_ai_server_simple.py` — same change (production entry parity).
+- `tests/test_ui_mock_disclosure.py` — TEST-UI-MOCK-005 rewritten: 2 tests → 4 tests (`test_pdf_endpoint_returns_honest_text`, `test_disclaimer_matches_is_mock_status` over all 1 MOCK + 20 REAL, `test_pdf_transport_contract_in_source` parametrized over both server files). **Net +2 tests → full suite baseline 812 → 814.**
+- `tests/test_history_policy_rules.py` — **consequential edit, disclosed**: `test_pdf_download_carries_disclaimer` asserted the old literal source string "演示用途", which the JUDGE-ordered disclaimer split removed. Updated to assert both the MOCK ("MOCK / 演示数据") and REAL ("未经 OpenInvest 官方核验") disclaimer strings and to forbid the old unified REAL-mislabelling wording. This file was outside the JUDGE's allowed list; the edit is the minimal mechanical consequence of the ordered disclaimer change and is recorded here for JUDGE review.
+- `OpenInvest_Technical_Handover_Trae_20260831.md` — this section + header baseline update.
+
+**NOT modified**: `src/trust/**`, `global_policy_aggregator/data/real_policies/real_policies.json`, `templates/**`, `requirements.txt`, `schema/**`, seed data, `p2_0_experimental/**`, legacy/backup/fixed servers, Intent/Hook endpoints. `_p2_0_store` NOT reintroduced. No screenshots / test PDFs / backup files committed.
+
+### 28.4 Verification results
+
+- **Full suite**: `python -m pytest tests/ -q` → **814 passed, 0 failed, 0 errors, 0 skipped** (1 third-party StarletteDeprecationWarning). Count change 812 → 814 fully explained by TEST-UI-MOCK-005 upgrade (2 tests → 4).
+- **P2.x focused set** (original 7 files): **174 passed, 0 failed** (unchanged). Extended P2.x set incl. the 2 modified test files: 204 passed.
+- **Live 8017 E2E** (server restarted with the fixed code, new PID):
+  - `GET /` = 200; `POST /search` (人工智能) = 200; `GET /policy/101` = 200.
+  - `GET /api/policy/101/pdf` (REAL) = 200, `content-type: text/plain; charset=utf-8`, `filename=policy_101.txt`, tail line = "免责声明：本政策内容未经 OpenInvest 官方核验（UNVERIFIED）…".
+  - `GET /api/policy/1/pdf` (MOCK) = 200, disclaimer = "本文件为 MOCK / 演示数据…".
+  - Detail page still renders official `source_url` (`https://www.gov.cn/zhengce/zhengceku/2017-07/20/content_5211996.htm`); 核验状态 = `unverified`; zero VERIFIED occurrences.
+- **Git diff audit**: exactly the 5 files above; `src/trust/` + REAL source of truth + schema + p2_0_experimental = 0 diff.
+
+### 28.5 Git
+
+- **PUSH = NO** (per quest instruction; final push decision rests with JUDGE).
+- Commit: single clean F-1 commit created immediately after this Handover update (self-reference limitation — run `git log --oneline` for the actual hash; expected subject "P2.x F-1: honest text/plain transport for /api/policy/{id}/pdf").
