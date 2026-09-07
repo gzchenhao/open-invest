@@ -4,10 +4,10 @@
 **Purpose**: The SINGLE SOURCE OF TRUTH (SSOT) for OpenInvest product strategy, current-state boundaries, evidence classification, and Quest governance. Any future AI coding agent / LLM / developer MUST read and obey this document in full before touching the repository.  
 **Created**: 2026-08-26  
 **Repository**: https://github.com/gzchenhao/open-invest.git (branch `master`)  
-**Last Updated**: 2026-09-06  
-**Baseline Commit at Last Update**: `2526218` (P2.x-RECOVERY minimal fix) + F-1 PDF transport honesty fix (Section 28)  
+**Last Updated**: 2026-09-07  
+**Baseline Commit at Last Update**: `5bd3026` (P2.x F-1) + P2-0 Minimal Evidence v1 (Section 29)  
 **P2.x-RECOVERY Fix Commit**: `2526218` (see Section 27)  
-**Current Expected Baseline**: Tests **814** passed (full `pytest tests/`; 812 pre-F-1 + 2 net new TEST-UI-MOCK-005 tests, see Section 28); no failed / no errors / 0 skipped. P2.x focused set unchanged at **174**.
+**Current Expected Baseline**: Tests **853** passed (full `pytest tests/`; 814 + 39 new evidence-v1 tests, see Section 29); no failed / no errors / 0 skipped. P2.x focused set unchanged at **174**.
 
 ---
 
@@ -3114,3 +3114,53 @@ The TAKEOVER AUDIT found that the P2.x endpoint `/api/policy/{policy_id}/pdf` re
 
 - **PUSH = NO** (per quest instruction; final push decision rests with JUDGE).
 - Commit: single clean F-1 commit created immediately after this Handover update (self-reference limitation — run `git log --oneline` for the actual hash; expected subject "P2.x F-1: honest text/plain transport for /api/policy/{id}/pdf").
+
+---
+
+## 29. P2-0 MINIMAL EVIDENCE v1 — DESIGN & IMPLEMENTATION (2026-09-06/07)
+
+> Result of the P2-0 FLYWHEEL RECONCILIATION AUDIT (read-only) and the JUDGE approval of the Minimal Evidence Layer v1 design. Goal: rebuild MINIMUM behavioral observation capability (Search → View → Need) after the P2.x contract removed the P2-0B runtime — WITHOUT restoring `_p2_0_store`, `_log_p2_0_event`, `/api/project-intent`, the old Hook UI, or the old B.6 outreach endpoint.
+
+### 29.1 JUDGE rulings locked in this quest
+
+1. **actor_hash = null 统一**：v1 不记 IP、不做 daily salt、不做跨日用户识别（分析能力让位隐私简单性；如未来确需，另开独立 Quest）。
+2. **fail-open 语义**：evidence 是观察层而非信任层。store 写失败 → Search/View 继续服务 + stderr warning；`/api/need` 例外——其唯一职能就是记录，写失败诚实返回 503，**不伪造 record_id**。
+3. **`/api/need` 批准**；`/api/project-intent` 保持 404（不恢复）。
+4. **两条历史 project_intents**：正式分类 `UNVERIFIED_REAL_NEED_OBSERVATION`、处置 `ARCHIVED_INVALID_ANCHOR`（锚定旧数据集 MOCK id=3，id 已悬空，按 Sec 3.4 不构成 Hook）。原 JSONL 一个字节未动，分类落盘于 tracked 的 `classification_manifest.json`。
+5. **E3 Government Inbound**：`E3 CANDIDATE / INBOUND SIGNAL`，仅人工 CLI 记录；org/contact/evidence_refs 无真实证据一律 null；不是 VERIFIED / Hook / traction / PMF。
+6. **`/api/intent`**：正式定义 `LEGACY INFORMATION STUB / NO-CAPTURE`，保留，新 Evidence Layer 零依赖。
+7. **Execution Engine**：STRATEGIC ONLY，无代码。
+
+### 29.2 Implementation
+
+- `p2_0_experimental/evidence_store.py`（新）：append-only `EvidenceV1Store` + `make_record` 信封（schema_version=evidence-v1）；`observation_status ∈ {UNVERIFIED_OBSERVATION, CANDIDATE, ARCHIVED_INVALID_ANCHOR}`；`VERIFIED` 仅为 Trust Layer 保留标签，本层无代码路径可达；**任何嵌套层级出现 `verification_status` 字段即拒绝**（Trust 隔离，测试锁定）；`actor_hash` 恒 null；不 import `src/trust/**`。
+- `p2_0_experimental/evidence_v1.schema.json`（新）：信封 schema。
+- `p2_0_experimental/record_e3_inbound.py`（新）：人工 CLI，记录 `E3_INBOUND`（CANDIDATE）。
+- 两个生产入口（`interactive_ai_server_simple.py` / `interactive_ai_server.py`，双入口契约对齐）：
+  - `POST /search` → `POLICY_SEARCHED`（keyword + result_count）；
+  - `GET /policy/{id}` 200 → `POLICY_VIEWED`（policy_id + is_mock 快照，锚点写入时已存在）；
+  - 新 `POST /api/need`：need_text 逐字保存、contact 可选、anchor_policy_id 必须存在于当前数据集（400 拒绝悬空锚点）；`UNVERIFIED_OBSERVATION`；
+  - 详情页内联最小需求表单（fetch → /api/need）。
+- `p2_0_experimental/records/.gitignore`：`evidence_v1/` 运行时工件忽略；`archive/` 下仅 tracked `classification_manifest.json`。
+- `p2_0_experimental/records/archive/classification_manifest.json`（新，tracked）：两条旧 intent 的分类/处置/禁令落盘，原文逐字引用核对。
+- `tests/test_p2_0_evidence_v1.py`（新）：**39 tests**。
+- 默认 evidence 目录：`p2_0_experimental/records/evidence_v1/`；`OPENINVEST_EVIDENCE_DIR` 环境变量可注入（测试）；pytest 进程自动重定向到临时目录，避免测试污染真实 observation 数据（无需改 conftest）。
+
+### 29.3 Verification
+
+- **Full suite**: `python -m pytest tests/ -q` → **853 passed, 0 failed, 0 skipped**（814 基线 + 39 条新 evidence 测试；无一现有测试修改或删除）。
+- **P2.x focused**: **174 passed, 0 failed**（不变）。
+- **Evidence v1**: 39 passed（Search/View/Need 事实记录、anchor 校验、need_text 逐字、MOCK/REAL 快照、无 VERIFIED、无 verification_status、`/api/project-intent`=404、`/api/intent`=legacy stub、fail-open、双 server 契约一致、store 不变量、archive manifest 与原文一致）。
+- **Live 8017 E2E**（重启后实测）：`GET /`=200；`POST /search`=200（evidence 落盘）；`GET /policy/101`=200（evidence 落盘）；`POST /api/need`（anchor=101）=recorded + UNVERIFIED_OBSERVATION；悬空锚点=400；`/api/project-intent`=404；`/api/intent`=legacy stub；详情页含需求表单。evidence_v1/ 下 events.jsonl + needs.jsonl 正确生成。
+- **Legacy records 审计**：`project_intents.jsonl` / `events.jsonl`（旧 P2-0B 数据）零改动。
+
+### 29.4 Known findings / limitations
+
+1. **Git Bash curl 客户端编码假象**：live E2E 中 curl 发送 GBK 字节导致记录内中文乱码且 result_count=0——是**测试客户端编码问题**，非 server 缺陷（TestClient/浏览器的 UTF-8 路径正常，pytest 断言验证了逐字保存）。真实浏览器流量不受影响。
+2. E1 的"跨日重复访问"信号在 v1 不可测（actor_hash=null 是 JUDGE 裁决，非缺陷）。
+3. Evidence 计数 ≠ traction：任何"有多少条记录"的解读禁令见 Handover Sec 5 证据分类；所有记录 UNVERIFIED。
+
+### 29.5 Git
+
+- **COMMIT = YES（本 quest）**；**PUSH = NO**（等待 JUDGE）。
+- Commit 在本 Handover 更新后创建（self-reference limitation——以 `git log` 实际 hash 为准；expected subject "P2-0 Minimal Evidence v1: Search/View/Need observation layer + /api/need + E3 inbound CLI")。

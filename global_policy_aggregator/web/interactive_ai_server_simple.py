@@ -112,6 +112,46 @@ try:
 except Exception:
     pass  # P1-3.3: Graceful fallback - no canonical_industry field
 
+# ─── P2-0 Minimal Evidence Layer v1（JUDGE 批准 2026-09-06）───
+# 观察层，非信任层：只记事实（Search → View → Need），fail-open，永不 VERIFIED。
+# schema: p2_0_experimental/evidence_v1.schema.json；不 import src/trust/**；
+# 不恢复 _p2_0_store / _log_p2_0_event / /api/project-intent（均已被 P2.x 契约移除）。
+try:
+    if _project_root not in sys.path:
+        sys.path.insert(0, _project_root)
+except NameError:
+    _project_root = str(Path(__file__).resolve().parents[2])
+    if _project_root not in sys.path:
+        sys.path.insert(0, _project_root)
+
+_EVIDENCE_STORE = None
+
+
+def _get_evidence_store():
+    global _EVIDENCE_STORE
+    if _EVIDENCE_STORE is None:
+        from p2_0_experimental.evidence_store import EvidenceV1Store, default_records_dir
+        _EVIDENCE_STORE = EvidenceV1Store(default_records_dir())
+    return _EVIDENCE_STORE
+
+
+def _record_evidence(event_type, payload, anchor_policy_id=None, record_type="EVIDENCE_EVENT"):
+    """fail-open evidence 写入（JUDGE 裁决）：evidence 是观察层而非信任层。
+
+    写失败仅向 stderr 记 warning，门户继续服务；不伪造 evidence，不返回假 record_id。
+    """
+    try:
+        from p2_0_experimental.evidence_store import make_record
+        record = make_record(
+            event_type, payload,
+            record_type=record_type,
+            anchor_policy_id=anchor_policy_id,
+        )
+        return _get_evidence_store().append(record)
+    except Exception as exc:
+        print(f"[evidence-v1] WARNING: failed to record {event_type}: {exc}", file=sys.stderr)
+        return None
+
 # ─── P1-4: Search and Filter Functions ──
 def search_policies(event_type="POLICY_SEARCHED", actor_id=None):
     """搜索政策"""
@@ -231,6 +271,8 @@ async def home():
 async def search(keyword: str = Form(""), region: str = Form(""), industry: str = Form(""), min_amount: int = Form(0)):
     """搜索政策"""
     filtered_policies = search_filtered_policies(keyword, region, industry, min_amount)
+    # P2-0 Evidence v1: 记录搜索事实（keyword + 结果数），fail-open。
+    _record_evidence("POLICY_SEARCHED", {"keyword": keyword, "result_count": len(filtered_policies)})
     
     search_regions = get_distinct_values('region')
     search_industries = get_distinct_values('industry')
@@ -283,6 +325,13 @@ async def policy_detail(policy_id: int):
     policy = get_policy_by_id(policy_id)
     if not policy:
         return HTMLResponse(content="Policy not found", status_code=404)
+
+    # P2-0 Evidence v1: 记录查看事实（policy_id + is_mock 快照，锚点写入时已存在），fail-open。
+    _record_evidence(
+        "POLICY_VIEWED",
+        {"policy_id": policy_id, "is_mock_snapshot": bool(policy.get("is_mock"))},
+        anchor_policy_id=policy_id,
+    )
     
     # Handle all field types safely
     title = policy.get('title', '政策详情')
@@ -375,6 +424,35 @@ async def policy_detail(policy_id: int):
         <p><strong>核验状态:</strong> {policy.get('verification_status', '')}</p>
         
         <p><a href="/">← 返回首页</a></p>
+
+        <!-- P2-0 Minimal Evidence v1: 真实需求观察（UNVERIFIED_OBSERVATION，不构成匹配/承诺/资格判断） -->
+        <div style="margin-top:24px; padding:16px; border:1px solid #ddd; border-radius:8px;">
+          <strong>有真实需求？留下一句话：</strong>
+          <form id="need-form">
+            <textarea id="need-text" rows="2" style="width:100%;" placeholder="例如：有无算力支持？"></textarea>
+            <input id="need-contact" style="width:100%; margin-top:6px;" placeholder="联系方式 / 回调方式（可选）">
+            <button type="submit" style="margin-top:6px;">提交需求观察</button>
+            <span id="need-status" style="margin-left:8px; font-size:0.9em;"></span>
+          </form>
+        </div>
+        <script>
+        document.getElementById('need-form').addEventListener('submit', async function(e) {{
+          e.preventDefault();
+          var statusEl = document.getElementById('need-status');
+          var body = new URLSearchParams({{
+            need_text: document.getElementById('need-text').value,
+            contact_or_callback: document.getElementById('need-contact').value,
+            anchor_policy_id: '{policy_id}'
+          }});
+          try {{
+            var resp = await fetch('/api/need', {{method: 'POST', body: body}});
+            var data = await resp.json();
+            statusEl.textContent = resp.ok ? '已记录（未核验观察）' : (data.error || '提交失败');
+          }} catch (err) {{
+            statusEl.textContent = '提交失败';
+          }}
+        }});
+        </script>
     </body>
     </html>
     """
@@ -438,6 +516,62 @@ async def policy_pdf(request: Request, policy_id: int):
     # /pdf 路径为历史兼容保留，输出为 text/plain，不冒充 PDF 二进制。
     return StreamingResponse(generate_pdf(), media_type="text/plain; charset=utf-8", headers={
         "Content-Disposition": f"attachment; filename=policy_{policy_id}.txt"
+    })
+
+@app.post("/api/need")
+async def submit_need(request: Request):
+    """P2-0 Minimal Evidence v1：记录用户主动提交的真实 need。
+
+    need_text 逐字保存；不 LLM 解读；不自动生成 Hook；不生成 VERIFIED。
+    observation_status 恒为 UNVERIFIED_OBSERVATION。anchor_policy_id 仅接受
+    当前数据集中存在的 id（防止悬空锚点，如历史 policy_id=3）。
+    """
+    try:
+        form = await request.form()
+        data = dict(form) if form else {}
+    except Exception:
+        data = {}
+    if not data:
+        try:
+            body_json = await request.json()
+            if isinstance(body_json, dict):
+                data = body_json
+        except Exception:
+            data = {}
+
+    need_text = str(data.get("need_text") or "").strip()
+    if not need_text:
+        return JSONResponse(content={"error": "need_text 必填（1 句话真实需求）"}, status_code=400)
+
+    contact = str(data.get("contact_or_callback") or "").strip() or None
+
+    anchor_policy_id = None
+    anchor_raw = data.get("anchor_policy_id")
+    if anchor_raw not in (None, ""):
+        try:
+            anchor_policy_id = int(anchor_raw)
+        except (TypeError, ValueError):
+            return JSONResponse(content={"error": "anchor_policy_id 无效"}, status_code=400)
+        if get_policy_by_id(anchor_policy_id) is None:
+            return JSONResponse(content={
+                "error": f"anchor_policy_id={anchor_policy_id} 不存在于当前政策数据集；可去掉锚点匿名提交"
+            }, status_code=400)
+
+    record_id = _record_evidence(
+        "NEED_SUBMITTED",
+        {"need_text": need_text, "contact_or_callback": contact},
+        anchor_policy_id=anchor_policy_id,
+        record_type="NEED_OBSERVATION",
+    )
+    if record_id is None:
+        # 诚实失败：不伪造 record_id（JUDGE fail-open 裁决的 need 端点例外——其唯一职能就是记录）
+        return JSONResponse(content={"error": "需求记录失败，请稍后重试"}, status_code=503)
+
+    return JSONResponse(content={
+        "status": "recorded",
+        "record_id": record_id,
+        "observation_status": "UNVERIFIED_OBSERVATION",
+        "message": "已记录为未核验观察（UNVERIFIED_OBSERVATION），不构成任何承诺、匹配结果或资格判断。",
     })
 
 @app.get("/api/intent")

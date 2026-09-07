@@ -2,3 +2,11 @@
 # Only this .gitignore is tracked to keep the directory in the repo.
 *.jsonl
 !.gitignore
+
+# Minimal Evidence Layer v1 runtime artifacts (evidence_store.py) — not committed.
+evidence_v1/
+
+# Archive: original legacy JSONL stays in place, untouched; only the
+# classification manifest (classification_manifest.json) is tracked.
+archive/*
+!archive/classification_manifest.json

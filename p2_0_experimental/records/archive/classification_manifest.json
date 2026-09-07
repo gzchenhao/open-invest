@@ -1,0 +1,41 @@
+{
+  "schema_version": "archive-classification-1",
+  "classified_at": "2026-09-06",
+  "authority": "OpenInvest JUDGE ruling (P2-0 FLYWHEEL RECONCILIATION + MINIMAL EVIDENCE v1 approval)",
+  "subject": "Legacy P2-0B.5 project_intents.jsonl records (pre-P2.x server runtime artifacts)",
+  "original_file": "p2_0_experimental/records/project_intents.jsonl",
+  "classification": "UNVERIFIED_REAL_NEED_OBSERVATION",
+  "disposition": "ARCHIVED_INVALID_ANCHOR",
+  "rationale": [
+    "need 文本本身是真实人类表达的观察（UNVERIFIED_REAL_NEED_OBSERVATION）。",
+    "两条记录锚定的 policy_id=3 属旧数据集时代的 MOCK 政策，该 id 在当前数据集（1 MOCK + 20 REAL id 101-120）中已不存在。",
+    "按 Master Handover Sec 3.4 Hook 4 条件：MOCK 政策不构成 Hook（条件 1 失败）且锚点悬空（条件 2 失败）——不构成 Hook。",
+    "相关事件见 events.jsonl 中 2 条 PROJECT_INTENT_CREATED（2026-09-03），由 P2.x 已移除的旧 server 运行时写入。"
+  ],
+  "prohibitions": [
+    "不得删除或修改原始 JSONL 的任何字节（append-only 审计链）。",
+    "不得将记录重新绑定到新的 policy_id。",
+    "不得导入 evidence-v1 词表（两套词汇永久隔离）。",
+    "不得升级为 VERIFIED / Hook / traction / PMF。"
+  ],
+  "records": [
+    {
+      "project_intent_id": "140150c1-83a9-404c-952f-b1e1065ce208",
+      "actor_id": "anonymous_30d7c39435bf",
+      "created_at": "2026-09-03T11:01:06.951249+00:00",
+      "need_text_verbatim": "有无算力支持？",
+      "legacy_anchor_policy_id": 3,
+      "classification": "UNVERIFIED_REAL_NEED_OBSERVATION",
+      "disposition": "ARCHIVED_INVALID_ANCHOR"
+    },
+    {
+      "project_intent_id": "81459e5f-afea-48bd-b9ec-5197781168b9",
+      "actor_id": "anonymous_b4e9c8042438",
+      "created_at": "2026-09-03T11:01:38.691021+00:00",
+      "need_text_verbatim": "我有去深圳的计划，不过这里没有联系方式，不知道平台可否提供帮助？",
+      "legacy_anchor_policy_id": 3,
+      "classification": "UNVERIFIED_REAL_NEED_OBSERVATION",
+      "disposition": "ARCHIVED_INVALID_ANCHOR"
+    }
+  ]
+}

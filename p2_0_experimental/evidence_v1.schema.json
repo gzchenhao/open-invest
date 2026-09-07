@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OpenInvest Minimal Evidence Layer v1 record envelope",
+  "description": "P2-0 Minimal Evidence v1 (JUDGE approved 2026-09-06). Observation layer only: records facts about Policy Search -> Policy View -> Human Need Observation plus manual E3 inbound. Never VERIFIED; verification_status field forbidden anywhere (Trust isolation). Append-only: records immutable, state changes expressed as separate TRANSITION records.",
+  "type": "object",
+  "required": [
+    "record_id",
+    "schema_version",
+    "record_type",
+    "event_type",
+    "observation_status",
+    "timestamp",
+    "source",
+    "actor_hash",
+    "payload",
+    "anchor_policy_id",
+    "evidence_refs"
+  ],
+  "properties": {
+    "record_id": { "type": "string", "minLength": 1 },
+    "schema_version": { "const": "evidence-v1" },
+    "record_type": {
+      "enum": ["EVIDENCE_EVENT", "NEED_OBSERVATION", "E3_INBOUND", "TRANSITION"]
+    },
+    "event_type": {
+      "enum": [
+        "POLICY_SEARCHED",
+        "POLICY_VIEWED",
+        "NEED_SUBMITTED",
+        "E3_INBOUND_RECORDED"
+      ]
+    },
+    "observation_status": {
+      "description": "UNVERIFIED_OBSERVATION (default) / CANDIDATE (human-recorded E3 inbound or manual promotion) / ARCHIVED_INVALID_ANCHOR (legacy classification only). VERIFIED is reserved for the Trust Layer human gate and has no code path in this layer.",
+      "enum": ["UNVERIFIED_OBSERVATION", "CANDIDATE", "ARCHIVED_INVALID_ANCHOR"]
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "UTC ISO8601 at record creation; never backfilled."
+    },
+    "source": {
+      "enum": ["portal_minimal_evidence_v1", "manual_cli"]
+    },
+    "actor_hash": {
+      "description": "v1: always null per JUDGE ruling (no IP capture, no daily salt).",
+      "type": ["null"]
+    },
+    "payload": {
+      "type": "object",
+      "description": "Event-specific facts, stored verbatim. POLICY_SEARCHED: {keyword, result_count}. POLICY_VIEWED: {policy_id, is_mock_snapshot}. NEED_SUBMITTED: {need_text, contact_or_callback}. E3_INBOUND_RECORDED: {description, participant_class, org_name, contact, recorded_by}.",
+      "additionalProperties": true
+    },
+    "anchor_policy_id": {
+      "description": "Set only if the policy id existed in the current dataset at write time (prevents dangling anchors such as legacy policy_id=3).",
+      "type": ["integer", "null"]
+    },
+    "evidence_refs": {
+      "description": "References to real interaction evidence. Null until such evidence exists (prefer null over guessing).",
+      "type": ["array", "null"]
+    }
+  },
+  "additionalProperties": false,
+  "not": {
+    "description": "Trust isolation: the verification_status key is forbidden at every nesting level (enforced by evidence_store._assert_no_forbidden_keys).",
+    "required": ["verification_status"]
+  }
+}
