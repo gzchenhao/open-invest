@@ -274,16 +274,51 @@ class TestStoreInvariants:
 # Archive manifest（两条历史 project_intent 的裁决落盘）
 # ---------------------------------------------------------------------------
 class TestArchiveManifest:
-    def test_manifest_matches_original_records(self):
-        manifest_path = REPO_ROOT / "p2_0_experimental" / "records" / "archive" / "classification_manifest.json"
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    """CI 修复（3e366b0 CI FAIL）：原始 project_intents.jsonl 是 gitignored 运行时工件，
+    fresh checkout 上不存在。manifest 自校验无条件执行（tracked 文件）；legacy 逐字
+    交叉核对仅在该工件实际存在时执行。"""
+
+    EXPECTED_INTENT_IDS = {
+        "140150c1-83a9-404c-952f-b1e1065ce208",
+        "81459e5f-afea-48bd-b9ec-5197781168b9",
+    }
+
+    ORIGINAL_JSONL = REPO_ROOT / "p2_0_experimental" / "records" / "project_intents.jsonl"
+    MANIFEST = REPO_ROOT / "p2_0_experimental" / "records" / "archive" / "classification_manifest.json"
+
+    def _load_manifest(self):
+        return json.loads(self.MANIFEST.read_text(encoding="utf-8"))
+
+    def test_manifest_self_validation_ci_safe(self):
+        """A. CI-safe manifest 自校验：不依赖任何 gitignored 工件，fresh checkout 必须通过。"""
+        manifest = self._load_manifest()
+        for key in ("schema_version", "classification", "disposition", "rationale", "prohibitions", "records"):
+            assert key in manifest, f"manifest 结构缺少 {key}"
         assert manifest["classification"] == "UNVERIFIED_REAL_NEED_OBSERVATION"
         assert manifest["disposition"] == "ARCHIVED_INVALID_ANCHOR"
+        assert len(manifest["records"]) == 2
+        assert {e["project_intent_id"] for e in manifest["records"]} == self.EXPECTED_INTENT_IDS
+        for entry in manifest["records"]:
+            assert entry["classification"] == "UNVERIFIED_REAL_NEED_OBSERVATION"
+            assert entry["disposition"] == "ARCHIVED_INVALID_ANCHOR"
+            assert entry["need_text_verbatim"]
+            assert entry["legacy_anchor_policy_id"] == 3
+        prohibitions = json.dumps(manifest["prohibitions"], ensure_ascii=False)
+        for required in ("不得删除", "重新绑定", "不得导入", "不得升级"):
+            assert required in prohibitions, f"禁令缺失: {required}"
 
-        original_path = REPO_ROOT / "p2_0_experimental" / "records" / "project_intents.jsonl"
+    def test_legacy_crosscheck_when_artifact_present(self):
+        """B. legacy 交叉核对：仅当原始 JSONL 实际存在时执行（本机）；fresh checkout 跳过。
+        跳过不降低覆盖——manifest 自校验由上一个测试无条件锁定。"""
+        manifest = self._load_manifest()
+        if not self.ORIGINAL_JSONL.exists():
+            pytest.skip(
+                "legacy project_intents.jsonl (gitignored runtime artifact) not present — "
+                "manifest self-validation remains enforced by test_manifest_self_validation_ci_safe"
+            )
         original_records = {
             r["project_intent_id"]: r
-            for r in (json.loads(l) for l in original_path.read_text(encoding="utf-8").splitlines() if l.strip())
+            for r in (json.loads(l) for l in self.ORIGINAL_JSONL.read_text(encoding="utf-8").splitlines() if l.strip())
         }
         assert len(manifest["records"]) == len(original_records) == 2
         for entry in manifest["records"]:
@@ -292,3 +327,23 @@ class TestArchiveManifest:
             assert entry["legacy_anchor_policy_id"] == 3
             assert entry["classification"] == "UNVERIFIED_REAL_NEED_OBSERVATION"
             assert entry["disposition"] == "ARCHIVED_INVALID_ANCHOR"
+
+    def test_fresh_checkout_simulation(self, tmp_path, monkeypatch):
+        """模拟 fresh CI checkout：只有 tracked manifest，无 gitignored 原始 JSONL。
+        自校验必须 PASS；交叉核对必须 skip（而不是 FAIL）。"""
+        import shutil
+
+        archive_dir = tmp_path / "p2_0_experimental" / "records" / "archive"
+        archive_dir.mkdir(parents=True)
+        shutil.copy(self.MANIFEST, archive_dir / "classification_manifest.json")
+        missing_jsonl = tmp_path / "p2_0_experimental" / "records" / "project_intents.jsonl"
+        assert not missing_jsonl.exists()
+
+        monkeypatch.setattr(TestArchiveManifest, "MANIFEST", archive_dir / "classification_manifest.json")
+        monkeypatch.setattr(TestArchiveManifest, "ORIGINAL_JSONL", missing_jsonl)
+        try:
+            self.test_manifest_self_validation_ci_safe()  # 必须 PASS
+            with pytest.raises(pytest.skip.Exception):
+                self.test_legacy_crosscheck_when_artifact_present()  # 仅 skip，不 FAIL
+        finally:
+            monkeypatch.undo()
