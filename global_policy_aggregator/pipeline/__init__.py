@@ -25,3 +25,20 @@ from global_policy_aggregator.pipeline.fetcher import (  # noqa: F401
     compute_content_hash,
     normalize_content,
 )
+from global_policy_aggregator.pipeline.candidate import (  # noqa: F401
+    Candidate,
+    FieldEvidence,
+    Provenance,
+    SCHEMA_VERSION,
+)
+from global_policy_aggregator.pipeline.parser import (  # noqa: F401
+    ParsedContent,
+    ParseError,
+    ParseFailure,
+    parse_html,
+    record_parse_failure,
+)
+from global_policy_aggregator.pipeline.normalizer import (  # noqa: F401
+    normalize,
+    run_pipeline,
+)

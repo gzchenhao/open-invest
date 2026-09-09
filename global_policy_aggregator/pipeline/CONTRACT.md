@@ -13,7 +13,11 @@ Governance: 宁可 null，不要猜；宁可 UNVERIFIED，不要 VERIFIED.
 Implemented / planned stages:
 - **P3-1 (done)**: `source_registry.py` + `source_registry.json` (official allowlist),
   `fetcher.py` (fetch + raw snapshot + failure log).
-- **P3-2 (planned)**: parser + normalize (PolicyCleaner wrapper; low-confidence → null).
+- **P3-2 (done)**: `candidate.py` (Candidate + FieldEvidence) + `parser.py`
+  (bs4/lxml → clean text + fail-safe ParseFailure) + `normalizer.py`
+  (逐字段 null-safe 抽取 + canonical_taxonomy 映射 + 字段级 quote evidence)。
+  复用的纯逻辑：canonical_taxonomy.get_registry().resolve()（industry）；
+  金额/日期正则抽取为独立纯函数，仅在有明确证据时填充。contact 在 P3-2 暂不抽取。
 - **P3-3 (planned)**: validate + staging + human approval; only then entries may enter
   `global_policy_aggregator/data/real_policies/real_policies.json` (human-approved, id 121+).
   P3-1 绝不写入该文件（见 Key rules #5）。

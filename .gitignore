@@ -72,3 +72,5 @@ git_test.md
 
 # P3-1 Policy pipeline raw snapshots (runtime artifacts, never published)
 data/raw_policies/snapshots/
+# P3-2 Policy pipeline parse failures (runtime artifacts, never published)
+data/raw_policies/parse_failures.jsonl

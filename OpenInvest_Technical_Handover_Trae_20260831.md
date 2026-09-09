@@ -2304,7 +2304,49 @@ git rev-parse origin/master
 4. Real gov.cn network Pilot NOT auto-run in this Quest (CI uses mock HTTP only).
 5. Handover line 79 still says `data/real_policies/real_policies.json` as "Single Source of Truth" shorthand; code resolves correctly to `global_policy_aggregator/data/real_policies/real_policies.json`. Only the P3-1 section above corrected; earlier P2 context line left as-is to avoid scope creep.
 
-**Next Quest**: **P3-2 — parser + normalize** (planned; not started). Prerequisite: JUDGE git review + commit of P3-1, then P3-2 design.
+**Next Quest**: **P3-2 — parser + normalize** ✅ COMPLETE (2026-09-09, IMPLEMENTATION only; COMMIT=NO, PUSH=NO pending JUDGE P3-2 COMMIT GATE).
+
+#### **P3-2 PARSE + NORMALIZE (2026-09-09 — THIS UPDATE)**
+
+**Type**: Engineering (P3-2 READ-ONLY AUDIT 已 PASS → JUDGE 授权实现；严格不扩大范围).
+
+**Scope (P3-2 只做 PARSE → NORMALIZE)**:
+- `global_policy_aggregator/pipeline/candidate.py` — `Candidate` + `FieldEvidence` + `Provenance` dataclass；独立于 `real_policies.json`（Candidate 不与 20 REAL 混合）。
+- `global_policy_aggregator/pipeline/parser.py` — `bs4`+`lxml`（requirements.txt 已有，不新增依赖）HTML→clean text + landmark；typed `ParseError`/`ParseFailure`；fail-safe（parse_error / empty_content / structure_changed 回退 raw text）。
+- `global_policy_aggregator/pipeline/normalizer.py` — 逐字段 null-safe 抽取；复用纯逻辑 `canonical_taxonomy.get_registry().resolve()`（industry）；金额/日期正则抽取为独立纯函数，仅明确证据时填充。
+- `tests/test_parser_v1.py` + `tests/test_normalizer_v1.py` — 27 项；`tests/fixtures/pipeline/*.html` 12 个 fixture。
+- `global_policy_aggregator/pipeline/__init__.py` — 导出新符号；`CONTRACT.md` — P3-2 状态改 done；`.gitignore` — 加 `parse_failures.jsonl`。
+
+**Parser/NORMALIZER 边界**:
+- HTML 解析用 bs4/lxml；不使用 headless browser / 真实网络 / 不恢复旧 crawler 架构。
+- 解析失败 → typed ParseFailure，写 `data/raw_policies/parse_failures.jsonl`（gitignored），绝不生成"看起来完整"的 Candidate。
+- 结构变化 → 回退 raw text（仍要求 quote 可定位，无证据则 null）。
+
+**Evidence 设计**:
+- 每非 null 内容抽取字段带 `FieldEvidence{value, quote(verbatim 原文), snapshot_ref, char_span, extracted_at, method}`；
+- `extracted_fields_evidence` 在 Candidate 上，不修改 Minimal Evidence v1；P3-3 validate 阶段再强制校验。
+- null 字段记录 `null_reason`（如 `contact_extraction_deferred_to_P3_3`）。
+
+**Null-first 规则（逐字段）**:
+- title / description / source_organization / region / type / issue_date / valid_period / industry / amount / requirements / eligibility — 无明确证据即 null；industry/type 无法可靠映射 → `unknown`（受控词表，不创 taxonomy）。
+- amount 仅明确"数字+单位"才填；比例/按投资/适当支持/原则上 → null。
+- requirements/eligibility 仅明确"申报条件/申报对象"等段落才填；背景"鼓励/支持/推动" → null。
+- contact P3-2 **暂不抽取**（恒 null，延至 P3-3）。
+- industry 比普通关键词更严格：须产业意图语境（支持/产业/企业/面向…）才映射 canonical id。
+
+**Tests**: P3-2 新增 **27 passed**；full regression **899 passed / 0 failed / 0 skipped**（P3-1 无回归）。治理测试证明：不生成 VERIFIED、不修改 20 REAL、不调用 src/trust、不生成默认 Shanghai/默认日期、不生成联系人、不把普通关键词变 industry、不把比例变金额、不把背景变 requirements、quote 缺失时非 null 字段不通过。
+
+**未产生**: 无 VERIFIED；未写 `real_policies.json`；未做 DISCOVER / VALIDATE / STAGING / HUMAN APPROVAL；未做真实 gov.cn ingestion；未自动抽取 contact；未回填 20 REAL。
+
+**Open / deferred to P3-3 (NOT done here)**:
+1. VALIDATE + STAGING + HUMAN APPROVAL（候选进入政策库，id 121+）。
+2. contact 自动抽取（P3-2 显式 deferred）。
+3. Provenance SIDECAR 落盘（P3-2 仅在 Candidate.provenance 内存，未写文件）。
+4. Evidence v1 runtime event（P3-2 仅 Candidate 自带 quote evidence，不触发 Evidence 事件）。
+5. DISCOVER 阶段（gov.cn 列表 → 候选 URL）仍属 P3-2+ 范围（本 Quest 未实现）。
+
+**Git status (implementation only)**: 新增 `candidate.py`/`parser.py`/`normalizer.py`/`__init__.py` 改动/`CONTRACT.md` 改动/`tests/*`/`tests/fixtures/pipeline/*`/`.gitignore` 改动；`real_policies.json`/`processors/**`/`src/trust/**`/`requirements.txt`/生产 server = 零改动。COMMIT=NO, PUSH=NO（待 JUDGE P3-2 COMMIT GATE）。
+
 
 ---
 
