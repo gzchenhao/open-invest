@@ -2347,6 +2347,39 @@ git rev-parse origin/master
 
 **Git status (implementation only)**: 新增 `candidate.py`/`parser.py`/`normalizer.py`/`__init__.py` 改动/`CONTRACT.md` 改动/`tests/*`/`tests/fixtures/pipeline/*`/`.gitignore` 改动；`real_policies.json`/`processors/**`/`src/trust/**`/`requirements.txt`/生产 server = 零改动。COMMIT=NO, PUSH=NO（待 JUDGE P3-2 COMMIT GATE）。
 
+---
+
+#### **P3-3 VALIDATION v1 — COMPLETE (2026-09-09)**
+
+**Type**: Code + tests. **Scope**: validate Candidate structure / evidence chain / provenance / snapshot / state-machine legality. NO staging, NO human approval, NO real_policies write, NO VERIFIED.
+
+**Implemented**:
+- `global_policy_aggregator/pipeline/states.py` — `PipelineState` 枚举（DISCOVERED→FETCHED→PARSED→NORMALIZED→VALIDATED→STAGED→HUMAN_APPROVED，+ NEED_HUMAN_REVIEW / REJECTED）+ `can_transition()` / `try_transition()`（fail-closed，`InvalidTransitionError`）。
+- `global_policy_aggregator/pipeline/validator.py` — `validate(candidate, fetch_result=None, snapshot_bytes=None, snapshots_dir=None) → ValidationResult`；`promote_to_validated(candidate, result)` 仅在 `result.status == PASS` 时执行 NORMALIZED→VALIDATED（REJECTED / NEED_HUMAN_REVIEW / None 一律 `InvalidTransitionError` 拒绝，禁止绕过 validation）。复用 P3-1 `compute_content_hash` / `normalize_content` / `SourceRegistry.from_file` 与 P3-2 `parse_html`，不重复实现 parser/normalizer，不修改 P3-1/P3-2。`resolve_snapshot_path()` 对 `snapshot_ref` 做 path-traversal 防护（拒绝绝对路径与 ".."，最终路径必须位于 snapshots root 内）。`validate()` 在 `snapshot_bytes` 与磁盘 snapshot 内容冲突时报 "snapshot source conflict"（REJECTED）。
+
+**Validation rules**:
+- HARD FAIL（→ REJECTED）：缺 title / source_url；source_url 非 HTTP(S)；非 allowlist；snapshot 缺失/不可读；非 null 内容字段无 quote；quote 不在 snapshot clean text；char_span 无法定位；snapshot_ref 不一致；contact 非 null；verification_status≠unverified；is_mock≠false；FetchResult.content_hash 与重算不一致；非法 pipeline state；非法 state transition；绕过状态直达 STAGED/HUMAN_APPROVED/REAL。
+- NEED_HUMAN_REVIEW：无 FetchResult/recorded hash（provenance 未完全闭环）；structure_changed=true。
+- PASS：其余（industry=unknown / type=unknown / requirements=null / eligibility=null / amount=null 均合法 PASS，不自动当错）。
+
+**Decisions honored**:
+- content_hash 闭环向外取数（DECISION 1）：提供 FetchResult 比对，否则 NEED_HUMAN_REVIEW；不修改 P3-2 Provenance。
+- title 缺失 → HARD FAIL（DECISION 2）。
+- industry=unknown / type=unknown → PASS（DECISION 3）。
+- Validation 与 State Transition 分离：validate() 不改 pipeline_state，仅 `promote_to_validated()` 合法推进（DECISION 4）。VALIDATED≠VERIFIED；HUMAN_APPROVED≠官方核验。
+
+**Tests**: P3-3 新增 **36 passed**（tests/test_validator_v1.py，在 29 例基础上补齐：snapshot path traversal 拒绝、绝对路径拒绝、promote 在 REJECTED 下拒绝、promote 在 NEED_HUMAN_REVIEW 下拒绝、promote 在 PASS 下允许、snapshot 双来源冲突拒绝、双来源内容一致允许）。Full regression **944 passed / 0 failed**（含 P3-3 新增 36；0 failed / 0 skipped）。
+
+**未产生 / 未做**: 无 VERIFIED；未写 `real_policies.json`；未修改 20 REAL（ids 101–120 不变）；未做 STAGING / HUMAN_APPROVAL / REAL；未恢复旧 crawler；未做真实 gov.cn ingestion；未调用 LLM/OpenAI/Claude；未修改 P3-1/P3-2/`processors/**`/`src/trust/**`/`p2_0_experimental/**`/`requirements.txt`/production server。
+
+**Open / deferred (NOT done here)**:
+1. STAGING（VALIDATED→STAGED）与 HUMAN_APPROVAL（→HUMAN_APPROVED→REAL id 121+）。
+2. contact 自动抽取（P3-3 仍强制 null）。
+3. Provenance SIDECAR 落盘（Candidate.provenance 仅内存）。
+4. Evidence v1 runtime event。
+5. DISCOVER 阶段仍未实现。
+
+**Git status (implementation only)**: 新增 `states.py` / `validator.py` / `tests/test_validator_v1.py`；`CONTRACT.md` 改动；`real_policies.json` / P3-1 / P3-2 / `processors/**` / `src/trust/**` / `p2_0_experimental/**` / `requirements.txt` / 生产 server = 零改动。COMMIT=NO, PUSH=NO（待 JUDGE P3-3 COMMIT GATE）。
 
 ---
 

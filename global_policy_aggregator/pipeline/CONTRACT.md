@@ -18,9 +18,18 @@ Implemented / planned stages:
   (逐字段 null-safe 抽取 + canonical_taxonomy 映射 + 字段级 quote evidence)。
   复用的纯逻辑：canonical_taxonomy.get_registry().resolve()（industry）；
   金额/日期正则抽取为独立纯函数，仅在有明确证据时填充。contact 在 P3-2 暂不抽取。
-- **P3-3 (planned)**: validate + staging + human approval; only then entries may enter
-  `global_policy_aggregator/data/real_policies/real_policies.json` (human-approved, id 121+).
-  P3-1 绝不写入该文件（见 Key rules #5）。
+- **P3-3 (validate, done)**: `validator.py`（P3-3 Validation v1 — Candidate 结构 / 证据链 /
+  provenance / snapshot / 状态机合法性校验，输出 `ValidationResult` ∈
+  {PASS, NEED_HUMAN_REVIEW, REJECTED}）+ `states.py`（PipelineState 枚举 + fail-closed 转移守卫）。
+  `validate()` 只验证、不推进状态；仅 `promote_to_validated(candidate, result)` 在
+  `result.status == PASS` 时允许 NORMALIZED→VALIDATED，绝不 STAGED / HUMAN_APPROVED / REAL，
+  绝不写 `real_policies.json`，绝不产生 VERIFIED。
+  content_hash 闭环：提供 `FetchResult` 时比对 `content_hash`，否则 NEED_HUMAN_REVIEW。
+  **Snapshot 安全**：`resolve_snapshot_path()` 对 `snapshot_ref` 做 path-traversal 防护
+  （拒绝绝对路径与 ".."，且最终路径必须位于 snapshots root 内，否则 raise）；
+  `validate()` 在同时提供 `snapshot_bytes` 与磁盘 snapshot 且内容不一致时报
+  "snapshot source conflict"（REJECTED，不静默选择其一）。
+  STAGING / HUMAN_APPROVAL 仍属后续阶段，本 Quest 未实现。
 
 ## Key rules (do not violate)
 
