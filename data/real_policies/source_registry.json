@@ -1,0 +1,25 @@
+{
+  "schema_version": "source-registry-v1",
+  "description": "P3-1 Source Registry (JUDGE approved P3-0 contract): official sources only. URLs outside allowed_domains are rejected by the fetcher. No automatic discovery of new external domains; new sources require explicit human addition to this file (tracked in Git).",
+  "rules": {
+    "allow_new_domains_automatically": false,
+    "allowed_schemes": ["http", "https"]
+  },
+  "sources": [
+    {
+      "source_id": "gov_cn_zhengceku",
+      "organization": "中国政府网（www.gov.cn）",
+      "list_url": "https://www.gov.cn/zhengce/zhengceku/",
+      "allowed_domains": ["www.gov.cn", "gov.cn"],
+      "enabled": true,
+      "fetch_policy": {
+        "timeout_seconds": 20,
+        "max_attempts": 3,
+        "min_interval_seconds": 3,
+        "retry_backoff_seconds": 1.0
+      },
+      "last_fetched_at": null,
+      "notes": "P3-1 第一阶段唯一官方源（JUDGE 批准 pilot：gov.cn zhengceku，10-20 条，全部先 STAGED）。"
+    }
+  ]
+}

@@ -2252,21 +2252,61 @@ git rev-parse origin/master
 
 ### 26.1 Quest Status
 
-**Current Quest**: **P2-0 — FLYWHEEL VALIDATION QUEST**
+**Current Quest**: **P3-1 — SOURCE REGISTRY + FETCHER + SNAPSHOT** ✅ COMPLETE (2026-09-09)
 
-**Overall Phase**: ⏳ **STRATEGIC DEFINITION LOCK COMPLETE (this update). Pending experiments (E1/E2/E3) — not yet entered engineering.**
+**Overall Phase**: ✅ **P3-1 EXECUTED (JUDGE execution decision = PASS). Not yet committed — pending JUDGE git review (COMMIT=NO, PUSH=NO per Quest rules).**
 
-**As of this handover update (2026-09-02)**:
-- Canonical Strategic Definitions locked into Handover (Sec 1-7 Canonical, this Quest log).
-- Flywheel definition set to the 4-step minimum: Policy → Project → Hook → Policy/Capital.
-- E1/E2/E3 experiment frameworks, Go/Modify/Stop thresholds, P2-0 MUST NOT BUILD list, and Decision Framework all written.
-- No production code / tests / Trust semantics / APIs / Claim / CRUD / Matching / Crawler / DB / MCP / A2A changes made in this Strategic Definition Lock phase. P2-0 engineering experiments not yet started.
+**Scope executed (P3-1)**: `source_registry.py` + `source_registry.json` (official allowlist) + `fetcher.py` (fetch + raw snapshot + failure log) + `CONTRACT.md` path correction + `test_pipeline_v1.py`. NO DISCOVER / parser / normalize / validate / staging / human approval / `real_policies.json` write.
 
-**Previous Quest**: **P2-0 Global State & P2 Strategy Audit** (P1-7.0 and P1-7.1) ✅ COMPLETE (2026-09-01/02)
+**As of this handover update (2026-09-09)**:
+- P3-0 Contract ratified (JUDGE approved) — DISCOVER→FETCH→PARSE→NORMALIZE→VALIDATE→INGEST; crawler is NOT a verification engine.
+- P3-1 implemented on top of TRAE's half-finished work (continued, not rebuilt). 4 JUDGE-flagged issues fixed: (1) low-frequency test float/timing assertion; (2) CONTRACT `real_policies.json` path unified to `global_policy_aggregator/data/real_policies/real_policies.json`; (3) Fetcher default snapshot root = `data/raw_policies/snapshots/` (test-injectable); (4) item-by-item code review of registry/fetcher/snapshot/failure-log.
+- Tests: full regression **881 passed / 0 failed / 0 skipped** (TRAE worktree was 879 passed / 1 failed; pre-TRAE baseline 855 passed / 0 failed).
+- Governance audit clean: `real_policies.json` / production servers / `src/trust/**` / Evidence v1 / `requirements.txt` / `processors` / `crawlers` untouched.
+- Existing 20 REAL (ids 101–120) unchanged; no VERIFIED; no new real policy; snapshots gitignored (runtime only).
+
+**Previous Quest**: **P2-0 — FLYWHEEL VALIDATION QUEST** ✅ CLOSED (2026-09-02 Strategic Definition Lock)
 **Before that**: **P1-6.1 — CI Failure Diagnosis & Fix** ✅ COMPLETE / PASS (2026-09-01, commit `a00fb32`)
 **Before that**: **P1-6.0 — GitHub Growth Readiness Audit** ✅ COMPLETE / PASS WITH FINDINGS (2026-09-01)
 
 ### 26.2 Quest Achievement Summary — Recent (reversed chronological)
+
+#### **P3-1 SOURCE REGISTRY + FETCHER + SNAPSHOT (2026-09-09 — THIS UPDATE)**
+
+**Type**: Engineering (continued from TRAE's half-finished P3-1 work per JUDGE decision — 续作不重建).
+
+**Verdict**: ✅ **COMPLETE / PASS.** JUDGE pre-read = PASS; JUDGE execution decision = PASS. COMMIT=NO, PUSH=NO (pending JUDGE git review).
+
+**Files modified** (worktree only — not committed):
+- `global_policy_aggregator/pipeline/fetcher.py` — ISSUE 3: added `DEFAULT_SNAPSHOTS_DIR`; `Fetcher.__init__` now defaults `snapshots_dir` to production `data/raw_policies/snapshots/` while still accepting test injection. No behavior change to fetch / retry / low-freq / UA / failure logic.
+- `global_policy_aggregator/pipeline/CONTRACT.md` — ISSUE 2: P3-3 `real_policies.json` path unified to `global_policy_aggregator/data/real_policies/real_policies.json`; explicit "P3-1 不写 real_policies.json".
+- `tests/test_pipeline_v1.py` (gitignored via `test_*.py`) — ISSUE 1: low-frequency assertion now uses `min_interval − 1e-3` float tolerance (interval NOT lowered); +1 new test `test_default_snapshots_dir_is_production_path`.
+- `.gitignore` — already modified by TRAE (snapshots ignore rule); NOT changed by this Quest.
+- `data/real_policies/source_registry.json` (TRAE-created, JUDGE-approved allowlist) — NOT modified.
+- `data/raw_policies/snapshots/` — runtime dir created (gitignored; not committed).
+- `global_policy_aggregator/pipeline/__init__.py`, `source_registry.py` — reviewed item-by-item; no change required.
+
+**Tests**: full regression **881 passed / 0 failed / 0 skipped** (TRAE worktree 879 passed / 1 failed; pre-TRAE 855 passed / 0 failed). P3-1 file: 26 passed. No old tests deleted/weakened.
+
+**Git status**: `M .gitignore` (TRAE's snapshots rule), `?? data/` (source_registry.json + snapshots/), `?? global_policy_aggregator/pipeline/` (TRAE package + this Quest's edits). Protected-files diff vs HEAD = empty.
+
+**Governance audit (READ-ONLY)**:
+- `global_policy_aggregator/data/real_policies/real_policies.json` — no diff; still 20 REAL, ids 101–120, `is_mock=false`, `verification_status=unverified` (asserted by `test_existing_20_real_policies_contract_intact`).
+- `interactive_ai_server*.py` / `server/` — no diff.
+- `src/trust/**`, Evidence v1, `requirements.txt`, `processors/**`, `crawlers/**`, `policy_crawler/**`, `p2_0_experimental/**` — no diff.
+- No VERIFIED, no `verification_status` write, no `is_mock` mutation in pipeline code (asserted by `test_no_verified_no_verification_status` / `test_no_real_policies_writes`).
+- Snapshots gitignored (`test_snapshots_gitignored` passes) → runtime artifact, not in Git.
+
+**Unresolved questions / open decisions (carried forward for JUDGE)**:
+1. TRAE half-finished P3-1 continued (per decision) — `global_policy_aggregator/pipeline/` and `data/` still untracked (not yet committed). Commit strategy pending JUDGE.
+2. DISCOVER stage (gov.cn list → candidate URLs) is out of P3-1 scope — deferred to P3-2+.
+3. Provenance SIDECAR (`data/real_policies/provenance/<policy_id>.json`) infrastructure NOT created in P3-1 — deferred to later Quest; Portal schema untouched.
+4. Real gov.cn network Pilot NOT auto-run in this Quest (CI uses mock HTTP only).
+5. Handover line 79 still says `data/real_policies/real_policies.json` as "Single Source of Truth" shorthand; code resolves correctly to `global_policy_aggregator/data/real_policies/real_policies.json`. Only the P3-1 section above corrected; earlier P2 context line left as-is to avoid scope creep.
+
+**Next Quest**: **P3-2 — parser + normalize** (planned; not started). Prerequisite: JUDGE git review + commit of P3-1, then P3-2 design.
+
+---
 
 #### **P2-0 STRATEGIC DEFINITION LOCK (2026-09-02 — THIS UPDATE)**
 

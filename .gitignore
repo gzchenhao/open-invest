@@ -69,3 +69,6 @@ git_test.md
 
 # Policy database files (too large for GitHub)
 *.db
+
+# P3-1 Policy pipeline raw snapshots (runtime artifacts, never published)
+data/raw_policies/snapshots/
