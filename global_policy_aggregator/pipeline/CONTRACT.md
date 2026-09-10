@@ -29,7 +29,23 @@ Implemented / planned stages:
   （拒绝绝对路径与 ".."，且最终路径必须位于 snapshots root 内，否则 raise）；
   `validate()` 在同时提供 `snapshot_bytes` 与磁盘 snapshot 且内容不一致时报
   "snapshot source conflict"（REJECTED，不静默选择其一）。
-  STAGING / HUMAN_APPROVAL 仍属后续阶段，本 Quest 未实现。
+- **P3-4 (staging, done)**: `staging.py`（P3-4 Staging v1 — VALIDATED→STAGED→HUMAN_APPROVED
+  受控推进 + 人审闸门 + append-only 落盘）。
+  - `promote_to_staged(candidate, result, snapshots_dir=None)`：要求 `result.status == PASS` 且
+    `result.observed_content_hash` 与当前 Candidate 快照内容身份一致（由
+    `compute_candidate_content_identity()` 用 `resolve_snapshot_path` + `compute_content_hash`
+    重算），否则 fail-closed（防旧 ValidationResult 重放）。仅改 `pipeline_state`/`pipeline_history`。
+  - `human_approve(candidate, approval, snapshots_dir=None)`：要求 `STAGED` 态 + 显式 `HumanApproval`
+    （verifier_id / verifier_role∈allowlist / approval_evidence / content_identity 匹配 /
+    approved_at 合法 UTC / is_mock=false / verification_status="unverified"），任一不满足即拒绝；
+    绝不接受空 approval / None / 字符串 / 默认值绕过。
+  - **HUMAN_APPROVED ≠ VERIFIED**：`verification_status` 恒为 `"unverified"`，绝不调用
+    `src/trust` 的 HumanVerificationGate，绝不产生 VERIFIED。
+  - **禁止 REAL promotion**：无 `promote_to_real()`；状态机仅允许 `HUMAN_APPROVED → REJECTED`，
+    绝不自动 `→ REAL`（id 121+ 留待后续人工流程）。
+  - **Staging 持久化**：固定写 `data/raw_policies/staged/`（gitignored runtime artifact），
+    append-only JSONL；无任意 output path 参数，绝不写 `real_policies.json`。
+  - 复用 P3-1/P3-3 原语，不修改 P3-1/P3-2/P3-3 任何文件；无 LLM、无 crawler。
 
 ## Key rules (do not violate)
 
@@ -39,6 +55,9 @@ Implemented / planned stages:
 2. **Snapshot** (`data/raw_policies/snapshots/`): runtime artifact, gitignored, never
    published; dedup by normalized-content SHA-256; source_url in policy records is
    permanent regardless of snapshot fate. Missing snapshot ⇒ no guessed fields.
+   **Staging record** (`data/raw_policies/staged/`): runtime artifact, gitignored, append-only
+   JSONL; records pipeline state + content identity + approval (if HUMAN_APPROVED). Never
+   touches `real_policies.json`; no arbitrary output path.
 3. **null-first**: `amount / requirements / eligibility / contact` have NO extraction
    code path in v1 (not "failed extraction" — deliberately absent). Every non-null
    extracted field must carry a verbatim quote from the snapshot

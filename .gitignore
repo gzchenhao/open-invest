@@ -74,3 +74,5 @@ git_test.md
 data/raw_policies/snapshots/
 # P3-2 Policy pipeline parse failures (runtime artifacts, never published)
 data/raw_policies/parse_failures.jsonl
+# P3-4 Staging records (runtime artifacts, never published; NOT real_policies.json)
+data/raw_policies/staged/

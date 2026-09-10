@@ -2373,13 +2373,40 @@ git rev-parse origin/master
 **未产生 / 未做**: 无 VERIFIED；未写 `real_policies.json`；未修改 20 REAL（ids 101–120 不变）；未做 STAGING / HUMAN_APPROVAL / REAL；未恢复旧 crawler；未做真实 gov.cn ingestion；未调用 LLM/OpenAI/Claude；未修改 P3-1/P3-2/`processors/**`/`src/trust/**`/`p2_0_experimental/**`/`requirements.txt`/production server。
 
 **Open / deferred (NOT done here)**:
-1. STAGING（VALIDATED→STAGED）与 HUMAN_APPROVAL（→HUMAN_APPROVED→REAL id 121+）。
-2. contact 自动抽取（P3-3 仍强制 null）。
-3. Provenance SIDECAR 落盘（Candidate.provenance 仅内存）。
+1. STAGING（VALIDATED→STAGED）与 HUMAN_APPROVAL（→HUMAN_APPROVED）→ **已由 P3-4 实现**；REAL（id 121+）仍 deferred（状态机仅允许 `HUMAN_APPROVED → REJECTED`，绝不自动→REAL）。
+2. contact 自动抽取（P3-3/P3-4 仍强制 null）。
+3. Provenance SIDECAR 落盘（Candidate.provenance 仅内存；P3-4 staging record 含 content_identity/provenance_ref 但不写 Portal schema）。
 4. Evidence v1 runtime event。
 5. DISCOVER 阶段仍未实现。
 
 **Git status (implementation only)**: 新增 `states.py` / `validator.py` / `tests/test_validator_v1.py`；`CONTRACT.md` 改动；`real_policies.json` / P3-1 / P3-2 / `processors/**` / `src/trust/**` / `p2_0_experimental/**` / `requirements.txt` / 生产 server = 零改动。COMMIT=NO, PUSH=NO（待 JUDGE P3-3 COMMIT GATE）。
+
+---
+
+#### **P3-4 STAGING v1 — COMPLETE (2026-09-09)**
+
+**Type**: Code + tests. **Scope**: VALIDATED→STAGED→HUMAN_APPROVED 受控推进 + 人审闸门 + append-only 落盘。NO REAL promotion, NO VERIFIED, NO real_policies write, NO LLM, NO crawler.
+
+**Implemented**:
+- `global_policy_aggregator/pipeline/staging.py`（新增，additive；不修改 P3-1/P3-2/P3-3）：
+  - `compute_candidate_content_identity(candidate, snapshots_dir=None)`：用 P3-3 `resolve_snapshot_path`（traversal-safe）+ P3-1 `compute_content_hash` 从 Candidate 当前引用的 snapshot 重算 sha256；无法确认→`None`（调用方 fail-closed）。
+  - `promote_to_staged(candidate, result, snapshots_dir=None)`：要求 `result.status == PASS` 且 `result.observed_content_hash` 与当前 Candidate 内容身份一致（防旧 ValidationResult 重放）；`try_transition` 强制 `VALIDATED→STAGED`；仅改 `pipeline_state`/`pipeline_history`。
+  - `human_approve(candidate, approval: HumanApproval, snapshots_dir=None)`：要求 `STAGED` 态 + 显式 `HumanApproval`（verifier_id 非空 / verifier_role∈`HUMAN_APPROVAL_ROLES` / approval_evidence 非空 / content_identity 匹配 / approved_at 合法 UTC / is_mock=false / verification_status="unverified"），任一不满足→`InvalidTransitionError`；追加人审 history 事件。
+  - `HumanApproval` dataclass（verifier_id / verifier_role / approval_evidence / content_identity / approved_at）。
+  - `export_staged(candidate, approval=None, snapshots_dir=None)`：固定写 `STAGED_DIR = data/raw_policies/staged/`，append-only JSONL，无 output path 参数，绝不写 `real_policies.json`。
+- `HUMAN_APPROVAL_ROLES = frozenset({"human_reviewer","policy_editor","compliance_officer"})`（应用层权限边界标识，与 Trust HumanVerificationGate 无关）。
+
+**Decisions honored**:
+- Content-identity 防重放（DECISION 1）：`promote_to_staged` 绑定 `result.observed_content_hash` 与 Candidate 当前快照内容身份，不一致/无法确认/None → fail-closed。
+- HUMAN_APPROVED ≠ VERIFIED（DECISION 2）：`verification_status` 恒 `"unverified"`；不 import `src/trust`；不调用 `HumanVerificationGate`；不生成 VERIFIED。
+- 禁止 REAL promotion（DECISION 3）：无 `promote_to_real()`；状态机仅 `HUMAN_APPROVED → REJECTED`，绝不自动→REAL（id 121+ 留待后续人工流程）。
+- 复用 P3-1/P3-3 原语，不修改 P3-1/P3-2/P3-3；无 LLM、无 crawler 启用。
+
+**Tests**: 新增 **29 passed**（tests/test_staging_v1.py，覆盖 VALIDATED+PASS→STAGED、非 VALIDATED/REJECTED/REVIEW/None result 拒绝、content identity mismatch 拒绝、合法/缺失 verifier_id、非 allowlist role、缺失 evidence、content_identity 不匹配、approved_at 非法、MOCK、verification_status≠unverified 拒绝、HUMAN_APPROVED 后 verification_status 仍 unverified、contact 仍 null、无 promote_to_real、HUMAN_APPROVED→REAL 拒绝、不写 real_policies.json、20 REAL ids 101–120 不变、append-only、无覆盖、无任意 output path、无 LLM、无 crawler import、history append-only、非法 transition fail-closed）。Full regression **973 passed / 0 failed / 0 skipped**（944 + 29）。
+
+**未产生 / 未做**: 无 VERIFIED；未写 `real_policies.json`；未修改 20 REAL（ids 101–120 不变）；未做 REAL promotion（id 121+）；未恢复旧 crawler；未做真实 gov.cn ingestion；未调用 LLM/OpenAI/Claude；未自动生成 contact；未修改 P3-1/P3-2/P3-3/`processors/**`/`src/trust/**`/`p2_0_experimental/**`/`requirements.txt`/production server。
+
+**Git status (implementation only)**: 新增 `staging.py` / `tests/test_staging_v1.py`；`.gitignore` 新增 `data/raw_policies/staged/`；`CONTRACT.md` + 本 Handover 章节；`states.py`/`validator.py`/`candidate.py`/`real_policies.json`/P3-1/P3-2/`processors/**`/`src/trust/**`/`p2_0_experimental/**`/`requirements.txt`/生产 server = 零改动。COMMIT=NO, PUSH=NO（待 JUDGE P3-4 COMMIT GATE）。
 
 ---
 
