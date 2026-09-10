@@ -46,6 +46,26 @@ Implemented / planned stages:
   - **Staging 持久化**：固定写 `data/raw_policies/staged/`（gitignored runtime artifact），
     append-only JSONL；无任意 output path 参数，绝不写 `real_policies.json`。
   - 复用 P3-1/P3-3 原语，不修改 P3-1/P3-2/P3-3 任何文件；无 LLM、无 crawler。
+- **P3-6 (verification handoff, done)**: `trust_handoff.py`（P3-6 Verification Handoff —
+  HUMAN_APPROVED → Trust EvidenceObject intake / registration）。
+  - `create_verification_handoff(candidate, approval, snapshots_dir=None)`：要求 `HUMAN_APPROVED`
+    态 + 显式 `HumanApproval`，**实时重算**当前 snapshot 内容身份（复用 P3-4
+    `compute_candidate_content_identity`）并与 `approval.content_identity` 比对；
+    snapshot 缺失 / 不可读 / hash 无法计算 / identity 缺失 / 不匹配 / Candidate 自带
+    identity 冲突 → `InvalidTransitionError`（stale-approval fail-closed）。返回
+    `VerificationHandoff`（handoff_status="created"）。
+  - `register_evidence_object(handoff, trust_service)`：仅调用注入的
+    `trust_service.create_evidence(evidence_data)` 将「待验证」Evidence 注册到 Trust；
+    **绝不** import / 调用 `record_human_verification()`；`verification_status` 强制
+    `"UNVERIFIED"`；metadata 透传跨层锚点 `policy_content_identity`（= snapshot sha256）+
+    `snapshot_ref` + provenance + extracted_fields + human_approval。
+  - **P3-6 = Verification Handoff / Trust Intake，不是 Verification**：不产生 VERIFIED、
+    不写 `real_policies.json`、不做 REAL promotion（id 121+ 留待 P3-7）、不新增 REAL
+    PipelineState、不自动 human verification / contact extraction / crawler / LLM。
+  - Trust ownership 不变：Pipeline → Handoff → Trust intake → 真实 Human Verifier →
+    Trust Human Verification Gate → VERIFIED（后两步属 P3-7 / Trust 层）。
+  - 复用 P3-1/P3-3/P3-4 原语，不修改 states.py / staging.py / validator.py / candidate.py；
+    不修改 `src/trust/**`；无 LLM、无 crawler。
 
 ## Key rules (do not violate)
 

@@ -2410,6 +2410,30 @@ git rev-parse origin/master
 
 ---
 
+#### **P3-6 VERIFICATION HANDOFF v1 — COMPLETE (2026-09-10)**
+
+**Type**: Code + tests. **Scope**: HUMAN_APPROVED → Trust EvidenceObject intake / registration（Verification Handoff only）。NOT Verification, NOT VERIFIED, NOT Production ingestion, NOT REAL promotion.
+
+**Implemented**:
+- `global_policy_aggregator/pipeline/trust_handoff.py`（新增，additive；不修改 P3-1/P3-2/P3-3/P3-4；不修改 `states.py`）：
+  - `VerificationHandoff` dataclass（handoff_id / candidate_id / content_identity / source_url / snapshot_ref / provenance / extracted_field_evidence / staging_ref / human_approval / created_at / handoff_status / target_evidence_id）。
+  - `create_verification_handoff(candidate, approval, snapshots_dir=None)`：要求 `HUMAN_APPROVED` 态 + 显式 `HumanApproval`；**实时重算**当前 snapshot 内容身份（复用 P3-4 `compute_candidate_content_identity`）并与 `approval.content_identity` 比对；snapshot 缺失 / 不可读 / hash 无法计算 / identity 缺失 / 不匹配 / Candidate 自带 identity 冲突 → `InvalidTransitionError`（stale-approval FAIL CLOSED）。返回 handoff（handoff_status="created"）。
+  - `register_evidence_object(handoff, trust_service)`：仅调用注入的 `trust_service.create_evidence(evidence_data)` 将「待验证」Evidence 注册到 Trust；**绝不** import / 调用 `record_human_verification()`；`verification_status` 强制 `"UNVERIFIED"`；metadata 透传跨层锚点 `policy_content_identity`（= 当前 snapshot SHA256）+ `snapshot_ref` + provenance + extracted_fields + human_approval。
+
+**Decisions honored**:
+- Pipeline / Trust ownership（DECISION A）：Pipeline 只产生 Verification Handoff，绝不调用 `record_human_verification()` 或代替人类产生 VERIFIED。链路保持 Pipeline → Handoff → Trust intake → 真实 Human Verifier → Trust Human Verification Gate → VERIFIED（后两步属 P3-7 / Trust 层）。
+- Content identity bridge（DECISION B/C）：以 Pipeline snapshot SHA256 为 canonical 跨层锚点，`metadata["policy_content_identity"]` 透传；P3-6 **零修改 `src/trust/**`**（纯 metadata 数据流转入 Trust 既有 `create_evidence`）。
+- Stale approval protection（DECISION E）：Handoff 前实时重算 snapshot hash 并与 `HumanApproval.content_identity` 比对，不一致 / 无法确认 → FAIL CLOSED，绝不创建有效 Handoff。
+- 禁止 REAL promotion（DECISION C）：无 `promote_to_real()`；`HUMAN_APPROVED` 仍是 pipeline readiness 终点；不新增 REAL PipelineState；不写 `real_policies.json`。
+
+**Tests**: 新增 **22 passed**（tests/test_trust_handoff_v1.py，覆盖 HUMAN_APPROVED→Handoff 成功、非 HUMAN_APPROVED/STAGED 拒绝、缺失 approval、缺失 approval content_identity、snapshot 缺失 / 不可读 / 篡改后 / hash≠approval / Candidate identity 冲突 拒绝、metadata 含 policy_content_identity、source_reference 含 snapshot_ref、provenance / extracted_fields 透传、handoff 绑定 candidate_id / approval、adapter 不调用 `record_human_verification`、不产生 VERIFIED、不产生 REAL / 状态不推进、不写 `real_policies.json`、`src/trust/**` 相对 HEAD 零改动、模块静态边界）。Full regression **待运行**（P3-5 基线 + P3-6 22）。
+
+**未产生 / 未做**: 无 VERIFIED；未写 `real_policies.json`；未修改 20 REAL（ids 101–120 不变）；未做 REAL promotion（id 121+ 留待 P3-7）；未恢复旧 crawler；未做真实 gov.cn ingestion；未调用 LLM/OpenAI/Claude；未自动生成 contact；**未修改 `src/trust/**`**；未修改 states.py / validator.py / staging.py / candidate.py / P3-1/P3-2/P3-3/P3-4/`processors/**`/`p2_0_experimental/**`/`requirements.txt`/production server。
+
+**Git status (implementation only)**: 新增 `trust_handoff.py` / `tests/test_trust_handoff_v1.py`；`CONTRACT.md` + 本 Handover 章节；`staging.py`/`states.py`/`validator.py`/`candidate.py`/`real_policies.json`/P3-1/P3-2/P3-3/P3-4/`processors/**`/`src/trust/**`/`p2_0_experimental/**`/`requirements.txt`/生产 server = 零改动。COMMIT=NO, PUSH=NO（待 JUDGE P3-6 COMMIT GATE）。
+
+---
+
 #### **P2-0 STRATEGIC DEFINITION LOCK (2026-09-02 — THIS UPDATE)**
 
 **Type**: Documentation / strategic definition only. **Zero code changes. Zero test changes. Zero commits. Zero pushes.**
