@@ -458,5 +458,335 @@
     "description": "北京市发展和改革委员会等部门印发的北京市推动\"人工智能+\"行动计划（2024-2025年）。",
     "details": "",
     "requirements": ""
+  },
+  {
+    "id": 121,
+    "is_mock": false,
+    "verification_status": "unverified",
+    "content_identity": "ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b",
+    "verified_event_id": "07d2478c261f4ab6a251b320af179981",
+    "source_url": "https://www.mof.gov.cn/zhengwuxinxi/zhengcefabu/2007zcfb/200805/t20080519_26016.htm",
+    "evidence_id": "ev_ddd6116bac2ab62ce0cc",
+    "candidate_id": "cand_45c19c9c51b0",
+    "title": "中华人民共和国企业所得税法",
+    "region": null,
+    "industry": "unknown",
+    "type": "unknown",
+    "amount": null,
+    "issue_date": "2007-03-19",
+    "valid_period": null,
+    "official_contact": {
+      "department": null,
+      "phone": null,
+      "email": null,
+      "address": null,
+      "contact_status": "unverified"
+    },
+    "description": "中华人民共和国企业所得税法\n发布日期：2007年03月19日\n分享到微信朋友圈\nx\n打开微信，点击底部的“发现”，\n使用“扫一扫”即可将网页分享至朋友圈。\n（2007年3月16日第十届全国人民代表大会第五次会议通过）\n目   录\n第一章 总则\n第二章 应纳税所得额\n第三章 应纳税额\n第四章 税收优惠\n第五章 源泉扣缴\n第六章 特别纳税调整\n第七章 征收管理\n第八章 附则\n第一章    总  则\n第一条 在中华人民共和国境内，企业和其他取得收入的组织（以下统称企业）为企业所得税的纳税人，依照本法的规定缴纳企业所得税。\n个人独资企业、合伙企业不适用本法。\n第二条 企业分为居民企业和非居民企业。\n本法所称居民企业，是指依法在中国境内成立，或者依照外国(地区)法律成立但实际管理机构在中国境内的企业。\n本法所称非居民企业，是指依照外国（地区）法律成立且实际管理机构不在中国境内，但在中国境内设立机构、",
+    "details": "",
+    "requirements": "",
+    "percentage": 0.15,
+    "base": "应纳税所得额",
+    "cap": null,
+    "floor": null,
+    "unit": null,
+    "currency": null,
+    "eligibility_conditions": null,
+    "field_evidence": {
+      "title": {
+        "value": "中华人民共和国企业所得税法",
+        "quote": "中华人民共和国企业所得税法",
+        "char_span": [
+          0,
+          13
+        ],
+        "snapshot_ref": "snapshots/www.mof.gov.cn/ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b.html",
+        "method": "bs4_title_or_booktitle",
+        "content_identity": "ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b",
+        "source_url": "https://www.mof.gov.cn/zhengwuxinxi/zhengcefabu/2007zcfb/200805/t20080519_26016.htm"
+      },
+      "industry": {
+        "value": "unknown",
+        "quote": null,
+        "char_span": null,
+        "snapshot_ref": "snapshots/www.mof.gov.cn/ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b.html",
+        "method": null,
+        "content_identity": "ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b",
+        "source_url": "https://www.mof.gov.cn/zhengwuxinxi/zhengcefabu/2007zcfb/200805/t20080519_26016.htm"
+      },
+      "type": {
+        "value": "unknown",
+        "quote": null,
+        "char_span": null,
+        "snapshot_ref": "snapshots/www.mof.gov.cn/ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b.html",
+        "method": null,
+        "content_identity": "ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b",
+        "source_url": "https://www.mof.gov.cn/zhengwuxinxi/zhengcefabu/2007zcfb/200805/t20080519_26016.htm"
+      },
+      "issue_date": {
+        "value": "2007-03-19",
+        "quote": "发布日期：2007年03月19日",
+        "char_span": [
+          14,
+          30
+        ],
+        "snapshot_ref": "snapshots/www.mof.gov.cn/ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b.html",
+        "method": "regex_issue_date",
+        "content_identity": "ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b",
+        "source_url": "https://www.mof.gov.cn/zhengwuxinxi/zhengcefabu/2007zcfb/200805/t20080519_26016.htm"
+      },
+      "description": {
+        "value": "中华人民共和国企业所得税法\n发布日期：2007年03月19日\n分享到微信朋友圈\nx\n打开微信，点击底部的“发现”，\n使用“扫一扫”即可将网页分享至朋友圈。\n（2007年3月16日第十届全国人民代表大会第五次会议通过）\n目   录\n第一章 总则\n第二章 应纳税所得额\n第三章 应纳税额\n第四章 税收优惠\n第五章 源泉扣缴\n第六章 特别纳税调整\n第七章 征收管理\n第八章 附则\n第一章    总  则\n第一条 在中华人民共和国境内，企业和其他取得收入的组织（以下统称企业）为企业所得税的纳税人，依照本法的规定缴纳企业所得税。\n个人独资企业、合伙企业不适用本法。\n第二条 企业分为居民企业和非居民企业。\n本法所称居民企业，是指依法在中国境内成立，或者依照外国(地区)法律成立但实际管理机构在中国境内的企业。\n本法所称非居民企业，是指依照外国（地区）法律成立且实际管理机构不在中国境内，但在中国境内设立机构、",
+        "quote": "中华人民共和国企业所得税法\n发布日期：2007年03月19日\n分享到微信朋友圈\nx\n打开微信，点击底部的“发现”，\n使用“扫一扫”即可将网页分享至朋友圈。\n（2007年3月16日第十届全国人民代表大会第五次会议通过）\n目   录\n第一章 总则\n第二章 应纳税所得额\n第三章 应纳税额\n第四章 税收优惠\n第五章 源泉扣缴\n第六章 特别纳税调整\n第七章 征收管理\n第八章 附则\n第一章    总  则\n第一条 在中华人民共和国境内，企业和其他取得收入的组织（以下统称企业）为企业所得税的纳税人，依照本法的规定缴纳企业所得税。\n个人独资企业、合伙企业不适用本法。\n第二条 企业分为居民企业和非居民企业。\n本法所称居民企业，是指依法在中国境内成立，或者依照外国(地区)法律成立但实际管理机构在中国境内的企业。\n本法所称非居民企业，是指依照外国（地区）法律成立且实际管理机构不在中国境内，但在中国境内设立机构、",
+        "char_span": [
+          0,
+          400
+        ],
+        "snapshot_ref": "snapshots/www.mof.gov.cn/ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b.html",
+        "method": "verbatim_slice",
+        "content_identity": "ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b",
+        "source_url": "https://www.mof.gov.cn/zhengwuxinxi/zhengcefabu/2007zcfb/200805/t20080519_26016.htm"
+      },
+      "percentage": {
+        "value": 0.15,
+        "quote": "国家需要重点扶持的高新技术企业，减按15％的税率征收企业所得税。",
+        "char_span": [
+          2894,
+          2926
+        ],
+        "snapshot_ref": "snapshots/www.mof.gov.cn/ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b.html",
+        "method": "regex_percentage",
+        "content_identity": "ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b",
+        "source_url": "https://www.mof.gov.cn/zhengwuxinxi/zhengcefabu/2007zcfb/200805/t20080519_26016.htm"
+      },
+      "base": {
+        "value": "应纳税所得额",
+        "quote": "应纳税所得额",
+        "char_span": [
+          126,
+          132
+        ],
+        "snapshot_ref": "snapshots/www.mof.gov.cn/ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b.html",
+        "method": "regex_base",
+        "content_identity": "ddd6116bac2ab62ce0ccbcaca4656bb9fa28c864475392473ad700b86ddc3c0b",
+        "source_url": "https://www.mof.gov.cn/zhengwuxinxi/zhengcefabu/2007zcfb/200805/t20080519_26016.htm"
+      }
+    }
+  },
+  {
+    "id": 122,
+    "is_mock": false,
+    "verification_status": "unverified",
+    "content_identity": "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b",
+    "verified_event_id": "fc50856de78547df8dc5d9f29b4b270d",
+    "trust_content_identity": "b4012feb48e86e999b3149eb42fd62d91f1a8049e22daeda24d9dd4a89292937",
+    "verifier_id": "human-reviewer-howard",
+    "verifier_role": "human_verifier",
+    "source_url": "https://www.gov.cn/zhengce/zhengceku/202607/content_7074139.htm",
+    "evidence_id": "ev_1e2d555ae07193b5c257",
+    "candidate_id": "cand_a54ea576e4a3",
+    "title": "人力资源社会保障部 教育部 财政部 国家税务总局关于失业保险支持企业稳岗扩岗的通知",
+    "region": null,
+    "industry": "unknown",
+    "type": "notice",
+    "amount": {
+      "raw_text": "对招用毕业年度及离校两年内未就业高校毕业生、16—24岁登记失业青年，签订劳动合同并为其足额缴纳3个月以上失业、工伤、职工养老保险费的企业和社会组织，可按每招用1人不超过1500元的标准发放一次性扩岗补助。",
+      "normalized_number": 1500,
+      "currency": "CNY",
+      "unit": "元/人"
+    },
+    "issue_date": null,
+    "valid_period": {
+      "start": "2026-01-01",
+      "end": "2026-12-31"
+    },
+    "official_contact": {
+      "department": null,
+      "phone": null,
+      "email": null,
+      "address": null,
+      "contact_status": "unverified"
+    },
+    "description": "人力资源社会保障部 教育部 财政部 国家税务总局关于失业保险支持企业稳岗扩岗的通知\n人社部发〔2026〕39号\n各省、自治区、直辖市人民政府，国务院各部委、各直属机构：\n为支持企业稳定岗位、扩大就业，现就失业保险有关政策通知如下。\n一、延续实施稳岗返还政策。参保企业足额缴纳失业保险费12个月以上，上年度未裁员或裁员率不高于上年度全国城镇调查失业率控制目标，30人（含）以下的参保企业裁员率不高于参保职工总数20%的，可以按规定享受失业保险稳岗返还。大型企业按不超过企业及其职工上年度实际缴纳失业保险费的30%返还，中小微企业按不超过60%返还。\n二、延续实施一次性扩岗补助政策。对招用毕业年度及离校两年内未就业高校毕业生、16—24岁登记失业青年，签订劳动合同并为其足额缴纳3个月以上失业、工伤、职工养老保险费的企业和社会组织，可按每招用1人不超过1500元的标准发放一次性扩岗补助。\n三、本通知自",
+    "details": "",
+    "requirements": "",
+    "percentage": null,
+    "base": null,
+    "cap": null,
+    "floor": null,
+    "unit": "元/人",
+    "currency": null,
+    "granularity": "per_hired_person",
+    "eligibility_conditions": [
+      {
+        "id": "entity_scope",
+        "label": "申请/享受主体须为企业或社会组织",
+        "source_field": "applicant_entity_type",
+        "operator": "in",
+        "expected_value": ["企业", "社会组织"],
+        "granularity": "project",
+        "quote": "签订劳动合同并为其足额缴纳3个月以上失业、工伤、职工养老保险费的企业和社会组织",
+        "char_span": [290, 393]
+      },
+      {
+        "id": "hired_target_group_in_scope",
+        "label": "招用对象须为：毕业年度及离校两年内未就业高校毕业生、16—24岁登记失业青年",
+        "source_field": "target_group",
+        "operator": "in",
+        "expected_value": ["grad_2026", "leave_school_2y_unemployed", "age_16_24_registered_unemployed"],
+        "granularity": "per_person",
+        "quote": "招用毕业年度及离校两年内未就业高校毕业生、16—24岁登记失业青年",
+        "char_span": [290, 393]
+      },
+      {
+        "id": "labor_contract_signed",
+        "label": "须与被招用人员签订劳动合同",
+        "source_field": "labor_contract_signed",
+        "operator": "equals",
+        "expected_value": true,
+        "granularity": "per_person",
+        "quote": "签订劳动合同",
+        "char_span": [290, 393]
+      },
+      {
+        "id": "employment_insurance_paid_months",
+        "label": "须为其足额缴纳失业、工伤、职工养老保险费满3个月以上",
+        "source_field": "employment_insurance_paid_months",
+        "operator": ">=",
+        "expected_value": 3,
+        "granularity": "per_person",
+        "quote": "足额缴纳3个月以上失业、工伤、职工养老保险费",
+        "char_span": [290, 393]
+      },
+      {
+        "id": "execution_period",
+        "label": "招用须在执行期 2026-01-01 至 2026-12-31 内",
+        "source_field": "hire_date",
+        "operator": "within_period",
+        "expected_value": {"start": "2026-01-01", "end": "2026-12-31"},
+        "granularity": "per_person",
+        "quote": "本通知自2026年1月1日至12月31日执行",
+        "char_span": [400, 416]
+      }
+    ],
+    "snapshot_ref": "snapshots/www.gov.cn/1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b.html",
+    "application_requirements": "",
+    "rule_type": "fixed_amount",
+    "rule_type_derived": "fixed_amount",
+    "rule_type_approved": null,
+    "rule_type_approval": null,
+    "rule_type_source": "derived",
+    "field_evidence": {
+      "title": {
+        "value": "人力资源社会保障部 教育部 财政部 国家税务总局关于失业保险支持企业稳岗扩岗的通知",
+        "quote": "人力资源社会保障部 教育部 财政部 国家税务总局关于失业保险支持企业稳岗扩岗的通知",
+        "char_span": [
+          0,
+          41
+        ],
+        "snapshot_ref": "snapshots/www.gov.cn/1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b.html",
+        "method": "bs4_title_or_booktitle",
+        "content_identity": "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b",
+        "source_url": "https://www.gov.cn/zhengce/zhengceku/202607/content_7074139.htm"
+      },
+      "industry": {
+        "value": "unknown",
+        "quote": null,
+        "char_span": null,
+        "snapshot_ref": "snapshots/www.gov.cn/1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b.html",
+        "method": null,
+        "content_identity": "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b",
+        "source_url": "https://www.gov.cn/zhengce/zhengceku/202607/content_7074139.htm"
+      },
+      "type": {
+        "value": "notice",
+        "quote": "通知",
+        "char_span": [
+          39,
+          41
+        ],
+        "snapshot_ref": "snapshots/www.gov.cn/1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b.html",
+        "method": "regex_type_label",
+        "content_identity": "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b",
+        "source_url": "https://www.gov.cn/zhengce/zhengceku/202607/content_7074139.htm"
+      },
+      "amount": {
+        "value": {
+          "raw_text": "对招用毕业年度及离校两年内未就业高校毕业生、16—24岁登记失业青年，签订劳动合同并为其足额缴纳3个月以上失业、工伤、职工养老保险费的企业和社会组织，可按每招用1人不超过1500元的标准发放一次性扩岗补助。",
+          "normalized_number": 1500,
+          "currency": "CNY",
+          "unit": "元/人"
+        },
+        "quote": "对招用毕业年度及离校两年内未就业高校毕业生、16—24岁登记失业青年，签订劳动合同并为其足额缴纳3个月以上失业、工伤、职工养老保险费的企业和社会组织，可按每招用1人不超过1500元的标准发放一次性扩岗补助。",
+        "char_span": [
+          290,
+          393
+        ],
+        "snapshot_ref": "snapshots/www.gov.cn/1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b.html",
+        "method": "regex_amount_clause_scoped",
+        "content_identity": "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b",
+        "source_url": "https://www.gov.cn/zhengce/zhengceku/202607/content_7074139.htm"
+      },
+      "valid_period": {
+        "value": {
+          "start": "2026-01-01",
+          "end": "2026-12-31"
+        },
+        "quote": "2026年1月1日至12月31日",
+        "char_span": [
+          400,
+          416
+        ],
+        "snapshot_ref": "snapshots/www.gov.cn/1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b.html",
+        "method": "regex_valid_period_shared_year",
+        "content_identity": "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b",
+        "source_url": "https://www.gov.cn/zhengce/zhengceku/202607/content_7074139.htm"
+      },
+      "description": {
+        "value": "人力资源社会保障部 教育部 财政部 国家税务总局关于失业保险支持企业稳岗扩岗的通知\n人社部发〔2026〕39号\n各省、自治区、直辖市人民政府，国务院各部委、各直属机构：\n为支持企业稳定岗位、扩大就业，现就失业保险有关政策通知如下。\n一、延续实施稳岗返还政策。参保企业足额缴纳失业保险费12个月以上，上年度未裁员或裁员率不高于上年度全国城镇调查失业率控制目标，30人（含）以下的参保企业裁员率不高于参保职工总数20%的，可以按规定享受失业保险稳岗返还。大型企业按不超过企业及其职工上年度实际缴纳失业保险费的30%返还，中小微企业按不超过60%返还。\n二、延续实施一次性扩岗补助政策。对招用毕业年度及离校两年内未就业高校毕业生、16—24岁登记失业青年，签订劳动合同并为其足额缴纳3个月以上失业、工伤、职工养老保险费的企业和社会组织，可按每招用1人不超过1500元的标准发放一次性扩岗补助。\n三、本通知自",
+        "quote": "人力资源社会保障部 教育部 财政部 国家税务总局关于失业保险支持企业稳岗扩岗的通知\n人社部发〔2026〕39号\n各省、自治区、直辖市人民政府，国务院各部委、各直属机构：\n为支持企业稳定岗位、扩大就业，现就失业保险有关政策通知如下。\n一、延续实施稳岗返还政策。参保企业足额缴纳失业保险费12个月以上，上年度未裁员或裁员率不高于上年度全国城镇调查失业率控制目标，30人（含）以下的参保企业裁员率不高于参保职工总数20%的，可以按规定享受失业保险稳岗返还。大型企业按不超过企业及其职工上年度实际缴纳失业保险费的30%返还，中小微企业按不超过60%返还。\n二、延续实施一次性扩岗补助政策。对招用毕业年度及离校两年内未就业高校毕业生、16—24岁登记失业青年，签订劳动合同并为其足额缴纳3个月以上失业、工伤、职工养老保险费的企业和社会组织，可按每招用1人不超过1500元的标准发放一次性扩岗补助。\n三、本通知自",
+        "char_span": [
+          0,
+          400
+        ],
+        "snapshot_ref": "snapshots/www.gov.cn/1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b.html",
+        "method": "verbatim_slice",
+        "content_identity": "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b",
+        "source_url": "https://www.gov.cn/zhengce/zhengceku/202607/content_7074139.htm"
+      },
+      "unit": {
+        "value": "元/人",
+        "quote": "对招用毕业年度及离校两年内未就业高校毕业生、16—24岁登记失业青年，签订劳动合同并为其足额缴纳3个月以上失业、工伤、职工养老保险费的企业和社会组织，可按每招用1人不超过1500元的标准发放一次性扩岗补助。",
+        "char_span": [
+          290,
+          393
+        ],
+        "snapshot_ref": "snapshots/www.gov.cn/1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b.html",
+        "method": "regex_unit_per_unit",
+        "content_identity": "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b",
+        "source_url": "https://www.gov.cn/zhengce/zhengceku/202607/content_7074139.htm"
+      },
+      "granularity": {
+        "value": "per_hired_person",
+        "quote": "对招用毕业年度及离校两年内未就业高校毕业生、16—24岁登记失业青年，签订劳动合同并为其足额缴纳3个月以上失业、工伤、职工养老保险费的企业和社会组织，可按每招用1人不超过1500元的标准发放一次性扩岗补助。",
+        "char_span": [290, 393],
+        "snapshot_ref": "snapshots/www.gov.cn/1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b.html",
+        "method": "regex_amount_clause_scoped",
+        "content_identity": "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b",
+        "source_url": "https://www.gov.cn/zhengce/zhengceku/202607/content_7074139.htm"
+      },
+      "eligibility_conditions": {
+        "value": "5 条结构化 eligibility_conditions（entity_scope / hired_target_group_in_scope / labor_contract_signed / employment_insurance_paid_months / execution_period）均源自本 39号通知一次性扩岗补助条款（见顶层 eligibility_conditions）",
+        "quote": "对招用毕业年度及离校两年内未就业高校毕业生、16—24岁登记失业青年，签订劳动合同并为其足额缴纳3个月以上失业、工伤、职工养老保险费的企业和社会组织，可按每招用1人不超过1500元的标准发放一次性扩岗补助。",
+        "char_span": [
+          290,
+          393
+        ],
+        "snapshot_ref": "snapshots/www.gov.cn/1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b.html",
+        "method": "verbatim_slice",
+        "content_identity": "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b",
+        "source_url": "https://www.gov.cn/zhengce/zhengceku/202607/content_7074139.htm"
+      }
+    }
   }
 ]

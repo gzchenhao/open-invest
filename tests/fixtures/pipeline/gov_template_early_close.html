@@ -1,0 +1,55 @@
+<!doctype html>
+<!--
+  P4-5.1 D1 回归 fixture：复刻 gov.cn「政策库」模板的**提前闭合缺陷**。
+
+  真实缺陷结构（www.gov.cn/zhengce/zhengceku/2026xx/content_xxxxxxx.htm，实测）：
+      ... 页头（header / 无障碍开关） ...
+      [提前闭合的 html 结束标签]    <-- 位于页头之后、正文之前（实测偏移 7278）
+      <!--end header-->
+      <div class="policyLibraryOverview ...">
+        ... 面包屑 ... <div class="mainnav"> ... </div>
+        <article class="TRS_Editor"> ... 正文 ... </article>
+      </div>
+
+  lxml 在该提前闭合处关闭 document，**静默丢弃其后全部正文**（旧行为：
+  clean_text 仅剩页头若干字符），且不抛异常 —— 这正是 D1 要解决的 fail-open。
+
+  本文件是解析器回归 fixture，**不是** REAL 政策记录，绝不写入 real_policies.json。
+  正文为合成文本，仅用于结构化回归（不复制任何真实政策正文）。
+-->
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>测试模板页_国务院部门文件_中国政府网</title>
+</head>
+<body>
+  <div class="header">
+    <ul>
+      <li><a href="/">首页</a></li>
+      <li><a href="/zhengce/">政策</a></li>
+      <li><a href="/zhengce/zhengceku/">国务院部门文件</a></li>
+    </ul>
+  </div>
+  <a href="javascript:void(0)" class="mhide">网站无障碍开关</a> -->
+</html>
+<!--end header-->
+
+<div class="policyLibraryOverview policyLibraryOverview_gwy_bmwj">
+  <div class="BreadcrumbNav BreadcrumbNav_gwy_bmwj">
+    <a href="https://www.gov.cn/">首页</a> &gt; 政策 &gt; 国务院部门文件
+  </div>
+  <div class="mainnav">
+    <a href="/zhengce/zuixin/">最新政策</a>
+    <a href="/zhengce/bumen/">部门文件</a>
+    <a href="/zhengce/gwy/">国务院文件</a>
+  </div>
+  <article class="TRS_Editor">
+    <h1>测试模板页</h1>
+    <p>各区（县）人民政府，各有关单位：</p>
+    <p>第一条 本模板用于回归验证：页头之后的提前闭合标签不得导致正文丢失。政策正文必须完整保留，包括这一句足够长的正文内容，用以确认解析器不会把导航栏当作正文，也不会因为提前闭合而静默截断文档。</p>
+    <p>第二条 本模板同时包含 class="mainnav" 的导航容器，用于验证 token 精确匹配不会把 mainnav 误判为 main 正文容器；导航项文本不得被当作政策正文。</p>
+    <p>第三条 正文总长度必须显著大于原始可见文本的一成，因此本段继续补充说明性文字，确保正文完整性校验能够正常工作，而不会把结构正常的页面误判为不完整。</p>
+  </article>
+</div>
+</body>
+</html>

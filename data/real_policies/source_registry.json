@@ -20,6 +20,21 @@
       },
       "last_fetched_at": null,
       "notes": "P3-1 第一阶段唯一官方源（JUDGE 批准 pilot：gov.cn zhengceku，10-20 条，全部先 STAGED）。"
+    },
+    {
+      "source_id": "mof_gov_cn",
+      "organization": "财政部",
+      "list_url": "https://www.mof.gov.cn/",
+      "allowed_domains": ["www.mof.gov.cn", "mof.gov.cn"],
+      "enabled": true,
+      "fetch_policy": {
+        "timeout_seconds": 20,
+        "max_attempts": 3,
+        "min_interval_seconds": 3,
+        "retry_backoff_seconds": 1.0
+      },
+      "last_fetched_at": null,
+      "notes": "P4-2 Phase A 经 Human 确认的 Primary Source：财政部官方政策正文（企业所得税法第二十八条 高新技术企业减按15%税率）。Primary URL 固定为 https://www.mof.gov.cn/zhengwuxinxi/zhengcefabu/2007zcfb/200805/t20080519_26016.htm"
     }
   ]
 }

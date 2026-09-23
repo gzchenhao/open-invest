@@ -51,9 +51,25 @@ ALLOWED_METHODS = frozenset({
     "regex_issue_date",
     "regex_valid_period",
     "canonical_taxonomy.resolve",
-    "regex_amount",
+    "regex_amount",                   # 历史（REAL 101–121 已落库）方法名，保留兼容
+    "regex_amount_clause_scoped",     # D3: 金额必须来自受益语境条款（非注册资本等）
     "regex_requirements_label",
     "regex_eligibility_label",
+    "regex_percentage",
+    "regex_base",                     # 历史（REAL 101–121 已落库）方法名，保留兼容
+    "regex_base_same_clause",         # D3: 基数必须与受益比例同条款
+    "regex_base_definition",          # D3: 基数来自定义式表述（"指…"）
+    "regex_base_definitional",        # D3: 「以…为基数」定义式
+    "regex_cap",
+    "regex_floor",
+    "regex_unit",
+    "regex_unit_per_unit",            # D3: per-unit 量纲（元/人）不得被读成总额
+    "regex_currency",
+    "regex_eligibility_conditions",
+    "regex_valid_period_start_only",  # G4: 官方仅给出生效起始日（end 保持 null）
+    "regex_valid_period_shared_year",          # D3: 右端省略年份 → 继承左端年份
+    "regex_valid_period_shared_year_suspect",  # D3: 可疑区间（end<start）→ 只保留 start
+    "regex_national_scope",           # D3: 原文显式「全国范围适用」才记 region
 })
 
 # source_url 的证据是 passthrough（来自 P3-1 fetch，非 snapshot 正文），

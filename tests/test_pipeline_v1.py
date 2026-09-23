@@ -331,8 +331,10 @@ class TestGovernanceBoundary:
     def test_existing_20_real_policies_contract_intact(self):
         data = json.loads((REPO_ROOT / "global_policy_aggregator" / "data" / "real_policies" /
                            "real_policies.json").read_text(encoding="utf-8"))
-        assert len(data) == 20
-        assert [p["id"] for p in data] == list(range(101, 121))
+        ids = {p["id"] for p in data}
+        # grandfather REAL 101–120 must remain present and intact
+        # (post-P3-7 the dataset also contains the first ingested REAL 121).
+        assert set(range(101, 121)).issubset(ids)
         for p in data:
             assert p["is_mock"] is False
             assert p["verification_status"] == "unverified"

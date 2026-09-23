@@ -138,6 +138,9 @@ def seed_extra(real_policies_path, rid, content_identity, source_url):
 def env(tmp_path):
     real_copy = tmp_path / "real_policies.json"
     data = json.loads(PRODUCTION_REAL_POLICIES_PATH.read_text(encoding="utf-8"))
+    # 隔离为 pre-ingestion 基线（仅 grandfather 101–120），
+    # 使 P3-7 测试不再依赖已被真实 P3-7 写入的 REAL 121+。
+    data = [p for p in data if 101 <= p.get("id", 0) <= 120]
     real_copy.write_text(json.dumps(data, ensure_ascii=False, indent=2),
                          encoding="utf-8")
     snapshots_dir = tmp_path / "snapshots"

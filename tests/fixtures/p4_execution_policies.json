@@ -1,0 +1,80 @@
+{
+  "FIX_POB_1": {
+    "id": "FIX-POB-1",
+    "is_mock": true,
+    "rule_type": "percentage_of_base",
+    "percentage": 0.30,
+    "base": "研发费用",
+    "cap": 0.50,
+    "cap_mode": "relative",
+    "industry": "AI",
+    "region": "Shenzhen",
+    "type": "subsidy",
+    "application_requirements": "none",
+    "valid_period": "2024-01-01 to 2026-12-31",
+    "currency": "CNY",
+    "unit": "yuan",
+    "content_identity": "fixpob1cid000000000000000000000000000000000000000000000000000",
+    "source_url": "https://www.example.gov.cn/fix/pob1",
+    "snapshot_ref": "snapshots/example.gov.cn/fix_pob1.html",
+    "eligibility_conditions": [
+      {"id": "rd_ratio_min", "label": "研发人员占比", "source_field": "rd_staff_ratio", "operator": ">=", "threshold": 0.10, "unit": "ratio", "quote": "研发人员占企业职工总数不低于10%"},
+      {"id": "registered_min", "label": "注册年限", "source_field": "years_registered", "operator": ">=", "threshold": 2, "unit": "year", "quote": "注册成立满2年"}
+    ],
+    "field_evidence": {
+      "percentage": {"field": "percentage", "quote": "补贴比例为30%", "content_identity": "fixpob1cid000000000000000000000000000000000000000000000000000", "source_url": "https://www.example.gov.cn/fix/pob1", "snapshot_ref": "snapshots/example.gov.cn/fix_pob1.html", "verified": true},
+      "base": {"field": "base", "quote": "以研发费用总额为基数", "content_identity": "fixpob1cid000000000000000000000000000000000000000000000000000", "source_url": "https://www.example.gov.cn/fix/pob1", "snapshot_ref": "snapshots/example.gov.cn/fix_pob1.html", "verified": true},
+      "cap": {"field": "cap", "quote": "最高不超过50%", "content_identity": "fixpob1cid000000000000000000000000000000000000000000000000000", "source_url": "https://www.example.gov.cn/fix/pob1", "snapshot_ref": "snapshots/example.gov.cn/fix_pob1.html", "verified": true},
+      "eligibility_conditions": {"field": "eligibility_conditions", "quote": "研发人员占比不低于10%，注册满2年", "content_identity": "fixpob1cid000000000000000000000000000000000000000000000000000", "source_url": "https://www.example.gov.cn/fix/pob1", "snapshot_ref": "snapshots/example.gov.cn/fix_pob1.html", "verified": true},
+      "title": {"field": "title", "quote": "研发费用补贴", "content_identity": "fixpob1cid000000000000000000000000000000000000000000000000000", "source_url": "https://www.example.gov.cn/fix/pob1", "snapshot_ref": "snapshots/example.gov.cn/fix_pob1.html", "verified": true}
+    }
+  },
+  "FIX_FA_1": {
+    "id": "FIX-FA-1",
+    "is_mock": true,
+    "rule_type": "fixed_amount",
+    "amount": {"normalized_number": 50000, "unit": "yuan", "currency": "CNY"},
+    "industry": "HighTech",
+    "region": "Beijing",
+    "type": "grant",
+    "application_requirements": "none",
+    "valid_period": "2025-01-01 to 2027-12-31",
+    "currency": "CNY",
+    "unit": "yuan",
+    "content_identity": "fixfa1cid00000000000000000000000000000000000000000000000000",
+    "source_url": "https://www.example.gov.cn/fix/fa1",
+    "snapshot_ref": "snapshots/example.gov.cn/fix_fa1.html",
+    "eligibility_conditions": [
+      {"id": "scale_min", "label": "年营收规模", "source_field": "annual_revenue", "operator": ">=", "threshold": 1000000, "unit": "yuan", "quote": "年营业收入不低于100万元"}
+    ],
+    "field_evidence": {
+      "amount": {"field": "amount", "quote": "定额补贴5万元", "content_identity": "fixfa1cid00000000000000000000000000000000000000000000000000", "source_url": "https://www.example.gov.cn/fix/fa1", "snapshot_ref": "snapshots/example.gov.cn/fix_fa1.html", "verified": true},
+      "eligibility_conditions": {"field": "eligibility_conditions", "quote": "年营业收入不低于100万元", "content_identity": "fixfa1cid00000000000000000000000000000000000000000000000000", "source_url": "https://www.example.gov.cn/fix/fa1", "snapshot_ref": "snapshots/example.gov.cn/fix_fa1.html", "verified": true},
+      "title": {"field": "title", "quote": "定额研发奖励", "content_identity": "fixfa1cid00000000000000000000000000000000000000000000000000", "source_url": "https://www.example.gov.cn/fix/fa1", "snapshot_ref": "snapshots/example.gov.cn/fix_fa1.html", "verified": true}
+    }
+  },
+  "FIX_TT_1": {
+    "id": "FIX-TT-1",
+    "is_mock": true,
+    "rule_type": "tax_treatment_rate",
+    "percentage": 0.15,
+    "base": "应纳税所得额",
+    "industry": "AI",
+    "region": null,
+    "type": "tax_break",
+    "application_requirements": "none",
+    "valid_period": null,
+    "currency": "CNY",
+    "unit": "yuan",
+    "content_identity": "fixtt1cid00000000000000000000000000000000000000000000000000",
+    "source_url": "https://www.example.gov.cn/fix/tt1",
+    "snapshot_ref": "snapshots/example.gov.cn/fix_tt1.html",
+    "eligibility_conditions": [],
+    "field_evidence": {
+      "percentage": {"field": "percentage", "quote": "适用15%企业所得税税率", "content_identity": "fixtt1cid00000000000000000000000000000000000000000000000000", "source_url": "https://www.example.gov.cn/fix/tt1", "snapshot_ref": "snapshots/example.gov.cn/fix_tt1.html", "verified": true},
+      "base": {"field": "base", "quote": "应纳税所得额", "content_identity": "fixtt1cid00000000000000000000000000000000000000000000000000", "source_url": "https://www.example.gov.cn/fix/tt1", "snapshot_ref": "snapshots/example.gov.cn/fix_tt1.html", "verified": true},
+      "eligibility_conditions": {"field": "eligibility_conditions", "quote": "无明确资格条件", "content_identity": "fixtt1cid00000000000000000000000000000000000000000000000000", "source_url": "https://www.example.gov.cn/fix/tt1", "snapshot_ref": "snapshots/example.gov.cn/fix_tt1.html", "verified": true},
+      "title": {"field": "title", "quote": "企业所得税优惠", "content_identity": "fixtt1cid00000000000000000000000000000000000000000000000000", "source_url": "https://www.example.gov.cn/fix/tt1", "snapshot_ref": "snapshots/example.gov.cn/fix_tt1.html", "verified": true}
+    }
+  }
+}

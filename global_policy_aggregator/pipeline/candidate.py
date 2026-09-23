@@ -80,6 +80,15 @@ class Candidate:
     amount: Optional[dict] = None               # {"raw_text", "normalized_number", "currency"}
     requirements: Optional[str] = None
     eligibility: Optional[str] = None
+    # ── P3-2.x Rule Evidence 字段（evidence-bound，无原文则 null）────────
+    # percentage / cap / floor 以「比例小数」存储（15% → 0.15；3% → 0.03）。
+    percentage: Optional[float] = None          # 明确百分比（如税率/补贴比例）
+    base: Optional[str] = None                  # 明确计算基数（须政策原文显式表达）
+    cap: Optional[float] = None                  # 明确上限（须原文显式数字，如「不超过/上限」）
+    floor: Optional[float] = None                # 明确下限（须原文显式数字，如「不低于/最少」）
+    unit: Optional[str] = None                   # 单位（元/万元/比例）
+    currency: Optional[str] = None               # 币种（默认 CNY，仅原文明示外币才取）
+    eligibility_conditions: Optional[list] = None  # 结构化条件列表（每条含 quote/char_span）
     contact: Optional[dict] = None              # P3-2 恒为 null
 
     # ── 治理字段 ─────────────────────────────────────────────
@@ -109,4 +118,9 @@ class Candidate:
             violations.append("contact must be null in P3-2 (extraction deferred)")
         if self.verification_status == "VERIFIED":
             violations.append("verification_status must never be VERIFIED")
+        # P3-2.x: 结构化 eligibility condition 必须逐条携带 verbatim quote。
+        for cond in (self.eligibility_conditions or []):
+            if isinstance(cond, dict) and cond.get("value") is not None and not cond.get("quote"):
+                violations.append(
+                    f"eligibility condition '{cond.get('id')}' has value but no quote evidence")
         return violations

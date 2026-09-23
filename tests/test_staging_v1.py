@@ -309,8 +309,10 @@ def test_staging_does_not_write_real_policies(tmp_path):
 # ── 22. 20 REAL IDs 仍为 101–120 ────────────────────────────────────────
 def test_20_real_ids_intact():
     data = json.loads(REAL_POLICIES.read_text(encoding="utf-8"))
-    ids = [p["id"] for p in data]
-    assert ids == list(range(101, 121))
+    ids = {p["id"] for p in data}
+    # grandfather REAL 101–120 must remain present and intact
+    # (post-P3-7 the dataset also contains the first ingested REAL 121).
+    assert set(range(101, 121)).issubset(ids)
     assert all(p["verification_status"] == "unverified" for p in data)
 
 

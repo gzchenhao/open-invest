@@ -47,6 +47,8 @@ debug_*.ps1
 
 # Allow test_api.ps1
 !global_policy_aggregator/test_api.ps1
+# Allow P4-2 deterministic engine + pilot vertical-slice tests (explicit deliverable)
+!tests/test_p4_*.py
 
 # Temporary files
 *.tmp
@@ -76,3 +78,6 @@ data/raw_policies/snapshots/
 data/raw_policies/parse_failures.jsonl
 # P3-4 Staging records (runtime artifacts, never published; NOT real_policies.json)
 data/raw_policies/staged/
+# P3-7 ingestion runtime artifacts (never committed; not real_policies.json)
+global_policy_aggregator/data/real_policies/ingestion_audit.jsonl
+global_policy_aggregator/data/real_policies/.ingestion.lock

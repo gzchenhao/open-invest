@@ -327,9 +327,10 @@ def test_real_policies_20_real_intact():
     path = REPO_ROOT / "global_policy_aggregator" / "data" / "real_policies" / "real_policies.json"
     data = json.loads(path.read_text(encoding="utf-8"))
     assert isinstance(data, list)
-    assert len(data) == 20
-    ids = [r["id"] for r in data]
-    assert ids == list(range(101, 121))
+    ids = {r["id"] for r in data}
+    # grandfather REAL 101–120 must remain present and intact
+    # (post-P3-7 the dataset also contains the first ingested REAL 121).
+    assert set(range(101, 121)).issubset(ids)
     for r in data:
         assert r.get("is_mock") is False
         assert r.get("verification_status") == "unverified"

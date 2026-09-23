@@ -55,6 +55,12 @@ from global_policy_aggregator.pipeline.fetcher import (
 )
 from global_policy_aggregator.pipeline.validator import resolve_snapshot_path
 
+# G1（P4-4）：复用 P4-2 既有*确定性* rule_type 判定（禁止 title 猜测）。
+# 说明：仅复用纯映射逻辑以填充 execution contract 字段；本模块**不产生**任何
+# verification 状态 —— execution-critical field 的 VERIFIED 事实仍只由 Trust-owned
+# provenance（verified_event_id + check_verified_validity）决定。
+from global_policy_aggregator.pipeline.p4_rule_engine import build_rule_from_real_record
+
 # 固定生产数据集路径（不允许任意 output path）：
 _MODULE_DIR = Path(__file__).resolve().parent
 _PROD_DATA_DIR = _MODULE_DIR.parent / "data" / "real_policies"
@@ -224,6 +230,8 @@ def ingest_verified_evidence(
     snapshots_dir: Optional[Any] = None,
     audit_path: Optional[Any] = None,
     lock_path: Optional[Any] = None,
+    context_fields_exclude: Optional[Any] = None,
+    granularity: Optional[str] = None,
 ) -> int:
     """Trust VERIFIED Evidence → Production Gate → REAL 121+（FAIL CLOSED）。
 
@@ -234,6 +242,14 @@ def ingest_verified_evidence(
         snapshots_dir: snapshot 根目录（默认 DEFAULT_SNAPSHOTS_DIR），用于重算快照哈希。
         audit_path: 独立 production audit 路径（默认 PRODUCTION_AUDIT_PATH）。
         lock_path: 并发锁路径（默认 real_policies_path 同目录 .ingestion.lock）。
+        context_fields_exclude: 可选 field-name 集合，从 Context A 专属投影中排除
+            （如 Context B「稳岗返还」的 percentage/base/cap/floor）。仅缩小写入字段，
+            不绕过任何 Gate。
+        granularity: 可选显式 granularity（如 Context A「per_hired_person」）。证据未抽取
+            该字段时由调用方作为 Context A 投影显式写入；不臆造、不绕过 Gate。
+
+    注意：trust_content_identity / verifier_id / verifier_role 一律从**正式 verification
+    event**（check_verified_validity 返回的 latest_verified_event）自动捕获，禁止由调用方注入。
 
     Returns:
         int: 新分配的 REAL id（>= 121）。
@@ -270,6 +286,10 @@ def ingest_verified_evidence(
         verified_event_id = latest_verified.get("event_id")
         if not verified_event_id:
             raise IngestionRejected("no verified event_id available")
+        # Trust 层 provenance：一律从正式 verification event 捕获（禁止调用方注入）。
+        trust_content_identity = latest_verified.get("content_identity")
+        verifier_id = latest_verified.get("actor")
+        verifier_role = latest_verified.get("actor_role")
 
         # ---- Gate 5: current snapshot identity recheck ----
         policy_content_identity = metadata.get("policy_content_identity")
@@ -313,16 +333,30 @@ def ingest_verified_evidence(
                 f"new REAL id {new_id} < {REAL_MIN_ID} — grandfather range protected")
 
         # ---- Build REAL record (DD-1/DD-3) ----
+        # P3-7 P0 FIX（P4-2B）：显式映射 Candidate/EvidenceObject 中已通过 P3-3
+        # validation 的业务字段 + 每字段 FieldEvidence，不再整批清空为 null/""。
+        # 仅映射白名单字段；无 Evidence 的字段保持 null（不推断、不 LLM）。
+        extracted_fields = (metadata.get("extracted_fields") or {}) or {}
+        _BUSINESS_FIELDS = (
+            "title", "region", "industry", "type", "amount", "issue_date",
+            "valid_period", "description", "requirements", "eligibility",
+            "percentage", "base", "cap", "floor", "unit", "currency",
+            "granularity", "eligibility_conditions",
+        )
         record = {
             "id": new_id,
             "is_mock": False,
             "verification_status": "unverified",  # DD-1: 保持 unverified；不等于 Trust 未 VERIFIED
             "content_identity": policy_content_identity,  # DD-3: Pipeline snapshot SHA256
             "verified_event_id": verified_event_id,       # DD-1: 独立追溯 VERIFIED 事实
+            # ---- Trust 层 provenance（从正式 verification event 捕获）----
+            "trust_content_identity": trust_content_identity,  # Trust Evidence content_identity (b4012feb...)
+            "verifier_id": verifier_id,                   # human-reviewer-howard
+            "verifier_role": verifier_role,               # human_verifier
             "source_url": source_url,
             "evidence_id": evidence_id,
             "candidate_id": metadata.get("candidate_id"),
-            "title": "",  # 不臆造：以 source_url + content_identity 追溯
+            "title": "",          # 无 Evidence 时保持空（不臆造）
             "region": None,
             "industry": None,
             "type": None,
@@ -339,7 +373,96 @@ def ingest_verified_evidence(
             "description": "",
             "details": "",
             "requirements": "",
+            "percentage": None,
+            "base": None,
+            "cap": None,
+            "floor": None,
+            "unit": None,
+            "currency": None,
+            "granularity": None,          # Context A 投影显式写入（per_hired_person）；默认 null
+            "eligibility_conditions": None,
+            # ---- G1: execution contract 字段（最小兼容，无 Evidence 时 fail-closed）----
+            "snapshot_ref": snapshot_ref,          # 顶层证据快照引用（P4-3 REQUIRED）
+            "application_requirements": "",        # 申报/申请要求；无证据 → ""（不猜测）
+            # ---- G1 + D4: rule_type 分离（derived ≠ approved ≠ VERIFIED）----
+            # ``rule_type`` 仅为**确定性 derived** 的有效值（其来源由 rule_type_source
+            # 显式标注）；ingestion **绝不**写入 approved，也绝不产生 Trust VERIFIED。
+            "rule_type": None,                     # 确定性判定填充（见下）；来源见 rule_type_source
+            "rule_type_derived": None,             # D4: 确定性推导结果（READ-ONLY 分析用）
+            "rule_type_approved": None,            # D4: 仅人工批准 provenance 可填；ingestion 恒为 None
+            "rule_type_approval": None,            # D4: 批准 provenance（须绑定 Trust verified_event_id）
+            "rule_type_source": "derived",         # D4: "approved" | "derived"
         }
+        # 显式字段映射（Candidate/EvidenceObject → REAL）；每字段保留 FieldEvidence。
+        field_evidence: Dict[str, Any] = {}
+        for fname in _BUSINESS_FIELDS:
+            # Context A 专属投影：排除 Context B 字段（仅缩小写入范围，不绕过 Gate）。
+            if context_fields_exclude and fname in context_fields_exclude:
+                continue
+            ev = extracted_fields.get(fname)
+            if not isinstance(ev, dict):
+                continue
+            val = ev.get("value", None)
+            # 仅当 Evidence 存在且值非 null 才落地；否则保留默认 null/""。
+            if val is None:
+                continue
+            record[fname] = val
+            field_evidence[fname] = {
+                "value": val,
+                "quote": ev.get("quote"),
+                "char_span": ev.get("char_span"),
+                "snapshot_ref": ev.get("snapshot_ref") or snapshot_ref,
+                "method": ev.get("method"),
+                "content_identity": policy_content_identity,
+                "source_url": source_url,
+            }
+        # ---- G1: application_requirements（复用同证据的 requirements 抽取）----
+        # 无明确原文 → 保持 ""（fail-closed，绝不猜测、绝不注入其他法规要求）。
+        app_req = extracted_fields.get("application_requirements")
+        if not isinstance(app_req, dict):
+            app_req = extracted_fields.get("requirements")
+        if isinstance(app_req, dict) and app_req.get("value") is not None:
+            record["application_requirements"] = app_req["value"]
+            field_evidence["application_requirements"] = {
+                "value": app_req["value"],
+                "quote": app_req.get("quote"),
+                "char_span": app_req.get("char_span"),
+                "snapshot_ref": app_req.get("snapshot_ref") or snapshot_ref,
+                "method": app_req.get("method"),
+                "content_identity": policy_content_identity,
+                "source_url": source_url,
+            }
+        record["field_evidence"] = field_evidence  # 每非-null业务字段可溯源
+
+        # ---- Context A 投影：显式 granularity（如 per_hired_person）----
+        # 证据未抽取 granularity 时由调用方作为 Context A 投影显式写入（不臆造、不绕过 Gate）。
+        if granularity is not None:
+            record["granularity"] = granularity
+            field_evidence["granularity"] = {
+                "value": granularity,
+                "quote": None,
+                "char_span": None,
+                "snapshot_ref": snapshot_ref,
+                "method": "context_a_projection",
+                "content_identity": policy_content_identity,
+                "source_url": source_url,
+            }
+            record["field_evidence"] = field_evidence
+
+        # ---- G1 + D4: rule_type —— ingestion 只写 **derived**，绝不写 approved ----
+        # derived 是确定性推导，**不等于** human-approved，更**不等于** Trust VERIFIED。
+        # ``rule_type``（有效值）与 ``rule_type_derived`` 同为 derived；``rule_type_approved``
+        # 保持 None，直到由携带合法 Trust 绑定 provenance 的人工批准写入。
+        _rule = build_rule_from_real_record(record)
+        record["rule_type_derived"] = _rule.rule_type_derived
+        record["rule_type"] = _rule.rule_type
+        record["rule_type_source"] = _rule.rule_type_source
+        record["rule_type_approved"] = None
+        record["rule_type_approval"] = None
+        # 硬约束：ingestion 不得生成 approved / VERIFIED 事实。
+        if record["rule_type_source"] != "derived" or record["rule_type_approved"] is not None:
+            raise IngestionRejected(
+                "rule_type must stay derived at ingestion (approved is Human-Approval only)")
 
         # ---- Atomic write (temp → fsync → replace) ----
         updated = existing + [record]
@@ -355,6 +478,9 @@ def ingest_verified_evidence(
             "policy_content_identity": policy_content_identity,
             "source_url": source_url,
             "verified_event_id": verified_event_id,
+            "trust_content_identity": trust_content_identity,
+            "verifier_id": verifier_id,
+            "verifier_role": verifier_role,
             "ingested_at": _utcnow(),
             "status": "ingested",
         })

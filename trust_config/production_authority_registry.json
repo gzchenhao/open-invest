@@ -1,0 +1,14 @@
+{
+  "authorities": [
+    {
+      "verifier_id": "human-reviewer-howard",
+      "role": "human_verifier",
+      "active": true,
+      "metadata": {
+        "display_name": "OpenInvest Human Reviewer (Howard)",
+        "provisioned_by": "P4-12E",
+        "note": "Production human_verifier authorized by project lead Howard. This is a SEPARATE production config file from local_config/p4-2_authority_registry.json (P4-2 DEV/TEST). Contains NO verification events and NO credentials."
+      }
+    }
+  ]
+}

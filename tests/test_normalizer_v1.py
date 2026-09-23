@@ -191,9 +191,10 @@ def test_quote_is_verbatim_not_rewritten():
 def test_real_policies_untouched():
     data = json.loads(REAL_POLICIES.read_text(encoding="utf-8"))
     arr = data["policies"] if isinstance(data, dict) and "policies" in data else data
-    assert len(arr) == 20
     ids = {p["id"] for p in arr}
-    assert ids == set(range(101, 121))
+    # grandfather REAL 101–120 must remain present and intact
+    # (post-P3-7 the dataset also contains the first ingested REAL 121).
+    assert set(range(101, 121)).issubset(ids)
     for p in arr:
         assert p["is_mock"] is False
         assert p["verification_status"] == "unverified"
