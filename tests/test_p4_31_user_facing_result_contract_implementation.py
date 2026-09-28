@@ -28,9 +28,11 @@ from global_policy_aggregator.web.production_nl_entry import (  # noqa: E402
 from global_policy_aggregator.nl_extraction.extractor import ProviderUnavailable  # noqa: E402
 
 _POLICY_CI = "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b"
-_TRUST_CI = "b4012feb48e86e999b3149eb42fd62d91f1a8049e22daeda24d9dd4a89292937"
-_EVIDENCE_ID = "ev_1e2d555ae07193b5c257"
-_VERIFICATION_EVENT_ID = "fc50856de78547df8dc5d9f29b4b270d"
+# P6-3.18: Context A now binds to its own per-context evidence/event (not legacy
+# shared ev_1e2d555 / fc50856), so the reported identity reflects the new binding.
+_TRUST_CI = "d3c560c0ca03153283c06b7b68e8e6c5fbfff2fa0711f97786e54e2ad29c52db"
+_EVIDENCE_ID = "ev_ctx_122_context_a"
+_VERIFICATION_EVENT_ID = "d8d5cc1dbd394eb58ccb501116e98487"
 _EVENT_LOG = os.path.join(REPO_ROOT, "trust_config", "production_trust_events.jsonl")
 _BANNED_APP_KEYS = {
     "government_approved", "application_submitted", "guaranteed_payment",
@@ -312,7 +314,8 @@ def test_i_p4_28_fields_present_and_ci_separate():
     assert prov["policy_content_identity"] == _POLICY_CI
     assert prov["trust_content_identity"] == _TRUST_CI
     assert prov["policy_content_identity"] != prov["trust_content_identity"]
-    # evidence_id / verification_event_id 真实值未变
+    # P6-3.18: Context A provenance now reflects the per-context binding
+    # (ev_ctx_122_context_a / d8d5cc1d), i.e. the changed identity is intended.
     assert prov["evidence_id"] == _EVIDENCE_ID
     assert prov["verification_event_id"] == _VERIFICATION_EVENT_ID
     # 全 response 无政府审批类 KEY

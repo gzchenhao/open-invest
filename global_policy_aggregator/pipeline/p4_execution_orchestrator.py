@@ -26,16 +26,42 @@ from global_policy_aggregator.matching import (
 from global_policy_aggregator.pipeline.p4_execution_state import (
     assess_execution_readiness,
     execution_blocking_ready,
+    _resolve_trust_identity,
 )
 from global_policy_aggregator.pipeline.p4_rule_operator import evaluate_policy
 
 
+def _active_context_key(record: Dict[str, Any]) -> Optional[str]:
+    """决定该 policy 默认执行上下文对应的 trust_bindings key（P6-3.18）。
+
+    REAL122 同时存在 Context A（primary / 顶层 rule_type）与 Context B（variant）。
+    默认执行上下文为 A：若 policy 声明了 ``trust_bindings['context_a']`` 则使用它，
+    否则回退顶层 legacy（返回 None）。Context B 由独立路径（context_b_execution）
+    处理，不会在此被当作 A 的 binding，也不允许跨 context 继承。
+    """
+    tb = record.get("trust_bindings") or {}
+    if "context_a" in tb:
+        return "context_a"
+    return None
+
+
 def _build_provenance(pol: Dict[str, Any],
-                      trust_service: Optional[Any]) -> Dict[str, Any]:
+                      trust_service: Optional[Any],
+                      context_key: Optional[str] = None) -> Dict[str, Any]:
     """构建可供 UI 消费的完整 provenance（只读；绝不创建 verification event）。
 
     Policy 层字段来自 REAL record（恒可用）；Trust 层字段来自正式 Trust 服务的
     只读 ``check_verified_validity``（严格的 VERIFIED gate，不推断、不新建）。
+
+    信任绑定解析（P6-3.18，与 ``_trust_provenance_valid`` 完全一致）：
+    优先读取 ``trust_bindings[context_key]`` 的 per-context ``evidence_id``，否则
+    回退顶层 legacy ``evidence_id``。``evidence_id`` 字段与后续 Trust 校验均使用
+    解析后的 id，从而保证 provenance **报告**与 readiness **门禁**一致地反映 Context
+    A 的独立证据（``ev_ctx_122_context_a``），而非共享 legacy 证据。
+
+    跨上下文隔离守卫（Case G）：当请求 ``context_key`` 时，被绑定 evidence 的
+    ``metadata.context_id`` 必须等于 ``context_key``，否则 fail-closed（不报告任何
+    Trust VERIFIED provenance）。
 
     严格区分：
     - ``policy_content_identity`` = REAL record content_identity（Policy CI）
@@ -43,23 +69,39 @@ def _build_provenance(pol: Dict[str, Any],
 
     二者**绝不合并为同一字段**。record-local verification_status 不被当作 Trust VERIFIED。
     """
+    # per-context binding 优先，否则回退顶层 legacy（与 gate 同一解析函数）
+    resolved_evidence_id, _claimed_event_id = _resolve_trust_identity(pol, context_key)
     prov: Dict[str, Any] = {
         "policy_id": pol.get("id"),
         "source_url": pol.get("source_url"),
         "snapshot_ref": pol.get("snapshot_ref"),
         "policy_content_identity": pol.get("content_identity"),
-        "evidence_id": pol.get("evidence_id"),
+        "evidence_id": resolved_evidence_id,
         "trust_content_identity": None,
         "verification_event_id": None,
         "verifier_id": None,
         "verifier_role": None,
         "trust_verification_status": None,
     }
-    if trust_service is not None:
-        ev_id = pol.get("evidence_id")
-        if ev_id:
+    if trust_service is not None and resolved_evidence_id:
+        # Case G 隔离守卫（与 _trust_provenance_valid 一致）：被绑定 evidence 的
+        # metadata.context_id 必须等于请求的 context_key，否则 fail-closed。
+        if context_key:
             try:
-                vr = trust_service.check_verified_validity(ev_id)
+                ev_obj = trust_service.get_evidence(resolved_evidence_id)
+                if ev_obj.get("success"):
+                    ctx = (ev_obj.get("evidence") or {}).get("metadata", {}).get("context_id")
+                    if ctx and ctx != context_key:
+                        prov["trust_verification_status"] = "REJECTED_CROSS_CONTEXT"
+                        prov["trust_verification_status_detail"] = (
+                            f"跨上下文绑定被拒绝：evidence context_id={ctx} "
+                            f"不等于请求 context_key={context_key}（fail-closed）")
+                        trust_service = None
+            except Exception:
+                pass
+        if trust_service is not None:
+            try:
+                vr = trust_service.check_verified_validity(resolved_evidence_id)
                 prov["trust_verification_status"] = vr.get("current_verification_status")
                 prov["trust_content_identity"] = vr.get("current_content_identity")
                 latest = vr.get("latest_verified_event")
@@ -251,7 +293,9 @@ def evaluate_project_against_policies(
 
     results: List[Dict[str, Any]] = []
     for pol in policies:
-        readiness = assess_execution_readiness(pol, trust_service=trust_service)
+        context_key = _active_context_key(pol)
+        readiness = assess_execution_readiness(
+            pol, trust_service=trust_service, context_key=context_key)
         state = readiness["state"]
         entry: Dict[str, Any] = {
             "policy_id": pol.get("id"),
@@ -286,7 +330,7 @@ def evaluate_project_against_policies(
             entry["evidence_refs"] = []
             # 解释层字段仍按可用信息填充（Policy 层恒可用；Trust 层在无 gate 时为 None）
             entry["policy_rule"] = None
-            entry["provenance"] = _build_provenance(pol, trust_service)
+            entry["provenance"] = _build_provenance(pol, trust_service, context_key)
             entry["per_person_eligibility"] = None
             entry["missing_inputs"] = None
             entry["limitations"] = readiness["reasons"]
@@ -309,7 +353,7 @@ def evaluate_project_against_policies(
             "rule_type_source": ev.get("rule_type_source"),
         }
         # 完整 provenance：Policy CI 与 Trust CI 在独立字段，严格分离（P4-31-4 附加语义说明）
-        entry["provenance"] = _build_provenance(pol, trust_service)
+        entry["provenance"] = _build_provenance(pol, trust_service, context_key)
         # 结构化逐人 eligibility 解释（不改判定逻辑；P4-31-1 附加层级语义）
         entry["per_person_eligibility"] = _enrich_per_person_eligibility(pp)
         # P4-31-3：确定性缺失输入清单（仅来自既有 UNKNOWN 结构）

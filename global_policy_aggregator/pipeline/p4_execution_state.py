@@ -129,24 +129,66 @@ def _is_verified(entry: Dict[str, Any]) -> bool:
     return entry.get("verified") is True
 
 
-def _trust_provenance_valid(record: Dict[str, Any], trust_service: Any) -> bool:
+def _resolve_trust_identity(
+    record: Dict[str, Any],
+    context_key: Optional[str],
+) -> "tuple[str, str]":
+    """解析用于 Trust provenance 校验的 ``(evidence_id, verified_event_id)``。
+
+    per-context binding 优先：当 ``context_key`` 为有效 key 且
+    ``trust_bindings[context_key]`` 含完整 binding 时，使用该 binding（P6-3.18：
+    Context A / B 各自独立 evidence）；否则回退到顶层 legacy ``evidence_id`` /
+    ``verified_event_id``（无 trust_bindings 的旧政策保持既有行为，避免无关政策
+    regression）。
+
+    不允许跨 context 继承：本函数只读取“请求 context”的 binding 或顶层 legacy，
+    绝不把 Context B binding 当作 Context A 使用。
+    """
+    tb = record.get("trust_bindings") or {}
+    if context_key and isinstance(tb.get(context_key), dict):
+        b = tb[context_key]
+        ev = b.get("evidence_id")
+        ve = b.get("verified_event_id")
+        if ev and ve:
+            return ev, ve
+    return record.get("evidence_id"), record.get("verified_event_id")
+
+
+def _trust_provenance_valid(
+    record: Dict[str, Any],
+    trust_service: Any,
+    context_key: Optional[str] = None,
+) -> bool:
     """Trust-owned VERIFIED provenance 绑定（fail-closed）。
 
     绑定规则：
     - trust_service 必须注入（调用方提供真实 Trust 服务；本模块不引入 src.trust）。
-    - record 必须携带 evidence_id 与 verified_event_id（P3-7 绑定）。
+    - 通过 ``_resolve_trust_identity`` 解析 ``(evidence_id, verified_event_id)``：
+      优先 per-context binding（``trust_bindings[context_key]``），否则顶层 legacy
+      字段（P3-7 绑定）。
     - trust_service.check_verified_validity(evidence_id) 必须 is_valid（覆盖：
       human 'verified' 事件存在、无后续 revoke、content_identity 与当前 evidence
       一致、非 MOCK、authority registry 已绑定）。
-    - record 的 verified_event_id 必须等于当前有效 verified 事件的 event_id
+    - 解析出的 verified_event_id 必须等于当前有效 verified 事件的 event_id
       （防止“有 verified_event_id 即视为全部已验证”及 stale/revoked 冒用）。
     """
     if trust_service is None:
         return False
-    evidence_id = record.get("evidence_id")
-    claimed_event_id = record.get("verified_event_id")
+    evidence_id, claimed_event_id = _resolve_trust_identity(record, context_key)
     if not evidence_id or not claimed_event_id:
         return False
+    # per-context binding 隔离保证（Case G）：被绑定 evidence 的 metadata.context_id
+    # 必须与请求的 context_key 一致；否则视为非法 cross-context binding，直接 fail-closed。
+    # legacy 回退（context_key 为 None / 顶层 binding）不触发此检查。
+    if context_key:
+        try:
+            ev_obj = trust_service.get_evidence(evidence_id)
+            if ev_obj.get("success"):
+                ctx = (ev_obj.get("evidence") or {}).get("metadata", {}).get("context_id")
+                if ctx and ctx != context_key:
+                    return False
+        except Exception:
+            pass
     try:
         res = trust_service.check_verified_validity(evidence_id)
     except Exception:
@@ -161,10 +203,16 @@ def _trust_provenance_valid(record: Dict[str, Any], trust_service: Any) -> bool:
     return True
 
 
-def _field_verified(record: Dict[str, Any], field: str, trust_service: Any) -> bool:
+def _field_verified(
+    record: Dict[str, Any],
+    field: str,
+    trust_service: Any,
+    context_key: Optional[str] = None,
+) -> bool:
     """执行关键字段是否可视为已验证。
 
-    - 注入 trust_service：仅当整条 record 的 Trust VERIFIED provenance 有效时成立。
+    - 注入 trust_service：仅当整条 record 的 Trust VERIFIED provenance 有效时成立；
+      provenance 按 ``context_key`` 解析（per-context binding 优先，否则顶层 legacy）。
     - 未注入 trust_service：生产记录 fail-closed（False）；仅 is_mock fixture 沿用
       record-local ``verified`` 标记（测试用途，非生产旁路）。
     - 字段必须有完整可追溯的 field_evidence 方可验证。
@@ -173,7 +221,7 @@ def _field_verified(record: Dict[str, Any], field: str, trust_service: Any) -> b
     if entry is None or not _evidence_complete(entry):
         return False
     if trust_service is not None:
-        return _trust_provenance_valid(record, trust_service)
+        return _trust_provenance_valid(record, trust_service, context_key=context_key)
     if record.get("is_mock") is True:
         return _is_verified(entry)
     return False
@@ -194,6 +242,7 @@ def _critical_applies(record: Dict[str, Any], field: str) -> bool:
 def assess_execution_readiness(
     record: Dict[str, Any],
     trust_service: Optional[Any] = None,
+    context_key: Optional[str] = None,
 ) -> Dict[str, Any]:
     """只读评估一条 Policy 的 Execution 就绪状态。
 
@@ -201,6 +250,10 @@ def assess_execution_readiness(
         record: Policy 记录（不修改）。
         trust_service: 可选注入的 Trust 服务（只读），用于核实 VERIFIED provenance。
             生产环境应注入真实 TrustEvidenceService；不注入时生产记录 fail-closed。
+        context_key: 可选 per-context binding key（如 ``"context_a"`` /
+            ``"ctx_122_stabilization_subsidy"``）。提供时，Trust provenance 优先
+            读取 ``trust_bindings[context_key]``；否则回退顶层 legacy 字段。
+            ``None`` 时保持 P6-3.18 前的 legacy 行为（顶层 evidence_id/verified_event_id）。
 
     Returns:
         {
@@ -307,7 +360,7 @@ def assess_execution_readiness(
             continue
         if not _evidence_complete(entry):
             evidence_gaps.append(f)
-        if not _field_verified(record, f, trust_service):
+        if not _field_verified(record, f, trust_service, context_key=context_key):
             unverified_critical_fields.append(f)
 
     # ---- 3. OPTIONAL 三态（PRESENT / MISSING / NOT_APPLICABLE）----
@@ -402,6 +455,9 @@ def execution_blocking_ready(readiness: Dict[str, Any]) -> bool:
 def is_execution_ready(
     record: Dict[str, Any],
     trust_service: Optional[Any] = None,
+    context_key: Optional[str] = None,
 ) -> bool:
     """便捷判断：state == EXECUTION_READY。"""
-    return assess_execution_readiness(record, trust_service=trust_service)["state"] == STATE_EXECUTION_READY
+    return assess_execution_readiness(
+        record, trust_service=trust_service, context_key=context_key
+    )["state"] == STATE_EXECUTION_READY

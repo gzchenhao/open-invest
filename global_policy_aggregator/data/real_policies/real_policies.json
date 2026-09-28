@@ -579,6 +579,16 @@
     "verification_status": "unverified",
     "content_identity": "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b",
     "verified_event_id": "fc50856de78547df8dc5d9f29b4b270d",
+    "trust_bindings": {
+      "ctx_122_stabilization_subsidy": {
+        "evidence_id": "ev_ctx_122_stabilization_subsidy",
+        "verified_event_id": "a060ee6f9d1945bca55e8dbe593f5891"
+      },
+      "context_a": {
+        "evidence_id": "ev_ctx_122_context_a",
+        "verified_event_id": "d8d5cc1dbd394eb58ccb501116e98487"
+      }
+    },
     "trust_content_identity": "b4012feb48e86e999b3149eb42fd62d91f1a8049e22daeda24d9dd4a89292937",
     "verifier_id": "human-reviewer-howard",
     "verifier_role": "human_verifier",

@@ -27,9 +27,11 @@ from global_policy_aggregator.nl_extraction import FakeProvider  # noqa: E402
 from global_policy_aggregator.nl_extraction.extractor import ProviderUnavailable  # noqa: E402
 
 _POLICY_CI = "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b"
-_TRUST_CI = "b4012feb48e86e999b3149eb42fd62d91f1a8049e22daeda24d9dd4a89292937"
-_EVIDENCE_ID = "ev_1e2d555ae07193b5c257"
-_VERIFICATION_EVENT_ID = "fc50856de78547df8dc5d9f29b4b270d"
+# P6-3.18: Context A now binds to its own per-context evidence/event (not the legacy
+# shared ev_1e2d555 / fc50856). These pins reflect the new contract.
+_TRUST_CI = "d3c560c0ca03153283c06b7b68e8e6c5fbfff2fa0711f97786e54e2ad29c52db"
+_EVIDENCE_ID = "ev_ctx_122_context_a"
+_VERIFICATION_EVENT_ID = "d8d5cc1dbd394eb58ccb501116e98487"
 _EVENT_LOG = os.path.join(REPO_ROOT, "trust_config", "production_trust_events.jsonl")
 _BANNED_APP_KEYS = {
     "government_approved", "application_submitted", "guaranteed_payment",
@@ -389,16 +391,22 @@ def test_trust_ci_separated_independent():
 
 
 # ───────── GOVERNANCE ─────────
+# P6-3.18（M1/M3）向 durable Production Event Log 合法新增 Context A 独立证据
+# ev_ctx_122_context_a 及其人工核验事件，基线由 1 → 4。断言仅保证 assess 不
+# 创建/追加事件（before == after），不回退生产契约。
+_EVENT_LOG_BASELINE = 4
+
+
 def test_event_log_still_exactly_one():
     n = sum(1 for ln in open(_EVENT_LOG, encoding="utf-8") if ln.strip())
-    assert n == 1
+    assert n == _EVENT_LOG_BASELINE
 
 
 def test_assess_does_not_mutate_event_log(monkeypatch):
     before = sum(1 for ln in open(_EVENT_LOG, encoding="utf-8") if ln.strip())
     _run(_CaseAProv())
     after = sum(1 for ln in open(_EVENT_LOG, encoding="utf-8") if ln.strip())
-    assert before == after == 1
+    assert before == after == _EVENT_LOG_BASELINE
 
 
 def test_no_real_123_plus():

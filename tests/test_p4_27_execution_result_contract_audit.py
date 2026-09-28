@@ -23,7 +23,10 @@ from global_policy_aggregator.nl_extraction import FakeProvider  # noqa: E402
 from global_policy_aggregator.nl_extraction.contract import FORBIDDEN_FIELDS  # noqa: E402
 
 _POLICY_CI = "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b"
-_TRUST_CI = "b4012feb48e86e999b3149eb42fd62d91f1a8049e22daeda24d9dd4a89292937"
+# P6-3.18：Context A 现拥有独立证据 ev_ctx_122_context_a，其 Trust content_identity 为
+# d3c560c0…（取代 legacy fc50856 / ev_1e2d555 共享绑定）。此为已正式改变的 production
+# contract，审计引脚同步更新。
+_TRUST_CI = "d3c560c0ca03153283c06b7b68e8e6c5fbfff2fa0711f97786e54e2ad29c52db"
 
 # 过度承诺词（BLOCKER 级别）：出现任一即视为越界
 _OVER_CLAIM = [

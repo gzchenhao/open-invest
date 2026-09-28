@@ -67,24 +67,34 @@ class _VerifiedTrustStub:
     仅返回 P4-3.1 ``_trust_provenance_valid`` 所依赖的形状：is_valid=True 且
     latest_verified_event.event_id == record.verified_event_id。不读取/不写入任何
     Trust 文件、不产生任何 Trust event。其它 evidence_id 一律 invalid（fail-closed）。
+
+    P6-3.18：production 现在为 Context A 加载独立的 per-context evidence
+    （``ev_ctx_122_context_a``，见 ``trust_evidence_bootstrap``），因此 stub 也按
+    REAL122 的 ``trust_bindings`` 接受该 binding（最小、明确、有理由的调整，反映
+    已正式改变的 production contract）。
     """
 
-    def __init__(self, evidence_id, verified_event_id):
-        self._eid = evidence_id
-        self._veid = verified_event_id
+    def __init__(self, pairs):
+        # pairs: list[(evidence_id, verified_event_id)]
+        self._pairs = set(pairs)
 
     def check_verified_validity(self, evidence_id):
-        if evidence_id == self._eid:
-            return {
-                "is_valid": True,
-                "latest_verified_event": {"event_id": self._veid},
-            }
+        for ev, ve in self._pairs:
+            if evidence_id == ev:
+                return {
+                    "is_valid": True,
+                    "latest_verified_event": {"event_id": ve},
+                }
         return {"is_valid": False, "reasons": ["evidence not verified"]}
 
 
 def _trust():
     r = _real122()
-    return _VerifiedTrustStub(r["evidence_id"], r["verified_event_id"])
+    pairs = [(r["evidence_id"], r["verified_event_id"])]
+    tb = r.get("trust_bindings", {})
+    if tb.get("context_a"):
+        pairs.append((tb["context_a"]["evidence_id"], tb["context_a"]["verified_event_id"]))
+    return _VerifiedTrustStub(pairs)
 
 
 # ===================== A. orchestrator 全满足 =====================
@@ -227,7 +237,9 @@ def test_11_no_new_trust_event():
         e for e in events
         if e.get("event_type") == "verification" or e.get("decision") == "verified"
     ]
-    assert len(verified) == 1, f"production verification event 数应为 1，实际 {len(verified)}"
+    # P6-3.18（M1/M3）向 durable Event Log 合法新增 Context A 独立证据及其验证事件，
+    # 基线由 1 → 4。本断言仅保证验证事件数 == durable 基线（不被运行时追加）。
+    assert len(verified) == 4, f"production verification event 数应为 4（P6-3.18 durable 基线），实际 {len(verified)}"
 
 
 # ===================== 12. raw hired_persons 不得冒充 eligible =====================

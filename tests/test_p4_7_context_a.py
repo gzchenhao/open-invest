@@ -37,7 +37,10 @@ P4_7_REAL_101_121_PREFIX_SHA = "6a8628030138a8b12ecdd72fa79c1361e058c55ad2d39ad2
 # P4-17 post-change baseline: production file after the authorized GAP-5 addition of
 # REAL 122 field_evidence["eligibility_conditions"]. Computed from the real file
 # (0feb4328…); pins the WHOLE current file against any future unauthorized change.
-P4_17_BASELINE_SHA = "0feb43282744d38a16d95ae06451a6bef9df73c48a27624f163470d8878d01bb"
+# P6-3.18 refresh: REAL 122 received an *additive* trust_bindings["context_a"] (per-context
+# active binding for Context A). No provenance/contract field changed. The whole-file SHA
+# therefore legitimately diverged from the P4-17 baseline; this is the new authorized state.
+P4_17_BASELINE_SHA = "c3e13fafb09adbc9699009fcd473af4564f8ba9cd199faec4c37ef150478025d"
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -275,3 +278,13 @@ def test_p4_17_real_122_gap5_field_evidence_invariant():
     assert ec["content_identity"] == rec122["content_identity"]
     assert ec["source_url"] == rec122["source_url"]
     assert ec["snapshot_ref"] == rec122["snapshot_ref"]
+    # P6-3.18: REAL 122 now carries per-context trust_bindings (additive; legacy
+    # top-level evidence_id/verified_event_id/CI untouched). Context B binding unchanged.
+    tb = rec122.get("trust_bindings", {})
+    assert set(tb.keys()) == {"ctx_122_stabilization_subsidy", "context_a"}, tb.keys()
+    assert tb["ctx_122_stabilization_subsidy"] == {
+        "evidence_id": "ev_ctx_122_stabilization_subsidy",
+        "verified_event_id": "a060ee6f9d1945bca55e8dbe593f5891",
+    }
+    assert tb["context_a"]["evidence_id"] == "ev_ctx_122_context_a"
+    assert tb["context_a"]["verified_event_id"] == "d8d5cc1dbd394eb58ccb501116e98487"

@@ -26,6 +26,7 @@ if REPO_ROOT not in sys.path:
 from src.trust.trust_service import TrustEvidenceService  # noqa: E402
 from global_policy_aggregator.pipeline.trust_evidence_bootstrap import (  # noqa: E402
     load_context_a_evidence,
+    load_context_a_new_evidence,
 )
 from global_policy_aggregator.web.production_nl_entry import (  # noqa: E402
     assess, load_real_policies, _build_trust_service, app,
@@ -35,10 +36,18 @@ from global_policy_aggregator.nl_extraction import extract_and_evaluate  # noqa:
 
 _REAL_EVENT_LOG = os.path.join(REPO_ROOT, "trust_config", "production_trust_events.jsonl")
 _REAL_REGISTRY = os.path.join(REPO_ROOT, "trust_config", "production_authority_registry.json")
+# legacy（保留用于 anti-bypass 测试）
 _CONTEXT_A = "ev_1e2d555ae07193b5c257"
 _VERIFIED_EVENT_ID = "fc50856de78547df8dc5d9f29b4b270d"
 _POLICY_CONTENT_IDENTITY = "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b"
 _TRUST_CONTENT_IDENTITY = "b4012feb48e86e999b3149eb42fd62d91f1a8049e22daeda24d9dd4a89292937"
+# P6-3.18：Context A 现拥有独立证据及其 Trust 绑定（取代 legacy 共享绑定）
+_CONTEXT_A_NEW = "ev_ctx_122_context_a"
+_VERIFIED_EVENT_ID_NEW = "d8d5cc1dbd394eb58ccb501116e98487"
+_TRUST_CONTENT_IDENTITY_NEW = "d3c560c0ca03153283c06b7b68e8e6c5fbfff2fa0711f97786e54e2ad29c52db"
+# P6-3.18（M1/M3）向 durable Production Event Log 合法新增 Context A 独立证据及其
+# 人工核验事件，基线由 1 → 4。审计仅保证日志不被运行时追加（== baseline），不回退生产契约。
+_EVENT_LOG_BASELINE = 4
 
 
 def _real122() -> dict:
@@ -115,24 +124,26 @@ def test_fresh_runtime_bootstrap_gate():
         event_log_path=_REAL_EVENT_LOG,
         authority_registry_config_path=_REAL_REGISTRY,
     )
-    r = load_context_a_evidence(svc)
+    r = load_context_a_evidence(svc)  # legacy ev_1e2d555（保留）
     assert r["success"] is True
-    assert r["verification_status"] == "UNVERIFIED"  # 初始强制 UNVERIFIED
+    r2 = load_context_a_new_evidence(svc)  # P6-3.18 独立 Context A 证据
+    assert r2["success"] is True
+    assert r2["verification_status"] == "UNVERIFIED"  # 初始强制 UNVERIFIED
 
-    ge = svc.get_evidence(_CONTEXT_A)
+    ge = svc.get_evidence(_CONTEXT_A_NEW)
     assert ge["success"] is True
     assert ge["verification_status"] == "UNVERIFIED"
 
-    cv = svc.check_verified_validity(_CONTEXT_A)
+    cv = svc.check_verified_validity(_CONTEXT_A_NEW)
     assert cv["is_valid"] is True
     assert cv["reasons"] == []
-    # Trust Evidence content_identity（与 verified event 一致）
-    assert cv["current_content_identity"] == _TRUST_CONTENT_IDENTITY
-    assert cv["latest_verified_event"]["event_id"] == _VERIFIED_EVENT_ID
+    # Trust Evidence content_identity（与独立 Context A 验证事件一致）
+    assert cv["current_content_identity"] == _TRUST_CONTENT_IDENTITY_NEW
+    assert cv["latest_verified_event"]["event_id"] == _VERIFIED_EVENT_ID_NEW
 
-    # 绝不从 Event Log 合成 Evidence；Event Log 仍仅 1 条
-    assert svc.get_verification_history(_CONTEXT_A)["event_count"] == 1
-    assert _event_log_count() == 1
+    # 绝不从 Event Log 合成 Evidence；durable Event Log 基线（P6-3.18 合法扩展）为 4 条
+    assert svc.get_verification_history(_CONTEXT_A_NEW)["event_count"] == 1
+    assert _event_log_count() == _EVENT_LOG_BASELINE
 
 
 def test_trust_no_event_log_synthesis():
@@ -268,12 +279,13 @@ def test_provenance_trace_policy_vs_trust_identity():
         for ref in refs
     )
 
-    # Trust Evidence content_identity（b4012feb）与 Policy content_identity（1e2d555）区分正确
-    cv = svc.check_verified_validity(_CONTEXT_A)
-    assert cv["current_content_identity"] == _TRUST_CONTENT_IDENTITY
-    assert _TRUST_CONTENT_IDENTITY != _POLICY_CONTENT_IDENTITY
-    # 两者通过同一 evidence_id 关联
-    assert cv["latest_verified_event"]["event_id"] == _VERIFIED_EVENT_ID
+    # Trust Evidence content_identity（独立 Context A 的 d3c560c0）与 Policy
+    # content_identity（1e2d555）区分正确
+    cv = svc.check_verified_validity(_CONTEXT_A_NEW)
+    assert cv["current_content_identity"] == _TRUST_CONTENT_IDENTITY_NEW
+    assert _TRUST_CONTENT_IDENTITY_NEW != _POLICY_CONTENT_IDENTITY
+    # 两者通过独立 Context A evidence_id 关联
+    assert cv["latest_verified_event"]["event_id"] == _VERIFIED_EVENT_ID_NEW
 
 
 # ───────────────────────── E. READINESS BOUNDARY ─────────────────────────
@@ -389,8 +401,9 @@ def test_ab5_user_stated_count_not_bypass():
 
 # ───────────────────────── G. GOVERNANCE ─────────────────────────
 def test_governance_event_log_unchanged():
-    # 运行若干 E2E 后，生产 Event Log 仍仅 1 条，event_id 不变
-    assert _event_log_count() == 1
+    # 运行若干 E2E 后，生产 Event Log 仍 == durable 基线（P6-3.18 合法扩展为 4 条），
+    # 且首条（legacy fc50856）event_id / evidence_id / decision 不变（不被运行时追加/改写）。
+    assert _event_log_count() == _EVENT_LOG_BASELINE
     events = [json.loads(l) for l in open(_REAL_EVENT_LOG, encoding="utf-8") if l.strip()]
     assert events[0]["event_id"] == _VERIFIED_EVENT_ID
     assert events[0]["evidence_id"] == _CONTEXT_A

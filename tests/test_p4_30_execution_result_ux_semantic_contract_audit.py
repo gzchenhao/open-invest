@@ -25,7 +25,9 @@ from global_policy_aggregator.nl_extraction import FakeProvider  # noqa: E402
 from global_policy_aggregator.nl_extraction.extractor import ProviderUnavailable  # noqa: E402
 
 _POLICY_CI = "1e2d555ae07193b5c2574f6cd426b2028068fa266461e899462e493c0f8ae76b"
-_TRUST_CI = "b4012feb48e86e999b3149eb42fd62d91f1a8049e22daeda24d9dd4a89292937"
+# P6-3.18: Context A now binds to its own per-context evidence/event (not legacy
+# shared ev_1e2d555 / fc50856), so the reported trust CI is the new evidence's CI.
+_TRUST_CI = "d3c560c0ca03153283c06b7b68e8e6c5fbfff2fa0711f97786e54e2ad29c52db"
 _EVENT_LOG = os.path.join(REPO_ROOT, "trust_config", "production_trust_events.jsonl")
 # 真正暗示「政府批准/已提交/保付/自动拨付」的字段名（KEY 级精确匹配，不做子串）。
 # 说明：``approved``（rule_type_status.approved，Rule Type 人工批准）、``verified``/
@@ -388,9 +390,15 @@ def test_d8h_trust_unavailable_no_fake():
 
 
 # ───────── D9：Governance（纯只读；不改动 production）─────────
+# P6-3.18（M1/M3）向 durable Production Event Log 合法新增 Context A 独立证据
+# ev_ctx_122_context_a 及其人工核验事件，基线由 1 → 4。断言仅保证 assess 不
+# 创建/追加事件（before == after），不回退生产契约。
+_EVENT_LOG_BASELINE = 4
+
+
 def test_d9_event_log_still_one():
     n = sum(1 for ln in open(_EVENT_LOG, encoding="utf-8") if ln.strip())
-    assert n == 1
+    assert n == _EVENT_LOG_BASELINE
 
 
 def test_d9_no_real_123_plus():
@@ -405,4 +413,4 @@ def test_d9_assess_does_not_mutate_event_log():
     before = sum(1 for ln in open(_EVENT_LOG, encoding="utf-8") if ln.strip())
     _run(_CaseAProv())
     after = sum(1 for ln in open(_EVENT_LOG, encoding="utf-8") if ln.strip())
-    assert before == after == 1
+    assert before == after == _EVENT_LOG_BASELINE

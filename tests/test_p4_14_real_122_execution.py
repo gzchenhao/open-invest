@@ -210,7 +210,9 @@ def test_e_event_log_one_verification():
     verified = [
         e for e in events if e.get("event_type") == "verification" or e.get("decision") == "verified"
     ]
-    assert len(verified) == 1, f"verification event 数应为 1，实际 {len(verified)}"
+    # P6-3.18（M1/M3）向 durable Event Log 合法新增 Context A 独立证据及其验证事件，
+    # 基线由 1 → 4。本断言仅保证验证事件数 == durable 基线（不被运行时追加）。
+    assert len(verified) == 4, f"verification event 数应为 4（P6-3.18 durable 基线），实际 {len(verified)}"
 
 
 def test_e_real122_provenance_unchanged():
