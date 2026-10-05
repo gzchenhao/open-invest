@@ -534,3 +534,57 @@ readiness 门禁通过同一 `_resolve_trust_identity(context_key)` 解析 per-c
 ### Q.6 Commit
 `e7f85d8b5e5e564f01906e1f71fb6a814be53c3a`
 `P6-3.18 align provenance with context trust binding`
+
+## R. P6-3.19 — Unified Per-Context Execution Result Contract (2026-10-05)
+
+### R.1 Purpose
+统一 per-context execution result contract，将 Context B 从 production 旁路能力接入统一 orchestrator pipeline，同时保持 Context A / Context B Trust identity、readiness、provenance 与 benefit 隔离。
+
+### R.2 Design
+采用 P6-3.19 DESIGN SPEC 的 Option A：
+- 每个 policy 按声明的 execution context 生成独立 execution entry；
+- entry 显式包含 `context_key`；
+- Context A 使用 `context_a`；
+- Context B 使用 canonical `ctx_122_stabilization_subsidy`；
+- readiness 与 provenance 使用相同 `context_key`；
+- aggregation / stacking / interaction / winner selection 保持 `NOT_SUPPORTED`。
+
+### R.3 Implementation
+Production orchestrator 新增统一 per-context dispatch，并通过 `_build_context_entry` 构造 context-scoped execution result。
+Context B 的 `execute_context_b()` 现在由统一 orchestrator 调用，不再形成独立 production execution-result contract。
+
+### R.4 Trust Boundary
+P6-3.19 未修改：
+- `src/trust/**`
+- REAL122 policy data
+- production EventLog
+- Trust verification semantics
+Context A / B 继续使用独立 canonical Trust bindings。
+
+### R.5 Verification
+P6-3.19 T1–T12 dedicated contract tests PASS。
+Full regression：`1651 passed / 6 failed / 7 skipped`
+Failures classified as：
+- 1 ENVIRONMENT: `test_p4_29::test_provider_unavailable_endpoint_not_500`
+- 4 PRE_EXISTING: P5 UI encoding assertions
+- 1 EXPECTED: orchestrator zero-diff freeze guard while orchestrator changes were pending commit
+No INTRODUCED behavioral failure identified.
+
+### R.6 Governance
+P6-3.19 FINAL READ-ONLY GOVERNANCE AUDIT: `CONDITIONAL PASS → READY FOR CONTROLLED COMMIT`
+Confirmed：
+- `src/trust/**` ZERO-DIFF
+- REAL122 unchanged
+- production EventLog unchanged
+- A/B context isolation intact
+- readiness identity == provenance identity
+- no aggregation / stacking / interaction / winner implementation
+- no new policy
+- no new endpoint
+
+### R.7 Commit
+P6-3.19 implementation commit:
+`43d5a914242e3910c61b4307294da9205eb74a15`
+Commit message: `P6-3.19 unify per-context execution result contract`
+Handover commit:
+`<TO_BE_FILLED_AFTER_HANDOVER_COMMIT>`
