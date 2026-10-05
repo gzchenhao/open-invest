@@ -29,6 +29,7 @@ from global_policy_aggregator.pipeline.p4_execution_state import (
     _resolve_trust_identity,
 )
 from global_policy_aggregator.pipeline.p4_rule_operator import evaluate_policy
+from global_policy_aggregator.pipeline.context_b_execution import execute_context_b
 
 
 def _active_context_key(record: Dict[str, Any]) -> Optional[str]:
@@ -43,6 +44,63 @@ def _active_context_key(record: Dict[str, Any]) -> Optional[str]:
     if "context_a" in tb:
         return "context_a"
     return None
+
+
+# ───────────────────────── P6-3.19: per-context execution contract ─────────────────────────
+# Canonical context identifiers — reuse existing trust_bindings keys; do NOT invent a 3rd B id.
+_CONTEXT_A_KEY = "context_a"
+_CONTEXT_B_KEY = "ctx_122_stabilization_subsidy"
+_CONTEXT_ID_MAP = {
+    _CONTEXT_A_KEY: "Context A",
+    _CONTEXT_B_KEY: "Context B",
+}
+
+
+def _declared_context_keys(record: Dict[str, Any]) -> List[Optional[str]]:
+    """P6-3.19 — the execution-context keys this policy must be evaluated under.
+
+    Declarative source = the policy's ``trust_bindings`` keys (per-context Trust
+    binding). If a policy has none, fall back to the legacy single-context (``None``)
+    path so pre-P6-3.19 behavior is preserved. Context A is ordered first (stable).
+    """
+    tb = record.get("trust_bindings") or {}
+    keys = [k for k in tb.keys() if k]
+    if not keys:
+        return [None]
+    keys.sort(key=lambda k: (k != _CONTEXT_A_KEY, k))
+    return keys
+
+
+def _context_id_for(context_key: Optional[str]) -> str:
+    """Human-readable display label for a context_key (NOT the canonical identity)."""
+    if context_key in _CONTEXT_ID_MAP:
+        return _CONTEXT_ID_MAP[context_key]
+    if context_key is None:
+        return "Context A"  # legacy single-context (no per-context binding)
+    return "Context B"  # unknown key display fallback; canonical identity still via resolver
+
+
+def _context_b_benefit_to_contract(cb: Dict[str, Any]) -> Dict[str, Any]:
+    """Map ``execute_context_b`` output into the SAME benefit schema used by Context A
+    (``_enrich_benefit`` over ``CalculationResult`` keys) so the unified contract keeps a
+    stable benefit schema across contexts. Benefit stays context-scoped; no aggregation/stacking.
+    """
+    raw = {
+        "calculation_status": cb.get("calculation_status"),
+        "calculated_amount": cb.get("benefit_amount"),
+        "currency": cb.get("currency", "CNY"),
+        "unit": None,
+        "formula_applied": (
+            "calculated_amount = project_input[prior_year_ui_premium_paid] * selected_percentage"
+        ),
+        "input_values": cb.get("input_values") or {},
+        "assumptions": [],
+        "evidence_refs": [],
+        "limitations": cb.get("limitations") or [],
+        "explanation": cb.get("engine_explanation") or cb.get("reason") or "",
+        "policy_outcome": None,
+    }
+    return _enrich_benefit(raw, None)
 
 
 def _build_provenance(pol: Dict[str, Any],
@@ -293,79 +351,134 @@ def evaluate_project_against_policies(
 
     results: List[Dict[str, Any]] = []
     for pol in policies:
-        context_key = _active_context_key(pol)
-        readiness = assess_execution_readiness(
-            pol, trust_service=trust_service, context_key=context_key)
-        state = readiness["state"]
-        entry: Dict[str, Any] = {
-            "policy_id": pol.get("id"),
-            "readiness_state": state,
-            "application_readiness": readiness["application_readiness"],
-            "application_gaps": readiness["application_gaps"],
-            "readiness_detail": {
-                "missing_required": readiness["missing_required"],
-                "execution_blocking_missing": readiness["execution_blocking_missing"],
-                "missing_optional": readiness["missing_optional"],
-                "unverified_critical_fields": readiness["unverified_critical_fields"],
-                "evidence_gaps": readiness["evidence_gaps"],
-                "application_gaps": readiness["application_gaps"],
-                "reasons": readiness["reasons"],
-            },
-            "content_identity": pol.get("content_identity"),
-            "snapshot_ref": pol.get("snapshot_ref"),
-            "source_url": pol.get("source_url"),
-        }
-
-        # G5 (P4-17)：仅当存在「执行阻断」缺口（Policy Contract / Trust VERIFIED /
-        # execution-critical Evidence / governance violation）才阻止 Match→Eligibility→
-        # Benefit。Application-only 缺口（application_requirements / ext_procedural_channel）
-        # 不硬阻断执行，仅进入 Application Readiness limitations（P4-11：C 类 procedural
-        # channel 不阻断 Eligibility / Benefit）。Trust Gate 不被降低：unverified_critical_
-        # fields / evidence_gaps 非空即视为执行阻断。
-        if not execution_blocking_ready(readiness):
-            # 执行阻断：不执行 Match / Eligibility / Benefit；保留 readiness 证据
-            entry["match"] = None
-            entry["eligibility"] = None
-            entry["benefit"] = None
-            entry["evidence_refs"] = []
-            # 解释层字段仍按可用信息填充（Policy 层恒可用；Trust 层在无 gate 时为 None）
-            entry["policy_rule"] = None
-            entry["provenance"] = _build_provenance(pol, trust_service, context_key)
-            entry["per_person_eligibility"] = None
-            entry["missing_inputs"] = None
-            entry["limitations"] = readiness["reasons"]
+        # P6-3.19：按 policy 声明的 execution contexts 逐一产出统一 per-context entry；
+        # Context A 排序在前，保持既有行为 / 既有测试（out[0] == Context A）。
+        for context_key in _declared_context_keys(pol):
+            entry = _build_context_entry(
+                pol, context_key, trust_service, prof, facts, project_inputs)
             results.append(entry)
-            continue
-
-        # PARTIAL 或 EXECUTION_READY → 执行 Match → Eligibility → Benefit
-        match = match_project_to_policy(prof, pol)
-        ev = evaluate_policy(pol, project_inputs=project_inputs, project_profile=facts)
-        pp = ev.get("per_person_eligibility")
-        entry["match"] = _match_to_dict(match)
-        # P4-31-1 / P4-31-2：项目级 eligibility / benefit 附加明确语义字段（不改判定/计算）
-        entry["eligibility"] = _enrich_eligibility(ev["eligibility"], pp)
-        entry["benefit"] = _enrich_benefit(ev["benefit"], pp)
-        entry["evidence_refs"] = ev.get("evidence_refs")
-        # ── P4-28：增强 contract 可解释性与 provenance（仅新增结构化字段）──
-        # rule_type 来自已存在的 policy rule definition / REAL 122（非 LLM、非重新推导）
-        entry["policy_rule"] = {
-            "rule_type": ev.get("rule_type"),
-            "rule_type_source": ev.get("rule_type_source"),
-        }
-        # 完整 provenance：Policy CI 与 Trust CI 在独立字段，严格分离（P4-31-4 附加语义说明）
-        entry["provenance"] = _build_provenance(pol, trust_service, context_key)
-        # 结构化逐人 eligibility 解释（不改判定逻辑；P4-31-1 附加层级语义）
-        entry["per_person_eligibility"] = _enrich_per_person_eligibility(pp)
-        # P4-31-3：确定性缺失输入清单（仅来自既有 UNKNOWN 结构）
-        entry["missing_inputs"] = _build_missing_inputs(entry["eligibility"], entry["per_person_eligibility"])
-
-        limits = list(readiness["reasons"])
-        if readiness["application_gaps"]:
-            limits.append("Application Readiness 未就绪（不阻断执行）: "
-                           + ", ".join(readiness["application_gaps"]))
-        if ev["benefit"].get("calculation_status") == "unable_to_calculate":
-            limits.append("Benefit 无法计算（输入/模式缺失），未补任何默认 policy fact")
-        entry["limitations"] = limits
-        results.append(entry)
-
     return results
+
+
+def _build_context_entry(
+    pol: Dict[str, Any],
+    context_key: Optional[str],
+    trust_service: Optional[Any],
+    prof: Any,
+    facts: Dict[str, Any],
+    project_inputs: Optional[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """P6-3.19 — build one unified, per-context execution result entry.
+
+    Every entry carries an explicit ``context_key`` (canonical) + ``context_id``
+    (display) plus the SAME field set regardless of context, so the unified
+    contract keeps a stable schema. Trust readiness and provenance are resolved
+    with the SAME ``context_key`` (readiness identity == provenance identity).
+    Context B reuses ``execute_context_b`` for its benefit; it is NOT a parallel
+    pipeline and never bypasses readiness / provenance / canonical resolver.
+    """
+    readiness = assess_execution_readiness(
+        pol, trust_service=trust_service, context_key=context_key)
+    state = readiness["state"]
+    entry: Dict[str, Any] = {
+        "policy_id": pol.get("id"),
+        "context_key": context_key,
+        "context_id": _context_id_for(context_key),
+        "readiness_state": state,
+        "application_readiness": readiness["application_readiness"],
+        "application_gaps": readiness["application_gaps"],
+        "readiness_detail": {
+            "missing_required": readiness["missing_required"],
+            "execution_blocking_missing": readiness["execution_blocking_missing"],
+            "missing_optional": readiness["missing_optional"],
+            "unverified_critical_fields": readiness["unverified_critical_fields"],
+            "evidence_gaps": readiness["evidence_gaps"],
+            "application_gaps": readiness["application_gaps"],
+            "reasons": readiness["reasons"],
+        },
+        "content_identity": pol.get("content_identity"),
+        "snapshot_ref": pol.get("snapshot_ref"),
+        "source_url": pol.get("source_url"),
+        # Governance guardrails (always present; explicit non-support, not gaps)
+        "aggregation_status": "NOT_SUPPORTED",
+        "stacking_status": "NOT_SUPPORTED",
+        "interaction_status": "NOT_SUPPORTED",
+        "winner_selection": "NOT_SUPPORTED",
+    }
+
+    # G5 (P4-17)：仅当存在「执行阻断」缺口（Policy Contract / Trust VERIFIED /
+    # execution-critical Evidence / governance violation）才阻止 Match→Eligibility→
+    # Benefit。Application-only 缺口（application_requirements / ext_procedural_channel）
+    # 不硬阻断执行，仅进入 Application Readiness limitations。Trust Gate 不被降低：
+    # unverified_critical_fields / evidence_gaps 非空即视为执行阻断。
+    if not execution_blocking_ready(readiness):
+        # 执行阻断：不执行 Match / Eligibility / Benefit；保留 readiness 证据
+        entry["match"] = None
+        entry["eligibility"] = None
+        entry["benefit"] = None
+        entry["evidence_refs"] = []
+        # 解释层字段仍按可用信息填充（Policy 层恒可用；Trust 层在无 gate 时为 None）
+        entry["policy_rule"] = None
+        entry["provenance"] = _build_provenance(pol, trust_service, context_key)
+        entry["per_person_eligibility"] = None
+        entry["missing_inputs"] = None
+        entry["limitations"] = readiness["reasons"]
+        return entry
+
+    # PARTIAL 或 EXECUTION_READY → 执行（按 context 分支）
+    if context_key == _CONTEXT_B_KEY:
+        # Context B：复用既有 execute_context_b 计算 benefit；readiness/provenance
+        # 已用同一 context_key 解析（不 bypass、不 parallel pipeline）。
+        cb = execute_context_b(project_inputs)
+        match = match_project_to_policy(prof, pol)  # policy-level match（context 共享）
+        entry["match"] = _match_to_dict(match)
+        # Context B 的逐人/项目 eligibility 不在本 contract 范围内单独评估（非本阶段范围）；
+        # 仅保证 benefit / readiness / provenance 上下文隔离、fail-closed。
+        entry["eligibility"] = None
+        entry["benefit"] = _context_b_benefit_to_contract(cb)
+        entry["evidence_refs"] = None
+        entry["policy_rule"] = {
+            "rule_type": "percentage_of_base",
+            "rule_type_source": "context_b_variant",
+        }
+        entry["provenance"] = _build_provenance(pol, trust_service, context_key)
+        entry["per_person_eligibility"] = None
+        entry["missing_inputs"] = []
+        limits = list(readiness["reasons"])
+        if cb.get("limitations"):
+            limits.extend(cb["limitations"])
+        if cb.get("calculation_status") == "unable_to_calculate":
+            limits.append("Context B 无法计算（输入/模式缺失），未补任何默认 policy fact")
+        entry["limitations"] = limits
+        return entry
+
+    # Context A / legacy：既定 Match → Eligibility → Benefit 路径（不变）
+    match = match_project_to_policy(prof, pol)
+    ev = evaluate_policy(pol, project_inputs=project_inputs, project_profile=facts)
+    pp = ev.get("per_person_eligibility")
+    entry["match"] = _match_to_dict(match)
+    # P4-31-1 / P4-31-2：项目级 eligibility / benefit 附加明确语义字段（不改判定/计算）
+    entry["eligibility"] = _enrich_eligibility(ev["eligibility"], pp)
+    entry["benefit"] = _enrich_benefit(ev["benefit"], pp)
+    entry["evidence_refs"] = ev.get("evidence_refs")
+    # ── P4-28：增强 contract 可解释性与 provenance（仅新增结构化字段）──
+    # rule_type 来自已存在的 policy rule definition / REAL 122（非 LLM、非重新推导）
+    entry["policy_rule"] = {
+        "rule_type": ev.get("rule_type"),
+        "rule_type_source": ev.get("rule_type_source"),
+    }
+    # 完整 provenance：Policy CI 与 Trust CI 在独立字段，严格分离（P4-31-4 附加语义说明）
+    entry["provenance"] = _build_provenance(pol, trust_service, context_key)
+    # 结构化逐人 eligibility 解释（不改判定逻辑；P4-31-1 附加层级语义）
+    entry["per_person_eligibility"] = _enrich_per_person_eligibility(pp)
+    # P4-31-3：确定性缺失输入清单（仅来自既有 UNKNOWN 结构）
+    entry["missing_inputs"] = _build_missing_inputs(entry["eligibility"], entry["per_person_eligibility"])
+
+    limits = list(readiness["reasons"])
+    if readiness["application_gaps"]:
+        limits.append("Application Readiness 未就绪（不阻断执行）: "
+                       + ", ".join(readiness["application_gaps"]))
+    if ev["benefit"].get("calculation_status") == "unable_to_calculate":
+        limits.append("Benefit 无法计算（输入/模式缺失），未补任何默认 policy fact")
+    entry["limitations"] = limits
+    return entry
