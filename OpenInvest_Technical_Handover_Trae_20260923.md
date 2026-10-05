@@ -587,4 +587,4 @@ P6-3.19 implementation commit:
 `43d5a914242e3910c61b4307294da9205eb74a15`
 Commit message: `P6-3.19 unify per-context execution result contract`
 Handover commit:
-`<TO_BE_FILLED_AFTER_HANDOVER_COMMIT>`
+`69d7ad7bbd42c971d939c99a28c62bfb563b927c`
