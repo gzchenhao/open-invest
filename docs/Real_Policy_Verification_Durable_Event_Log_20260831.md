@@ -134,3 +134,13 @@ P1-4.1 Phase 1 delivers: (a) F-04 contained — unverified labels no longer infl
 ## 12. Next Quest
 
 **P1-4.2** (suggested): wire VerificationEventLog into TrustEvidenceService (record verification events durably) + introduce content_identity (sha256) at evidence creation. NOT started — awaiting user instruction.
+
+## 13. Runtime State & Version Control (P6-3.20 R2)
+
+`trust_config/production_trust_events.jsonl` is **runtime durable audit history**, not repository source-of-truth:
+
+- It is **git-ignored** (see `.gitignore`, "Trust runtime state" block) and must **never** be committed to Git.
+- A clean clone does **not** carry historical verification events. The `VerificationEventLog` constructor auto-creates an empty log via `_ensure_file_exists()`, so the app starts and the core pipeline runs without it.
+- When the EventLog is empty/absent, Trust stays **fail-closed** (no VERIFIED is granted) — this is the intended safe behaviour, not an error state.
+- The companion `trust_config/production_authority_registry.json` (who may verify) is tracked source-of-truth; the EventLog (what was verified) is runtime state. Do not confuse the two.
+- Operators seed/restore verification history out-of-band; no in-repo bootstrap is required or provided.

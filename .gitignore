@@ -81,3 +81,7 @@ data/raw_policies/staged/
 # P3-7 ingestion runtime artifacts (never committed; not real_policies.json)
 global_policy_aggregator/data/real_policies/ingestion_audit.jsonl
 global_policy_aggregator/data/real_policies/.ingestion.lock
+
+# Trust runtime state (P6-3.20 R2): production verification EventLog is runtime
+# durable audit history, NOT source-of-truth — never commit it.
+trust_config/production_trust_events.jsonl
