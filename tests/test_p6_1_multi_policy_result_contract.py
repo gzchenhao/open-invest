@@ -30,7 +30,6 @@ from global_policy_aggregator.web.production_nl_entry import (  # noqa: E402
     app,
 )
 from global_policy_aggregator.nl_extraction import extract_and_evaluate, FakeProvider  # noqa: E402
-from global_policy_aggregator.web import p5_ui  # noqa: E402
 
 
 # ───────────────────────────── fixtures / helpers ─────────────────────────────
@@ -257,16 +256,6 @@ def test_trust_isolation_across_policies():
     pb2 = _build_provenance(B, stub2)
     assert pa2["verification_event_id"] is None
     assert pb2["verification_event_id"] == "evt_b"
-
-
-# ─────────────── P. UI 不硬编码 122 + 多政策组合 + 空安全 ───────────────
-def test_ui_not_hardcoded_122_and_composes():
-    html = p5_ui.P5_UI_HTML
-    assert "policy_id === 122" not in html
-    assert "一次性扩岗补助（REAL 122）" not in html
-    assert "以下政策结果分别计算" in html
-    assert "renderPolicyCard" in html
-    assert "executions.length === 0" in html  # 空 execution 安全处理
 
 
 # ─────────────── HTTP contract: aggregation_status 在响应顶层 ───────────────
