@@ -3,8 +3,10 @@
 Scope: P3-1 Fetcher failure handling. NO modification to fetcher.py.
 Named ``tests/test_p4_*`` to escape the global ``.gitignore`` ``test_*.py`` trap.
 
-Redirect handling is recorded ONLY as a ROUND-2 regression anchor (assert the
-current behaviour), not changed here. The Fetcher never generates a PolicyRule.
+Redirect handling: ROUND 2 implements redirect-boundary hardening in fetcher.py
+(re-validate final response.url against the source registry allowlist, fail-closed
+otherwise). The regression tests below pin that behaviour. The Fetcher never
+generates a PolicyRule.
 """
 
 import requests
@@ -178,3 +180,77 @@ def test_redirect_follows_current_behavior(tmp_path, monkeypatch):
     # 此断言锁定当前行为；ROUND-2 二次校验若改为禁止/显式处理需同步更新本测试。
     assert captured.get("allow_redirects") is True
     assert res.status == "ok"
+
+
+# ── ROUND 2 redirect boundary hardening regression ─────────────────────
+# 所有用例均以 www.gov.cn（registry 白名单内）为起点；通过 monkeypatch
+# http_get 让返回的 response.url 反映最终跳转目标，不触发真实网络请求。
+
+VALID_START = "https://www.gov.cn/source"
+
+
+def _mock_response(url, status_code=200, content=b"<html>policy text</html>"):
+    """构造带最终 URL 的假 response（response.url = 重定向终点）。"""
+    class R:
+        pass
+    R.url = url
+    R.status_code = status_code
+    R.content = content
+    R.headers = {"Content-Type": "text/html"}
+    return R()
+
+
+# A. allowed → allowed redirect（同域）：SUCCESS，snapshot/哈希正常
+def test_redirect_allowed_to_allowed_ok(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        fetcher, "http_get",
+        lambda url, timeout_seconds: _mock_response("https://www.gov.cn/final"),
+    )
+    f = Fetcher(_registry(), snapshots_dir=tmp_path / "snap")
+    res = f.fetch(VALID_START)
+    assert res.status == "ok"
+    assert res.content_hash
+    assert res.snapshot_ref.startswith("snapshots/")
+    # 成功路径 provenance 沿用请求 URL（重定向终点已在白名单内，正常放行）
+    assert res.url == VALID_START
+
+
+# B. allowed → disallowed domain redirect：FAIL-closed，无 snapshot/哈希
+def test_redirect_allowed_to_disallowed_domain_fails(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        fetcher, "http_get",
+        lambda url, timeout_seconds: _mock_response("https://external.example/final"),
+    )
+    f = Fetcher(_registry(), snapshots_dir=tmp_path / "snap")
+    res = f.fetch(VALID_START)
+    assert res.status == "failure"
+    assert res.failure_type == FAILURE_NOT_ALLOWED
+    assert res.content_hash is None
+    assert res.snapshot_ref is None
+
+
+# C. allowed → disallowed scheme (ftp) redirect：FAIL-closed，无成功 snapshot
+def test_redirect_allowed_to_disallowed_scheme_fails(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        fetcher, "http_get",
+        lambda url, timeout_seconds: _mock_response("ftp://external.example/file"),
+    )
+    f = Fetcher(_registry(), snapshots_dir=tmp_path / "snap")
+    res = f.fetch(VALID_START)
+    assert res.status == "failure"
+    assert res.failure_type == FAILURE_NOT_ALLOWED
+    assert res.content_hash is None
+    assert res.snapshot_ref is None
+
+
+# D. no redirect：普通 allowed URL 正常成功（response.url == 原始 URL）
+def test_no_redirect_allowed_ok(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        fetcher, "http_get",
+        lambda url, timeout_seconds: _mock_response(VALID_START),
+    )
+    f = Fetcher(_registry(), snapshots_dir=tmp_path / "snap")
+    res = f.fetch(VALID_START)
+    assert res.status == "ok"
+    assert res.content_hash
+    assert res.snapshot_ref.startswith("snapshots/")

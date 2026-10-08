@@ -2,6 +2,9 @@
 
 行为边界：
 - 仅 HTTP/HTTPS，域名必须在 source registry 白名单内（registry 外 URL 一律拒绝）。
+- Redirect boundary hardening：跟随重定向后，最终 URL（response.url）必须再次通过
+  source registry 的 scheme/domain 白名单校验，否则 fail-closed（不生成 snapshot /
+  不计算 content_hash / 不返回成功 FetchResult）。
 - User-Agent 明确标识 OpenInvest-PolicyResearch/1.0；不伪装浏览器指纹、不绕 WAF、
   不使用 headless browser、不做 aggressive crawling（低频 + per-host 间隔 + 有限重试）。
 - 成功 → 保存 raw snapshot（runtime artifact，不进 Git）+ 规范化正文 SHA-256（按 hash 去重）。
@@ -195,16 +198,29 @@ class Fetcher:
                 elif 500 <= http_status < 600:
                     failure_type, error_message = FAILURE_HTTP_5XX, f"HTTP {http_status}"
                 else:
-                    content_type = response.headers.get("Content-Type", "") or ""
-                    raw_bytes = response.content or b""
-                    if not any(ct in content_type.lower() for ct in ALLOWED_CONTENT_TYPES):
-                        failure_type = FAILURE_UNEXPECTED_CONTENT
-                        error_message = f"Content-Type 不被接受: {content_type or '(missing)'}"
-                    elif len(raw_bytes) == 0:
-                        failure_type = FAILURE_UNEXPECTED_CONTENT
-                        error_message = "响应体为空"
+                    # Redirect boundary hardening：重定向后的最终 URL 必须再次通过
+                    # source registry 的 scheme/domain 白名单，否则 fail-closed。
+                    final_url = getattr(response, "url", url)
+                    final_allowed, final_reason = self.registry.is_url_allowed(final_url)
+                    if not final_allowed:
+                        failure_type = FAILURE_NOT_ALLOWED
+                        error_message = (
+                            f"redirect target 不在白名单（fail-closed）: {final_reason} "
+                            f"(final_url={final_url})"
+                        )
                     else:
-                        return self._finalize_success(url, raw_bytes, content_type, attempts, source_id, http_status)
+                        content_type = response.headers.get("Content-Type", "") or ""
+                        raw_bytes = response.content or b""
+                        if not any(ct in content_type.lower() for ct in ALLOWED_CONTENT_TYPES):
+                            failure_type = FAILURE_UNEXPECTED_CONTENT
+                            error_message = f"Content-Type 不被接受: {content_type or '(missing)'}"
+                        elif len(raw_bytes) == 0:
+                            failure_type = FAILURE_UNEXPECTED_CONTENT
+                            error_message = "响应体为空"
+                        else:
+                            # final_url 仅用于白名单门禁；成功路径的 provenance（res.url /
+                            # snapshot 宿主）沿用原始请求 URL，保持现有语义。
+                            return self._finalize_success(url, raw_bytes, content_type, attempts, source_id, http_status)
 
             # 决定是否重试
             if failure_type in _FINAL_FAILURES or attempts >= int(policy.get("max_attempts", 1)):
